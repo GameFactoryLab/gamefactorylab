@@ -1,1 +1,30 @@
-window.GameFactory=(()=>{const p='gf_';function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}function save(id,s){localStorage.setItem(p+id,JSON.stringify(s))}function open(id){const s=stats(id);s.sessions=(s.sessions||0)+1;s.firstSeen=s.firstSeen||Date.now();s.lastSeen=Date.now();save(id,s)}function score(id,n){const s=stats(id);s.plays=(s.plays||0)+1;s.best=Math.max(s.best||0,n);s.last=n;s.lastSeen=Date.now();save(id,s);return s}function event(id,name){const s=stats(id);s.events=s.events||{};s.events[name]=(s.events[name]||0)+1;save(id,s)}async function share(id,title,text){event(id,'share_attempt');const url=location.href;if(navigator.share){try{await navigator.share({title,text,url});event(id,'share_success');return 'shared'}catch{return 'cancelled'}}if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text+' '+url);event(id,'share_copy');return 'copied'}return 'unsupported'}return{open,score,event,share,stats}})();
+window.GameFactory=(()=>{
+  const p='gf_';
+  function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
+  function save(id,s){localStorage.setItem(p+id,JSON.stringify(s))}
+  function open(id){const s=stats(id);s.sessions=(s.sessions||0)+1;s.firstSeen=s.firstSeen||Date.now();s.lastSeen=Date.now();save(id,s)}
+  function score(id,n){const s=stats(id);s.plays=(s.plays||0)+1;s.best=Math.max(s.best||0,n);s.last=n;s.lastSeen=Date.now();save(id,s);return s}
+  function event(id,name){const s=stats(id);s.events=s.events||{};s.events[name]=(s.events[name]||0)+1;save(id,s)}
+  async function share(id,title,text,url=location.href){
+    event(id,'share_attempt');
+    if(navigator.share){
+      try{
+        await navigator.share({title,text,url});
+        event(id,'share_success');
+        return 'shared';
+      }catch(e){
+        if(e && e.name==='AbortError') return 'cancelled';
+      }
+    }
+    if(navigator.clipboard?.writeText){
+      try{
+        await navigator.clipboard.writeText(text+' '+url);
+        event(id,'share_copy');
+        return 'copied';
+      }catch(e){}
+    }
+    event(id,'share_unsupported');
+    return 'unsupported';
+  }
+  return{open,score,event,share,stats};
+})();
