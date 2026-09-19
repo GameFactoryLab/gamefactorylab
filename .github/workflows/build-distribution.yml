@@ -1,6 +1,13 @@
 name: Build distribution packages
 
 on:
+  pull_request:
+    paths:
+      - 'games/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - '.github/workflows/build-distribution.yml'
   push:
     branches: [main]
     paths:
