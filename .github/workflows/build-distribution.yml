@@ -1,0 +1,46 @@
+name: Build distribution packages
+
+on:
+  pull_request:
+    paths:
+      - 'games/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - '.github/workflows/build-distribution.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'games/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - '.github/workflows/build-distribution.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build standalone ZIP packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Validate package count
+        run: |
+          count=$(find dist -maxdepth 1 -name '*.zip' | wc -l)
+          test "$count" -ge 8
+          echo "Validated $count standalone game packages"
+
+      - name: Upload distribution bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactorylab-distribution
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error

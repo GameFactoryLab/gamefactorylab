@@ -1,5 +1,6 @@
 window.GameFactory=(()=>{
   const p='gf_';
+  const canonicalBase='https://gamefactorylab.github.io/gamefactorylab/';
   const games=[
     {id:'odd-one-out',title:'Odd One Out'},
     {id:'reaction-rush',title:'Reaction Rush'},
@@ -13,7 +14,8 @@ window.GameFactory=(()=>{
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
   function save(id,s){localStorage.setItem(p+id,JSON.stringify(s))}
-  function baseUrl(){return new URL('../../',location.href)}
+  function baseUrl(){return new URL(canonicalBase)}
+  function gameUrl(id){return new URL(`games/${id}/`,baseUrl()).href}
   function nextGame(id){
     const i=games.findIndex(g=>g.id===id);
     return games[(i<0?0:i+1)%games.length];
@@ -35,12 +37,12 @@ window.GameFactory=(()=>{
     actions.className='gf-next-actions';
     const play=document.createElement('a');
     play.className='btn primary gf-next-play';
-    play.href=new URL(`games/${next.id}/?from=${encodeURIComponent(id)}`,baseUrl()).href;
+    play.href=gameUrl(next.id)+`?from=${encodeURIComponent(id)}`;
     play.textContent='Play next →';
     play.addEventListener('click',()=>event(id,'next_click'));
     const all=document.createElement('a');
     all.className='btn secondary gf-next-all';
-    all.href=new URL('./',baseUrl()).href;
+    all.href=baseUrl().href;
     all.textContent='All games';
     all.addEventListener('click',()=>event(id,'all_games_click'));
     actions.append(play,all);
@@ -88,7 +90,7 @@ window.GameFactory=(()=>{
     if(name==='start')hideNext();
     if(name==='finish')showNext(id);
   }
-  async function share(id,title,text,url=location.href){
+  async function share(id,title,text,url=gameUrl(id)){
     event(id,'share_attempt');
     if(navigator.share){
       try{
