@@ -46,10 +46,23 @@ window.GameFactory=(()=>{
     const day=query().get('daily');
     return validDay(day)&&dailyGame(day).id===id?day:null;
   }
-  function challengeUrl(id){
+  function challengeTarget(){
+    const raw=query().get('target');
+    if(raw===null||raw==='')return null;
+    const n=Number(raw);
+    if(!Number.isFinite(n)||n<0||n>1000000)return null;
+    return Math.round(n*1000)/1000;
+  }
+  function displayScore(id,n){
+    if(id==='reaction-rush')return Math.max(1,1000-Math.round(n))+' ms';
+    return String(Math.round(n*100)/100);
+  }
+  function challengeUrl(id,target){
     const u=new URL(gameUrl(id));
     const day=dailyContext(id);
     if(day)u.searchParams.set('daily',day);
+    const value=target===undefined?stats(id).last:target;
+    if(Number.isFinite(value))u.searchParams.set('target',String(Math.round(value*1000)/1000));
     u.searchParams.set('challenge','1');
     u.searchParams.set('from','share');
     return u.href;
@@ -78,9 +91,10 @@ window.GameFactory=(()=>{
       title.textContent=day===today()?'Today’s challenge':'Daily challenge from '+day;
       detail.textContent=day===today()&&ds.streak?`Current daily streak: ${ds.streak}`:'Finish the run, then challenge someone else.';
     }else{
+      const target=challengeTarget();
       label.textContent='Friend challenge';
-      title.textContent='Beat the shared result';
-      detail.textContent='Finish your run, then send your score back.';
+      title.textContent=target===null?'Beat the shared result':'Beat '+displayScore(id,target);
+      detail.textContent=target===null?'Finish your run, then send your score back.':'Finish a run to see whether you beat your friend.';
     }
     wrap.append(label,title,detail);
     const main=document.querySelector('main.app')||document.body;
@@ -97,6 +111,23 @@ window.GameFactory=(()=>{
     if(completed&&day===today()){
       title.textContent='Daily challenge complete ✓';
       detail.textContent=`Daily streak: ${ds.streak||1} · Best: ${ds.bestStreak||ds.streak||1}`;
+    }
+  }
+  function refreshChallenge(id,n){
+    const wrap=document.getElementById('gf-context');
+    const target=challengeTarget();
+    if(!wrap||query().get('challenge')!=='1'||target===null)return;
+    const title=wrap.querySelector('.gf-context-title');
+    const detail=wrap.querySelector('.gf-context-detail');
+    if(n>target){
+      title.textContent='You beat the challenge ✓';
+      detail.textContent=`Your result: ${displayScore(id,n)} · Friend: ${displayScore(id,target)}. Share it back.`;
+    }else if(n===target){
+      title.textContent='Tie challenge';
+      detail.textContent=`Both results: ${displayScore(id,n)}. One more run decides it.`;
+    }else{
+      title.textContent='Challenge still alive';
+      detail.textContent=`Your result: ${displayScore(id,n)} · Target: ${displayScore(id,target)}. Try again.`;
     }
   }
   function completeDaily(id){
@@ -179,7 +210,14 @@ window.GameFactory=(()=>{
     s.best=Math.max(s.best||0,n);
     s.last=n;
     s.lastSeen=Date.now();
+    const target=challengeTarget();
+    if(query().get('challenge')==='1'&&target!==null){
+      s.events=s.events||{};
+      const outcome=n>target?'challenge_win':n===target?'challenge_tie':'challenge_loss';
+      s.events[outcome]=(s.events[outcome]||0)+1;
+    }
     save(id,s);
+    refreshChallenge(id,n);
     return s;
   }
   function event(id,name){
@@ -192,6 +230,33 @@ window.GameFactory=(()=>{
       completeDaily(id);
       showNext(id);
     }
+  }
+  function manualShare(title,text,target){
+    let wrap=document.getElementById('gf-manual-share');
+    if(!wrap){
+      wrap=document.createElement('section');
+      wrap.id='gf-manual-share';
+      wrap.className='card gf-context';
+      const label=document.createElement('strong');
+      label.textContent='Share your challenge';
+      const box=document.createElement('textarea');
+      box.id='gf-manual-share-text';
+      box.readOnly=true;
+      box.style.width='100%';
+      box.style.minHeight='92px';
+      box.style.marginTop='8px';
+      box.style.borderRadius='10px';
+      box.style.padding='10px';
+      box.style.background='#0b1220';
+      box.style.color='#f8fafc';
+      box.style.border='1px solid rgba(255,255,255,.12)';
+      wrap.append(label,box);
+      (document.querySelector('main.app')||document.body).appendChild(wrap);
+    }
+    const box=wrap.querySelector('#gf-manual-share-text');
+    box.value=`${text} ${target}`;
+    box.focus();
+    box.select();
   }
   async function share(id,title,text,url){
     event(id,'share_attempt');
@@ -212,8 +277,9 @@ window.GameFactory=(()=>{
         return 'copied';
       }catch(e){}
     }
-    event(id,'share_unsupported');
-    return 'unsupported';
+    manualShare(title,text,target);
+    event(id,'share_manual');
+    return 'manual';
   }
   return{open,score,event,share,stats,dailyGame,dailyUrl,challengeUrl};
 })();
