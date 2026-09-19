@@ -1,0 +1,96 @@
+name: IndexNow organic discovery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'games/**/index.html'
+      - 'sitemap.xml'
+      - '.github/workflows/indexnow.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify-indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Let GitHub Pages publish first
+        run: sleep 45
+
+      - name: Build changed URL list
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess, xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://gamefactorylab.github.io/gamefactorylab/'
+          sitemap = Path('sitemap.xml')
+
+          def all_urls():
+              root = ET.parse(sitemap).getroot()
+              ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+              return [n.text for n in root.findall('s:url/s:loc', ns) if n.text]
+
+          event = os.environ.get('EVENT_NAME', '')
+          before = os.environ.get('BEFORE', '')
+          after = os.environ.get('AFTER', '')
+          urls = []
+
+          if event == 'workflow_dispatch' or not before or set(before) == {'0'}:
+              urls = all_urls()
+          else:
+              try:
+                  changed = subprocess.check_output(['git','diff','--name-only',before,after], text=True).splitlines()
+              except Exception:
+                  changed = []
+              if 'sitemap.xml' in changed or '.github/workflows/indexnow.yml' in changed:
+                  urls = all_urls()
+              else:
+                  for p in changed:
+                      if p == 'index.html':
+                          urls.append(base)
+                      elif p.startswith('games/') and p.endswith('/index.html'):
+                          urls.append(base + p[:-10])
+
+          urls = sorted(set(urls))
+          Path('/tmp/indexnow-urls.json').write_text(json.dumps(urls))
+          print('URLs:', *urls, sep='\n- ')
+          PY
+
+      - name: Notify IndexNow-compatible search engines
+        env:
+          KEY: a9c41e7d5f2b48e0b6137c9d24fa8e31
+          KEY_LOCATION: https://gamefactorylab.github.io/gamefactorylab/a9c41e7d5f2b48e0b6137c9d24fa8e31.txt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          urls = json.loads(Path('/tmp/indexnow-urls.json').read_text())
+          payload = {
+              'host': 'gamefactorylab.github.io',
+              'key': 'a9c41e7d5f2b48e0b6137c9d24fa8e31',
+              'keyLocation': 'https://gamefactorylab.github.io/gamefactorylab/a9c41e7d5f2b48e0b6137c9d24fa8e31.txt',
+              'urlList': urls,
+          }
+          Path('/tmp/indexnow-payload.json').write_text(json.dumps(payload))
+          PY
+          if [ "$(cat /tmp/indexnow-urls.json)" = "[]" ]; then
+            echo "No page URLs changed; nothing to submit."
+            exit 0
+          fi
+          curl --fail-with-body --retry 2 --retry-delay 2 \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            -X POST --data-binary @/tmp/indexnow-payload.json \
+            https://api.indexnow.org/IndexNow
