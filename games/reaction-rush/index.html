@@ -1,1 +1,72 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111827"><title>Reaction Rush — 5 Tap Reflex Test</title><meta name="description" content="Test your reflexes in five quick rounds. Free browser reaction game from GameFactoryLab."><link rel="stylesheet" href="../../core.css"><style>h1{margin:0;font-size:clamp(34px,9vw,56px)}.arena{height:330px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);user-select:none;touch-action:manipulation}.target{width:150px;height:150px;border-radius:50%;border:0;font-size:24px;font-weight:900;background:#bbf7d0;color:#111827;display:none}.wait{font-size:24px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center}.stat b{display:block;font-size:22px}.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}</style></head><body><main class="app"><a href="../../index.html" class="muted">← GameFactoryLab</a><section><h1>Reaction Rush</h1><p class="muted">Five rounds. Tap only when the target appears. Lower average wins.</p></section><section class="stats"><div class="card stat"><span class="muted">Round</span><b id="round">0/5</b></div><div class="card stat"><span class="muted">Last</span><b id="last">—</b></div><div class="card stat"><span class="muted">Avg</span><b id="avg">—</b></div></section><section id="arena" class="arena"><div id="wait" class="wait muted">Tap Start</div><button id="target" class="target">TAP!</button></section><div id="status" class="status muted">Ready when you are.</div><div class="actions"><button id="start" class="btn primary">Start</button><button id="share" class="btn secondary" disabled>Share</button></div></main><script src="../../core.js"></script><script>(()=>{const G='reaction-rush',arena=document.getElementById('arena'),target=document.getElementById('target'),wait=document.getElementById('wait'),roundEl=document.getElementById('round'),last=document.getElementById('last'),avg=document.getElementById('avg'),status=document.getElementById('status'),start=document.getElementById('start'),share=document.getElementById('share');let round=0,times=[],shownAt=0,pending=null,armed=false;GameFactory.open(G);function average(){return times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):0}function schedule(){target.style.display='none';wait.style.display='block';wait.textContent='Wait for it…';armed=false;clearTimeout(pending);pending=setTimeout(()=>{wait.style.display='none';target.style.display='block';shownAt=performance.now();armed=true},800+Math.random()*2200)}function begin(){round=0;times=[];roundEl.textContent='0/5';last.textContent='—';avg.textContent='—';share.disabled=true;status.textContent='Focus…';GameFactory.event(G,'start');schedule()}function hit(){if(!armed)return;armed=false;const ms=Math.round(performance.now()-shownAt);times.push(ms);round++;roundEl.textContent=round+'/5';last.textContent=ms+' ms';avg.textContent=average()+' ms';GameFactory.event(G,'correct');if(round>=5){finish()}else setTimeout(schedule,450)}function finish(){clearTimeout(pending);target.style.display='none';wait.style.display='block';wait.textContent='Done';const score=Math.max(1,1000-average());GameFactory.score(G,score);status.textContent='Average: '+average()+' ms';share.disabled=false;GameFactory.event(G,'finish')}arena.addEventListener('pointerdown',e=>{if(e.target===target){hit();return}if(round>0&&round<5&&!armed){status.textContent='Too early — wait for the target';GameFactory.event(G,'early')}});target.onclick=e=>{e.stopPropagation();hit()};start.onclick=begin;share.onclick=async()=>{const r=await GameFactory.share(G,'Reaction Rush',`My 5-round reaction average was ${average()} ms. Can you beat it?`);if(r==='copied')status.textContent='Score link copied!'};})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Reaction Rush — 5 Tap Reflex Test</title>
+<meta name="description" content="Test your reflexes in five quick rounds. Free browser reaction game from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/reaction-rush/">
+<meta property="og:title" content="Reaction Rush — 5 Tap Reflex Test">
+<meta property="og:description" content="Five taps. One average reaction time. Challenge a friend to beat it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/reaction-rush/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Reaction Rush — 5 Tap Reflex Test">
+<meta name="twitter:description" content="Five taps. One average reaction time. Can your friends beat it?">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(34px,9vw,56px)}
+.arena{height:min(330px,42vh);min-height:250px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.target{width:150px;height:150px;border-radius:50%;border:0;font-size:24px;font-weight:900;background:#bbf7d0;color:#111827;display:none;touch-action:manipulation}
+.wait{font-size:24px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center}.stat b{display:block;font-size:22px}
+.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}
+.sharebox{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;font-size:13px;line-height:1.35;word-break:break-word}.sharebox.show{display:block}.sharebox strong{display:block;margin-bottom:5px}
+@media(max-height:700px){.app{gap:10px;padding-top:10px}.arena{height:250px;min-height:220px}.target{width:125px;height:125px}}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Reaction Rush</h1><p class="muted">Five rounds. Tap only when the target appears. Lower average wins.</p></section>
+<section class="stats">
+<div class="card stat"><span class="muted">Round</span><b id="round">0/5</b></div>
+<div class="card stat"><span class="muted">Last</span><b id="last">—</b></div>
+<div class="card stat"><span class="muted">Avg</span><b id="avg">—</b></div>
+</section>
+<section id="arena" class="arena"><div id="wait" class="wait muted">Tap Start</div><button id="target" type="button" class="target">TAP!</button></section>
+<div id="status" class="status muted">Ready when you are.</div>
+<div class="actions">
+<button id="start" type="button" class="btn primary">Start</button>
+<button id="end" type="button" class="btn danger" disabled>End run</button>
+<button id="share" type="button" class="btn secondary" disabled>Share score</button>
+<button id="showShare" type="button" class="btn secondary" disabled>Show share text</button>
+</div>
+<div id="shareBox" class="sharebox" aria-live="polite"></div>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='reaction-rush',arena=document.getElementById('arena'),target=document.getElementById('target'),wait=document.getElementById('wait'),roundEl=document.getElementById('round'),last=document.getElementById('last'),avg=document.getElementById('avg'),status=document.getElementById('status'),start=document.getElementById('start'),end=document.getElementById('end'),share=document.getElementById('share'),showShare=document.getElementById('showShare'),shareBox=document.getElementById('shareBox');
+let round=0,times=[],shownAt=0,pending=null,armed=false,running=false,recordedAverage=null;
+GameFactory.open(G);
+function average(){return times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):0}
+function challengeScore(){return recordedAverage===null?null:Math.max(1,1000-recordedAverage)}
+function schedule(){if(!running)return;target.style.display='none';wait.style.display='block';wait.textContent='Wait for it…';armed=false;clearTimeout(pending);pending=setTimeout(()=>{if(!running)return;wait.style.display='none';target.style.display='block';shownAt=performance.now();armed=true},800+Math.random()*2200)}
+function begin(){clearTimeout(pending);round=0;times=[];recordedAverage=null;running=true;armed=false;roundEl.textContent='0/5';last.textContent='—';avg.textContent='—';share.disabled=true;showShare.disabled=true;end.disabled=false;shareBox.classList.remove('show');shareBox.textContent='';status.textContent='Focus…';start.textContent='Restart';GameFactory.event(G,'start');schedule()}
+function hit(){if(!running||!armed)return;armed=false;const ms=Math.round(performance.now()-shownAt);times.push(ms);round++;roundEl.textContent=round+'/5';last.textContent=ms+' ms';avg.textContent=average()+' ms';GameFactory.event(G,'correct');if(round>=5)finish();else setTimeout(schedule,450)}
+function finish(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Done';recordedAverage=average();GameFactory.score(G,Math.max(1,1000-recordedAverage));status.textContent='Average: '+recordedAverage+' ms';end.disabled=true;share.disabled=false;showShare.disabled=false;GameFactory.event(G,'finish')}
+function endRun(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Run ended';status.textContent='Complete all 5 rounds to record a score.';end.disabled=true;share.disabled=true;showShare.disabled=true;GameFactory.event(G,'manual_end')}
+function shareText(){return `My 5-round reaction average was ${recordedAverage} ms. Can you beat it?`}
+function showManual(){if(recordedAverage===null)return;const url=GameFactory.challengeUrl(G,challengeScore());shareBox.innerHTML='<strong>Share this score:</strong>'+shareText()+' '+url;shareBox.classList.add('show');status.textContent='Use the text below to share your score.';GameFactory.event(G,'share_manual')}
+arena.addEventListener('pointerdown',e=>{if(e.target===target)return;if(running&&!armed){status.textContent='Too early — wait for the target';GameFactory.event(G,'early')}});
+target.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hit()});
+start.addEventListener('click',begin);
+end.addEventListener('click',endRun);
+share.addEventListener('click',async()=>{if(recordedAverage===null)return;const r=await GameFactory.share(G,'Reaction Rush',shareText());if(r==='shared')status.textContent='Shared!';else if(r==='copied')status.textContent='Score link copied!';else if(r==='manual')status.textContent='Use the share text below.'});
+showShare.addEventListener('click',showManual);
+})();
+</script>
+</body>
+</html>
