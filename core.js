@@ -1,7 +1,7 @@
 window.GameFactory=(()=>{
   const p='gf_';
   const canonicalBase='https://gamefactorylab.github.io/gamefactorylab/';
-  const games=[
+  const dailyGames=[
     {id:'odd-one-out',title:'Odd One Out'},
     {id:'reaction-rush',title:'Reaction Rush'},
     {id:'sequence-snap',title:'Sequence Snap'},
@@ -10,6 +10,12 @@ window.GameFactory=(()=>{
     {id:'quick-sum',title:'Quick Sum'},
     {id:'memory-path',title:'Memory Path'},
     {id:'higher-lower',title:'Higher or Lower'}
+  ];
+  const games=[
+    ...dailyGames,
+    {id:'color-word-challenge',title:'Color Word Challenge'},
+    {id:'number-hunt',title:'Number Hunt'},
+    {id:'dot-compare',title:'Dot Compare'}
   ];
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
@@ -21,11 +27,11 @@ window.GameFactory=(()=>{
   function dayIndex(day){
     let h=2166136261;
     for(const c of day){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}
-    return Math.abs(h>>>0)%games.length;
+    return Math.abs(h>>>0)%dailyGames.length;
   }
   function dailyGame(day=today()){
     const safe=validDay(day)?day:today();
-    return games[dayIndex(safe)];
+    return dailyGames[dayIndex(safe)];
   }
   function dailyUrl(day=today()){
     const safe=validDay(day)?day:today();

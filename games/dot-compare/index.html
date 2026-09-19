@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Dot Compare — 30 Second Visual Estimation Challenge</title>
+<meta name="description" content="Choose the side with more dots before time runs out. A free 30-second visual estimation challenge from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/dot-compare/">
+<meta property="og:title" content="Dot Compare — 30 Second Visual Estimation Challenge">
+<meta property="og:description" content="Which side has more dots? Decide fast, build your score, and challenge a friend.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/dot-compare/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:22px}.prompt{text-align:center;font-size:14px}.prompt strong{display:block;font-size:25px}.arena{display:grid;grid-template-columns:1fr 1fr;gap:10px}.side{border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.05);padding:8px;min-height:190px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.side:active{transform:scale(.99)}.dots{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:5px;aspect-ratio:1}.slot{display:flex;align-items:center;justify-content:center}.dot{width:clamp(10px,3.6vw,18px);height:clamp(10px,3.6vw,18px);border-radius:999px;background:#f8fafc}.status{text-align:center;min-height:26px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}@media(max-height:720px){.app{gap:8px}.card{padding:9px}.side{min-height:150px}.dots{gap:4px}}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Dot Compare</h1><p class="muted">Tap the side with more dots. 30 seconds. Wrong answer costs 2 seconds.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Score</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">30</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card prompt"><span class="muted">Choose fast</span><strong>Which side has more?</strong></section>
+<section class="arena"><button id="left" class="side" type="button" aria-label="Choose left side"><span id="leftDots" class="dots"></span></button><button id="right" class="side" type="button" aria-label="Choose right side"><span id="rightDots" class="dots"></span></button></section>
+<div id="status" class="status muted">Tap Start</div>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="end" type="button" class="btn danger" disabled>End game</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='dot-compare',CELLS=25;
+const el={left:document.getElementById('left'),right:document.getElementById('right'),leftDots:document.getElementById('leftDots'),rightDots:document.getElementById('rightDots'),score:document.getElementById('score'),time:document.getElementById('time'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),end:document.getElementById('end'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let score=0,time=30,running=false,timer=null,correctSide='left',locked=true;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function difficulty(){if(score<5)return [4,7];if(score<10)return [2,4];return [1,2]}
+function render(target,count){const filled=new Set(shuffle(Array.from({length:CELLS},(_,i)=>i)).slice(0,count));target.innerHTML='';for(let i=0;i<CELLS;i++){const slot=document.createElement('span');slot.className='slot';if(filled.has(i)){const d=document.createElement('span');d.className='dot';slot.appendChild(d)}target.appendChild(slot)}}
+function round(){if(!running)return;locked=false;const [minGap,maxGap]=difficulty();const gap=minGap+Math.floor(Math.random()*(maxGap-minGap+1));const low=4+Math.floor(Math.random()*Math.max(1,19-gap));const high=Math.min(CELLS,low+gap);correctSide=Math.random()<.5?'left':'right';render(el.leftDots,correctSide==='left'?high:low);render(el.rightDots,correctSide==='right'?high:low);el.status.textContent='Which side has more?'}
+function pick(side){if(!running||locked)return;locked=true;if(side===correctSide){score++;el.score.textContent=score;el.status.textContent='Correct!';GameFactory.event(G,'correct')}else{time=Math.max(0,time-2);el.time.textContent=time;el.status.textContent='Wrong · -2 sec';GameFactory.event(G,'wrong');if(time===0){finish('Time!');return}}setTimeout(round,180)}
+function begin(){clearInterval(timer);score=0;time=30;running=true;locked=true;el.score.textContent='0';el.time.textContent='30';el.status.textContent='Go!';el.start.textContent='Restart';el.end.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');GameFactory.event(G,'start');round();timer=setInterval(()=>{if(!running)return;time--;el.time.textContent=time;if(time<=0)finish('Time!')},1000)}
+function finish(prefix){if(!running)return;running=false;locked=true;clearInterval(timer);const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`${prefix} Score: ${score}. Best: ${s.best||score}.`;el.end.disabled=true;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'finish')}
+function text(){return `I scored ${score} in 30 seconds in Dot Compare. Can you beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.left.onclick=()=>pick('left');el.right.onclick=()=>pick('right');el.start.onclick=begin;el.end.onclick=()=>{GameFactory.event(G,'manual_end');finish('Game ended.')};el.share.onclick=async()=>{const r=await GameFactory.share(G,'Dot Compare',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;render(el.leftDots,9);render(el.rightDots,13);
+})();
+</script>
+</body>
+</html>
