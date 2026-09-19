@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>GameFactoryLab — Quick Free Browser Games</title>
-<meta name="description" content="Play eight fast, free browser games built for quick replays, score challenges, memory, reflexes and timing.">
+<title>GameFactoryLab — Daily Challenge & Quick Free Browser Games</title>
+<meta name="description" content="Play today's free browser challenge plus eight fast games built for quick replays, score battles, memory, reflexes and timing.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/">
 <link rel="manifest" href="manifest.webmanifest">
-<meta property="og:title" content="GameFactoryLab — Quick Free Browser Games">
-<meta property="og:description" content="Eight free browser challenges designed for fast replays and friendly score battles.">
+<meta property="og:title" content="GameFactoryLab — Daily Challenge & Quick Free Browser Games">
+<meta property="og:description" content="One daily challenge plus eight free browser games designed for fast replays and friendly score battles.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="core.css">
 <style>
-h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.game{display:block;text-decoration:none;min-height:160px}.game.featured{grid-column:1/-1;min-height:190px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}.featured .pill{background:rgba(187,247,208,.16)}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hero-actions .btn{text-decoration:none}.count{font-size:13px}
+h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.game{display:block;text-decoration:none;min-height:160px}.game.featured{grid-column:1/-1;min-height:190px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}.featured .pill{background:rgba(187,247,208,.16)}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hero-actions .btn{text-decoration:none}.count{font-size:13px}.daily-note{font-size:13px;margin-top:8px}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ItemList","name":"GameFactoryLab free browser games","numberOfItems":8,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://gamefactorylab.github.io/gamefactorylab/games/odd-one-out/","name":"Odd One Out"},{"@type":"ListItem","position":2,"url":"https://gamefactorylab.github.io/gamefactorylab/games/reaction-rush/","name":"Reaction Rush"},{"@type":"ListItem","position":3,"url":"https://gamefactorylab.github.io/gamefactorylab/games/sequence-snap/","name":"Sequence Snap"},{"@type":"ListItem","position":4,"url":"https://gamefactorylab.github.io/gamefactorylab/games/perfect-tap/","name":"Perfect Tap"},{"@type":"ListItem","position":5,"url":"https://gamefactorylab.github.io/gamefactorylab/games/flash-count/","name":"Flash Count"},{"@type":"ListItem","position":6,"url":"https://gamefactorylab.github.io/gamefactorylab/games/quick-sum/","name":"Quick Sum"},{"@type":"ListItem","position":7,"url":"https://gamefactorylab.github.io/gamefactorylab/games/memory-path/","name":"Memory Path"},{"@type":"ListItem","position":8,"url":"https://gamefactorylab.github.io/gamefactorylab/games/higher-lower/","name":"Higher or Lower"}]}
@@ -26,8 +26,9 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 <section>
 <div class="pill">GameFactoryLab</div>
 <h1>Quick games.<br>One more try.</h1>
-<p class="muted">Eight free browser challenges. No install. Pick a game, chase a better score, then roll straight into the next challenge.</p>
-<div class="hero-actions"><button id="random" class="btn primary" type="button">Pick a challenge for me →</button><a class="btn secondary" href="games/odd-one-out/index.html">Play flagship</a></div>
+<p class="muted">A new daily challenge plus eight free browser games. No install. Chase a better score, challenge a friend, then roll into the next game.</p>
+<div class="hero-actions"><button id="daily" class="btn primary" type="button">Play today’s challenge →</button><button id="random" class="btn secondary" type="button">Surprise me</button><a class="btn secondary" href="games/odd-one-out/index.html">Play flagship</a></div>
+<p id="dailyNote" class="muted daily-note">Today’s challenge is shared globally and changes each day.</p>
 <p class="muted count">Reflex • visual • memory • pattern • timing • math</p>
 </section>
 <section class="grid">
@@ -42,7 +43,14 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 </section>
 </main>
 <script>
-(()=>{const games=['odd-one-out','reaction-rush','sequence-snap','perfect-tap','flash-count','quick-sum','memory-path','higher-lower'];document.getElementById('random').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g}/?from=homepage-random`});if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}})();
+(()=>{
+  const games=['odd-one-out','reaction-rush','sequence-snap','perfect-tap','flash-count','quick-sum','memory-path','higher-lower'];
+  const today=()=>new Date().toISOString().slice(0,10);
+  function dayIndex(day){let h=2166136261;for(const c of day){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%games.length}
+  document.getElementById('daily').addEventListener('click',()=>{const day=today(),g=games[dayIndex(day)];location.href=`games/${g}/?daily=${day}&from=homepage-daily`});
+  document.getElementById('random').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g}/?from=homepage-random`});
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+})();
 </script>
 </body>
 </html>
