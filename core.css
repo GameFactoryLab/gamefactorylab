@@ -1,0 +1,14 @@
+:root{
+  --bg:#0f172a; --panel:#111827; --text:#f8fafc; --muted:#94a3b8;
+  --accent:#e2e8f0; --ok:#bbf7d0; --danger:#fecaca;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg,#0f172a,#111827);color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%}
+a{color:inherit}
+.app{width:min(100%,760px);min-height:100vh;margin:0 auto;padding:20px 18px 32px;display:flex;flex-direction:column;gap:16px}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px}
+.btn{border:0;border-radius:14px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}
+.btn.primary{background:var(--accent);color:#111827}
+.btn.secondary{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.1)}
+.muted{color:var(--muted)}
