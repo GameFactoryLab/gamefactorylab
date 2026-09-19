@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Five Second Sense — Hidden Timer Challenge</title>
+<meta name="description" content="Start the invisible timer and stop it as close to five seconds as you can. A free timing challenge from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/five-second-sense/">
+<meta property="og:title" content="Five Second Sense — Hidden Timer Challenge">
+<meta property="og:description" content="No clock. No countdown. How close can you get to exactly five seconds?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/five-second-sense/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:21px}.timer-card{text-align:center;padding:24px 14px}.target{font-size:13px;text-transform:uppercase}.big{display:block;font-size:clamp(50px,18vw,86px);font-weight:900;line-height:1.05;margin-top:8px}.status{text-align:center;min-height:48px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stop{grid-column:1/-1;min-height:82px;font-size:26px;background:#f8fafc;color:#111827}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Five Second Sense</h1><p class="muted">Start the invisible timer. Stop it when you think exactly five seconds have passed.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Target</span><b>5.00 s</b></div><div class="card stat"><span class="muted">Last</span><b id="last">—</b></div><div class="card stat"><span class="muted">Best</span><b id="best">—</b></div></section>
+<section class="card timer-card"><span class="target muted">Invisible clock</span><strong id="clock" class="big">READY</strong></section>
+<div id="status" class="status muted">Tap Start, then trust your sense of time.</div>
+<div class="actions"><button id="start" type="button" class="btn primary">Start timer</button><button id="reset" type="button" class="btn secondary">Reset</button><button id="stop" type="button" class="btn stop" disabled>STOP</button><button id="share" type="button" class="btn secondary" disabled>Share result</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='five-second-sense',TARGET=5000;
+const el={last:document.getElementById('last'),best:document.getElementById('best'),clock:document.getElementById('clock'),status:document.getElementById('status'),start:document.getElementById('start'),reset:document.getElementById('reset'),stop:document.getElementById('stop'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let running=false,startedAt=0,lastError=null,lastPoints=0;
+GameFactory.open(G);
+function errorFromPoints(points){return Math.max(0,TARGET-Math.round(points||0))}
+function showBest(){const b=GameFactory.stats(G).best;if(Number.isFinite(b)&&b>0)el.best.textContent=errorFromPoints(b)+' ms';else el.best.textContent='—'}
+showBest();
+function begin(){running=true;startedAt=performance.now();lastError=null;el.clock.textContent='NOW';el.status.textContent='No clock. Stop when five seconds feels right.';el.start.disabled=true;el.stop.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');GameFactory.event(G,'start')}
+function finish(){if(!running)return;running=false;const elapsed=performance.now()-startedAt;lastError=Math.round(Math.abs(elapsed-TARGET));lastPoints=Math.max(0,TARGET-lastError);const s=GameFactory.score(G,lastPoints);GameFactory.event(G,'finish');el.last.textContent=lastError+' ms';el.best.textContent=errorFromPoints(s.best)+' ms';el.clock.textContent=(elapsed/1000).toFixed(2)+' s';el.status.textContent=lastError<=100?'Excellent — only '+lastError+' ms off.':lastError<=250?'Strong — '+lastError+' ms off.':'You were '+lastError+' ms off. Try again.';el.start.disabled=false;el.start.textContent='Try again';el.stop.disabled=true;el.share.disabled=false;el.showText.disabled=false}
+function reset(){running=false;el.clock.textContent='READY';el.status.textContent='Tap Start, then trust your sense of time.';el.start.disabled=false;el.stop.disabled=true;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show')}
+function text(){return `I was ${lastError} ms away from exactly 5 seconds in Five Second Sense. Can you get closer?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,lastPoints);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.stop.onclick=finish;el.reset.onclick=reset;el.share.onclick=async()=>{const r=await GameFactory.share(G,'Five Second Sense',text(),GameFactory.challengeUrl(G,lastPoints));if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+})();
+</script>
+</body>
+</html>
