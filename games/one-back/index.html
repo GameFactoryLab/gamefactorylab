@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>One Back — Working Memory Speed Challenge</title>
+<meta name="description" content="Remember the previous symbol and decide whether the next one matches. A free 30-second working-memory challenge from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/one-back/">
+<meta property="og:title" content="One Back — Working Memory Speed Challenge">
+<meta property="og:description" content="Same as the last symbol or different? Keep the previous card in your head and race the clock.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/one-back/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:22px}.stimulus{display:flex;align-items:center;justify-content:center;min-height:210px;text-align:center}.symbol{font-size:clamp(92px,31vw,150px);font-weight:900;line-height:1}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{min-height:92px;border:0;border-radius:16px;background:#f8fafc;color:#111827;font-size:21px;font-weight:900;touch-action:manipulation}.status{text-align:center;min-height:46px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>One Back</h1><p class="muted">Remember the previous symbol. Is the new one the same or different? Wrong answers cost 2 seconds.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Score</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">30</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card stimulus"><strong id="symbol" class="symbol">◆</strong></section>
+<section class="choices"><button id="same" type="button" class="choice">SAME</button><button id="different" type="button" class="choice">DIFFERENT</button></section>
+<div id="status" class="status muted">Tap Start. The first symbol is your memory card.</div>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="end" type="button" class="btn danger" disabled>End game</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='one-back',SYMBOLS=['●','▲','■','◆','★','✚'];
+const el={symbol:document.getElementById('symbol'),same:document.getElementById('same'),different:document.getElementById('different'),score:document.getElementById('score'),time:document.getElementById('time'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),end:document.getElementById('end'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let score=0,time=30,running=false,locked=true,previous='◆',current='◆',timer=null,nextTimer=null;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function randomDifferent(value){let s;do{s=SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}while(s===value);return s}
+function next(){if(!running)return;current=Math.random()<.36?previous:randomDifferent(previous);el.symbol.textContent=current;el.status.textContent='Same as the previous symbol?';locked=false}
+function choose(answerSame){if(!running||locked)return;locked=true;const correct=(current===previous)===answerSame;if(correct){score++;el.score.textContent=score;el.status.textContent='Correct!';GameFactory.event(G,'correct')}else{time=Math.max(0,time-2);el.time.textContent=time;el.status.textContent='Wrong · -2 sec';GameFactory.event(G,'wrong');if(time===0){finish('Time!');return}}previous=current;nextTimer=setTimeout(next,140)}
+function begin(){clearInterval(timer);clearTimeout(nextTimer);score=0;time=30;running=true;locked=true;el.score.textContent='0';el.time.textContent='30';el.start.textContent='Restart';el.end.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');previous=SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];current=previous;el.symbol.textContent=previous;el.status.textContent='Remember this symbol…';GameFactory.event(G,'start');nextTimer=setTimeout(next,850);timer=setInterval(()=>{if(!running)return;time--;el.time.textContent=time;if(time<=0)finish('Time!')},1000)}
+function finish(prefix){if(!running)return;running=false;locked=true;clearInterval(timer);clearTimeout(nextTimer);const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`${prefix} Score: ${score}. Best: ${s.best||score}.`;el.end.disabled=true;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'finish')}
+function text(){return `I scored ${score} in One Back. Can you keep the previous symbol in your head and beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.same.onclick=()=>choose(true);el.different.onclick=()=>choose(false);el.start.onclick=begin;el.end.onclick=()=>{GameFactory.event(G,'manual_end');finish('Game ended.')};el.share.onclick=async()=>{const r=await GameFactory.share(G,'One Back',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+})();
+</script>
+</body>
+</html>

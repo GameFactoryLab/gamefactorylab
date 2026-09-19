@@ -15,7 +15,11 @@ window.GameFactory=(()=>{
     ...dailyGames,
     {id:'color-word-challenge',title:'Color Word Challenge'},
     {id:'number-hunt',title:'Number Hunt'},
-    {id:'dot-compare',title:'Dot Compare'}
+    {id:'dot-compare',title:'Dot Compare'},
+    {id:'five-second-sense',title:'Five Second Sense'},
+    {id:'parity-rush',title:'Parity Rush'},
+    {id:'one-back',title:'One Back'},
+    {id:'direction-switch',title:'Direction Switch'}
   ];
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
@@ -61,6 +65,7 @@ window.GameFactory=(()=>{
   }
   function displayScore(id,n){
     if(id==='reaction-rush')return Math.max(1,1000-Math.round(n))+' ms';
+    if(id==='five-second-sense')return Math.max(0,5000-Math.round(n))+' ms off';
     return String(Math.round(n*100)/100);
   }
   function challengeUrl(id,target){
