@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gamefactorylab.github.io/gamefactorylab/sitemap.xml
