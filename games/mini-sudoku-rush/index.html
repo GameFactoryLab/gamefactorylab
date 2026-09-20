@@ -14,7 +14,8 @@
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="../../core.css">
 <style>
-h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.stat{text-align:center;padding:9px 5px}.stat span{font-size:10px;text-transform:uppercase}.stat b{display:block;font-size:21px}.sudoku{display:grid;grid-template-columns:repeat(4,1fr);max-width:430px;margin:0 auto;border:2px solid rgba(255,255,255,.55);border-radius:12px;overflow:hidden}.cell{aspect-ratio:1;border:0;border-right:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.055);color:#f8fafc;font-size:clamp(25px,9vw,42px);font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:manipulation}.cell:nth-child(4n){border-right:0}.cell:nth-child(n+13){border-bottom:0}.cell:nth-child(2),.cell:nth-child(6),.cell:nth-child(10),.cell:nth-child(14){border-right:2px solid rgba(255,255,255,.55)}.cell:nth-child(n+5):nth-child(-n+8){border-bottom:2px solid rgba(255,255,255,.55)}.cell.given{background:rgba(255,255,255,.13);color:#cbd5e1}.cell.selected{outline:3px solid #f8fafc;outline-offset:-4px}.cell.filled{color:#bbf7d0}.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.num{border:0;border-radius:13px;padding:13px 6px;font-size:22px;font-weight:900;background:#f8fafc;color:#111827;min-height:50px}.status{text-align:center;min-height:29px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}
+h1{margin:0;font-size:clamp(30px,8vw,48px);line-height:1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stat{text-align:center;padding:7px 4px}.stat span{font-size:9px;text-transform:uppercase}.stat b{display:block;font-size:19px}.sudoku{display:grid;grid-template-columns:repeat(4,1fr);max-width:340px;width:min(82vw,340px);margin:0 auto;border:2px solid rgba(255,255,255,.55);border-radius:12px;overflow:hidden}.cell{aspect-ratio:1;border:0;border-right:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.055);color:#f8fafc;font-size:clamp(24px,8vw,36px);font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:manipulation}.cell:nth-child(4n){border-right:0}.cell:nth-child(n+13){border-bottom:0}.cell:nth-child(2),.cell:nth-child(6),.cell:nth-child(10),.cell:nth-child(14){border-right:2px solid rgba(255,255,255,.55)}.cell:nth-child(n+5):nth-child(-n+8){border-bottom:2px solid rgba(255,255,255,.55)}.cell.given{background:rgba(255,255,255,.13);color:#cbd5e1}.cell.selected{outline:3px solid #f8fafc;outline-offset:-4px}.cell.filled{color:#bbf7d0}.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.num{border:0;border-radius:12px;padding:10px 5px;font-size:20px;font-weight:900;background:#f8fafc;color:#111827;min-height:46px}.status{text-align:center;min-height:24px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}.actions .btn{min-height:42px;padding:8px 10px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:11px;margin:2px 0}.app{gap:7px}.card{padding:8px}
+@media(max-height:700px){.sudoku{max-width:300px;width:min(74vw,300px)}.app{gap:5px}.card{padding:6px}.num{min-height:42px;padding:8px 4px}.actions .btn{min-height:40px;padding:7px 8px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -24,7 +25,7 @@ h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;gri
 <section class="stats"><div class="card stat"><span class="muted">Boards</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">75</b></div><div class="card stat"><span class="muted">Lives</span><b id="lives">3</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
 <section class="card"><div id="board" class="sudoku" aria-label="4 by 4 Sudoku board"></div></section>
 <div id="status" class="status muted">Tap Start</div>
-<div id="pad" class="pad"><button class="num" data-n="1">1</button><button class="num" data-n="2">2</button><button class="num" data-n="3">3</button><button class="num" data-n="4">4</button></div>
+<div id="pad" class="pad"><button class="num" data-n="1" type="button">1</button><button class="num" data-n="2" type="button">2</button><button class="num" data-n="3" type="button">3</button><button class="num" data-n="4" type="button">4</button></div>
 <p class="muted rule">Correct entries stay. A wrong entry costs one life and 3 seconds. Clearing a board earns +5 seconds.</p>
 <div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="end" type="button" class="btn danger" disabled>End game</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
 <section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
@@ -38,7 +39,30 @@ const el={board:document.getElementById('board'),pad:document.getElementById('pa
 let score=0,time=75,lives=3,running=false,locked=true,timer=null,solution=[],values=[],givens=[],selected=-1,boardNo=0;
 GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function makeSolution(){const map=shuffle([1,2,3,4]);let s=base.map(n=>map[n-1]);if(Math.random()<.5){const out=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)out.push(s[c*4+r]);s=out}if(Math.random()<.5){for(let r=0;r<2;r++)for(let c=0;c<4;c++){const a=r*4+c,b=(r+2)*4+c;[s[a],s[b]]=[s[b],s[a]]}}if(Math.random()<.5){for(let r=0;r<4;r++)for(let c=0;c<2;c++){const a=r*4+c,b=r*4+c+2;[s[a],s[b]]=[s[b],s[a]]}}return s}
+function makeSolution(){
+  const map=shuffle([1,2,3,4]);
+  let s=base.map(n=>map[n-1]);
+  if(Math.random()<.5){
+    const out=[];
+    for(let r=0;r<4;r++)for(let c=0;c<4;c++)out.push(s[c*4+r]);
+    s=out;
+  }
+  if(Math.random()<.5){
+    const swap=Math.random()<.5?[0,1]:[2,3];
+    for(let c=0;c<4;c++){
+      const a=swap[0]*4+c,b=swap[1]*4+c;
+      [s[a],s[b]]=[s[b],s[a]];
+    }
+  }
+  if(Math.random()<.5){
+    const swap=Math.random()<.5?[0,1]:[2,3];
+    for(let r=0;r<4;r++){
+      const a=r*4+swap[0],b=r*4+swap[1];
+      [s[a],s[b]]=[s[b],s[a]];
+    }
+  }
+  return s;
+}
 function makeBoard(){boardNo++;selected=-1;locked=false;solution=makeSolution();values=[...solution];givens=Array(16).fill(true);const holes=Math.min(11,6+Math.floor(boardNo/2));const order=shuffle([...Array(16).keys()]);for(let i=0;i<holes;i++){const idx=order[i];givens[idx]=false;values[idx]=0}render();el.status.textContent=`Board ${boardNo} · choose an empty cell`}
 function render(){el.board.innerHTML='';for(let i=0;i<16;i++){const b=document.createElement('button');b.type='button';b.className='cell '+(givens[i]?'given':values[i]?'filled':'')+(i===selected?' selected':'');b.textContent=values[i]||'';b.disabled=!running||locked||givens[i]||!!values[i];b.setAttribute('aria-label',givens[i]?`Given ${values[i]}`:values[i]?`Filled ${values[i]}`:'Empty cell');b.onclick=()=>{if(!running||locked||givens[i]||values[i])return;selected=i;render();el.status.textContent='Choose 1, 2, 3, or 4'};el.board.appendChild(b)}}
 function enter(n){if(!running||locked||selected<0)return;const i=selected;if(solution[i]===n){values[i]=n;selected=-1;GameFactory.event(G,'correct');render();if(values.every(Boolean)){locked=true;score++;el.score.textContent=score;time=Math.min(99,time+5);el.time.textContent=time;GameFactory.event(G,'board_clear');el.status.textContent='Solved! +5 sec';setTimeout(()=>{if(running)makeBoard()},450)}else el.status.textContent='Correct — keep going'}else{lives--;time=Math.max(0,time-3);el.lives.textContent=lives;el.time.textContent=time;GameFactory.event(G,'wrong');el.status.textContent=lives>0?'Wrong · -1 life · -3 sec':'No lives left';selected=-1;render();if(lives<=0||time<=0)finish(lives<=0?'Out of lives!':'Time!')}}
@@ -46,7 +70,11 @@ function begin(){clearInterval(timer);score=0;time=75;lives=3;boardNo=0;running=
 function finish(prefix){if(!running)return;running=false;locked=true;clearInterval(timer);render();const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`${prefix} Boards: ${score}. Best: ${s.best||score}.`;el.end.disabled=true;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'finish')}
 function text(){return `I solved ${score} boards in Mini Sudoku Rush. Can you beat me?`}
 function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
-el.pad.querySelectorAll('.num').forEach(b=>b.onclick=()=>enter(Number(b.dataset.n)));el.start.onclick=begin;el.end.onclick=()=>{GameFactory.event(G,'manual_end');finish('Game ended.')};el.share.onclick=async()=>{const r=await GameFactory.share(G,'Mini Sudoku Rush',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+el.pad.querySelectorAll('.num').forEach(b=>b.addEventListener('click',()=>enter(Number(b.dataset.n))));
+el.start.addEventListener('click',begin);
+el.end.addEventListener('click',()=>{GameFactory.event(G,'manual_end');finish('Game ended.')});
+el.share.addEventListener('click',async()=>{const r=await GameFactory.share(G,'Mini Sudoku Rush',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()});
+el.showText.addEventListener('click',show);
 solution=[...base];values=[...base];givens=Array(16).fill(true);render();
 })();
 </script>
