@@ -1,0 +1,85 @@
+name: Build GameMonetize candidates
+
+on:
+  pull_request:
+    paths:
+      - 'distribution/gamemonetize/**'
+      - 'scripts/build_gamemonetize.py'
+      - '.github/workflows/build-gamemonetize.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'distribution/gamemonetize/**'
+      - 'scripts/build_gamemonetize.py'
+      - '.github/workflows/build-gamemonetize.yml'
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: 'Candidate slug for an activation-ready package (for example circuit-flow)'
+        required: false
+        type: string
+      game_id:
+        description: 'GameMonetize GameId. Leave blank to build safe preview packages only.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build safe preview or explicit activation package
+        env:
+          CANDIDATE: ${{ inputs.candidate }}
+          GAME_ID: ${{ inputs.game_id }}
+        run: |
+          set -euo pipefail
+          if [ -n "${GAME_ID:-}" ]; then
+            test -n "${CANDIDATE:-}"
+            python3 scripts/build_gamemonetize.py --candidate "$CANDIDATE" --game-id "$GAME_ID"
+          elif [ -n "${CANDIDATE:-}" ]; then
+            python3 scripts/build_gamemonetize.py --candidate "$CANDIDATE"
+          else
+            python3 scripts/build_gamemonetize.py
+          fi
+
+      - name: Verify package safety state
+        env:
+          GAME_ID: ${{ inputs.game_id }}
+        run: |
+          python3 - <<'PY'
+          import csv
+          import os
+          import zipfile
+          from pathlib import Path
+
+          rows = list(csv.DictReader((Path('dist-gamemonetize') / 'manifest.csv').open(encoding='utf-8')))
+          assert rows, 'manifest has no candidates'
+          activation = bool(os.environ.get('GAME_ID', '').strip())
+          for row in rows:
+              package = Path('dist-gamemonetize') / row['zip']
+              assert package.exists(), package
+              with zipfile.ZipFile(package) as z:
+                  assert 'index.html' in z.namelist(), package
+                  html = z.read('index.html').decode('utf-8')
+              if activation:
+                  assert row['mode'] == 'activation', row
+                  assert '__GAME_ID__' not in html, package
+              else:
+                  assert row['mode'] == 'preview', row
+                  assert '__GAME_ID__' in html, package
+          print(f"Validated {len(rows)} {'activation' if activation else 'preview'} package(s)")
+          PY
+
+      - name: Upload candidate bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactorylab-gamemonetize-candidates
+          path: dist-gamemonetize/
+          retention-days: 7
+          if-no-files-found: error
