@@ -22,7 +22,9 @@ window.GameFactory=(()=>{
     {id:'direction-switch',title:'Direction Switch'},
     {id:'word-scramble-rush',title:'Word Scramble Rush'},
     {id:'maze-dash',title:'Maze Dash'},
-    {id:'pair-flip',title:'Pair Flip'}
+    {id:'pair-flip',title:'Pair Flip'},
+    {id:'grid-toggle',title:'Grid Toggle'},
+    {id:'mini-sudoku-rush',title:'Mini Sudoku Rush'}
   ];
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
