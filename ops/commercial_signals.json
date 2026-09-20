@@ -1,0 +1,58 @@
+{
+  "updated": "2026-09-20",
+  "notes": "Enter only comparable post-release signals. Null means not yet observed; do not estimate.",
+  "games": [
+    {
+      "slug": "circuit-flow",
+      "name": "Circuit Flow",
+      "mechanic": "rotate-path puzzle",
+      "status": "approval-gated",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
+    },
+    {
+      "slug": "orbit-align",
+      "name": "Orbit Align",
+      "mechanic": "orbital alignment puzzle",
+      "status": "approval-gated",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
+    },
+    {
+      "slug": "sum-vault",
+      "name": "Sum Vault",
+      "mechanic": "exact-sum puzzle",
+      "status": "approval-gated",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
+    },
+    {
+      "slug": "pixel-logic",
+      "name": "Pixel Logic",
+      "mechanic": "row-column clue puzzle",
+      "status": "approval-gated",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
+    }
+  ]
+}
