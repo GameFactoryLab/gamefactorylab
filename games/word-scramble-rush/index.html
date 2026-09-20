@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Word Scramble Rush — Free Fast Word Game</title>
+<meta name="description" content="Unscramble quick words before the clock runs out. A free fast word challenge from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/word-scramble-rush/">
+<meta property="og:title" content="Word Scramble Rush — Free Fast Word Game">
+<meta property="og:description" content="Unscramble as many words as you can in 45 seconds and challenge a friend to beat your score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/word-scramble-rush/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:22px}.scramble{text-align:center;font-size:clamp(34px,12vw,64px);font-weight:900;letter-spacing:.12em;padding:24px 10px}.answer{min-height:54px;text-align:center;font-size:25px;font-weight:900;letter-spacing:.08em}.letters{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.letter{min-width:48px;min-height:48px;font-size:21px}.letter:disabled{opacity:.28}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.status{text-align:center;min-height:42px;font-weight:800}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:84px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Word Scramble Rush</h1><p class="muted">Tap the letters in the right order. Solve as many words as you can before the 45-second clock runs out.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Score</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">45</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card"><div id="scramble" class="scramble">READY</div><div id="answer" class="answer muted">Tap Start</div></section>
+<div id="letters" class="letters"></div>
+<div id="status" class="status muted">Correct word = 1 point. Wrong submit = -2 seconds.</div>
+<div class="actions"><button id="start" class="btn primary" type="button">Start</button><button id="back" class="btn secondary" type="button" disabled>Backspace</button><button id="submit" class="btn primary" type="button" disabled>Submit</button><button id="clear" class="btn secondary" type="button" disabled>Clear</button><button id="share" class="btn secondary" type="button" disabled>Share score</button><button id="showText" class="btn secondary" type="button" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='word-scramble-rush';
+const WORDS=['LAMP','FROG','MINT','STAR','WAVE','BIRD','MOON','FIRE','LEAF','RAIN','SNOW','ROAD','WIND','BOOK','FISH','LION','APPLE','BRAVE','CHAIR','CLOUD','DREAM','EARTH','FLAME','GRAPE','HOUSE','LIGHT','PLANT','RIVER','SMILE','STONE','TRAIN','WATER','BEACH','BRAIN','CLOCK','MUSIC','NIGHT','GREEN','HEART','SPACE','TIGER','BRIDGE','FOREST','GARDEN','ORANGE','PLANET','SILVER','WINDOW','BUTTON','CASTLE','FLOWER','POCKET','ROCKET','SUMMER','WINTER','MARKET','PENCIL','ISLAND','CANDLE','FRIEND','STREAM','CIRCLE'];
+const el={score:document.getElementById('score'),time:document.getElementById('time'),best:document.getElementById('best'),scramble:document.getElementById('scramble'),answer:document.getElementById('answer'),letters:document.getElementById('letters'),status:document.getElementById('status'),start:document.getElementById('start'),back:document.getElementById('back'),submit:document.getElementById('submit'),clear:document.getElementById('clear'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let running=false,score=0,time=45,timer=null,word='',picked=[];
+GameFactory.open(G);
+el.best.textContent=GameFactory.stats(G).best||0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pool(){const max=score<4?4:score<9?5:score<15?6:7;return WORDS.filter(w=>w.length<=max)}
+function makeScramble(w){let a=w.split(''),s='';for(let n=0;n<8;n++){s=shuffle([...a]).join('');if(s!==w)return s}return [...a.slice(1),a[0]].join('')}
+function next(){if(!running)return;const choices=pool();word=choices[Math.floor(Math.random()*choices.length)];picked=[];const s=makeScramble(word);el.scramble.textContent=s;el.answer.textContent='—';el.answer.classList.add('muted');el.letters.innerHTML='';s.split('').forEach((ch,i)=>{const b=document.createElement('button');b.type='button';b.className='btn secondary letter';b.textContent=ch;b.dataset.i=i;b.onclick=()=>pick(i,ch,b);el.letters.appendChild(b)});el.status.textContent='Build the word, then submit.'}
+function pick(i,ch,b){if(!running||b.disabled)return;b.disabled=true;picked.push({i,ch});renderAnswer()}
+function renderAnswer(){const t=picked.map(x=>x.ch).join('');el.answer.textContent=t||'—';el.answer.classList.toggle('muted',!t)}
+function undo(){if(!running||!picked.length)return;const p=picked.pop();const b=el.letters.querySelector(`[data-i="${p.i}"]`);if(b)b.disabled=false;renderAnswer()}
+function clear(){if(!running)return;picked=[];[...el.letters.children].forEach(b=>b.disabled=false);renderAnswer()}
+function submit(){if(!running)return;const a=picked.map(x=>x.ch).join('');if(a===word){score++;el.score.textContent=score;el.status.textContent='Correct!';setTimeout(next,260)}else{time=Math.max(0,time-2);el.time.textContent=time;el.status.textContent='Not quite. -2 seconds.';clear();if(time<=0)finish()}}
+function begin(){clearInterval(timer);score=0;time=45;running=true;el.score.textContent='0';el.time.textContent='45';el.start.disabled=true;el.back.disabled=false;el.submit.disabled=false;el.clear.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');GameFactory.event(G,'start');next();timer=setInterval(()=>{time--;el.time.textContent=time;if(time<=0)finish()},1000)}
+function finish(){if(!running)return;running=false;clearInterval(timer);const s=GameFactory.score(G,score);GameFactory.event(G,'finish');el.best.textContent=s.best||0;el.scramble.textContent='TIME';el.answer.textContent='Score '+score;el.letters.innerHTML='';el.status.textContent='Run complete. One more try?';el.start.disabled=false;el.start.textContent='Play again';el.back.disabled=true;el.submit.disabled=true;el.clear.disabled=true;el.share.disabled=false;el.showText.disabled=false}
+function text(){return `I unscrambled ${score} words in Word Scramble Rush. Can you beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.back.onclick=undo;el.clear.onclick=clear;el.submit.onclick=submit;el.share.onclick=async()=>{const r=await GameFactory.share(G,'Word Scramble Rush',text(),GameFactory.challengeUrl(G,score));if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+})();
+</script>
+</body>
+</html>
