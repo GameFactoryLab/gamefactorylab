@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Grid Toggle — Fast Lights Puzzle Challenge</title>
+<meta name="description" content="Turn every tile dark by toggling the grid. Clear as many guaranteed-solvable logic puzzles as you can in 60 seconds.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/grid-toggle/">
+<meta property="og:title" content="Grid Toggle — Fast Lights Puzzle Challenge">
+<meta property="og:description" content="Tap a tile to flip it and its neighbors. Can you clear more boards than your friends?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/grid-toggle/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:22px}.board{display:grid;gap:8px;max-width:430px;margin:0 auto}.tile{aspect-ratio:1;border-radius:14px;border:1px solid rgba(255,255,255,.12);font-size:clamp(24px,8vw,38px);font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s ease,background .14s ease,color .14s ease,box-shadow .14s ease}.tile:active{transform:scale(.96)}.tile.on{background:#f8fafc;color:#111827;box-shadow:0 0 22px rgba(248,250,252,.14)}.tile.off{background:rgba(255,255,255,.045);color:#475569}.status{text-align:center;min-height:29px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Grid Toggle</h1><p class="muted">Turn every tile dark. Tapping a tile flips it plus its up/down/left/right neighbors.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Clears</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">60</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card"><div id="board" class="board" aria-label="Toggle puzzle board"></div></section>
+<div id="status" class="status muted">Tap Start</div>
+<p class="muted rule">Every puzzle is generated from a solved board, so there is always a solution. Reset costs 2 seconds.</p>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="reset" type="button" class="btn secondary" disabled>Reset puzzle</button><button id="end" type="button" class="btn danger" disabled>End game</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='grid-toggle';
+const el={board:document.getElementById('board'),score:document.getElementById('score'),time:document.getElementById('time'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),reset:document.getElementById('reset'),end:document.getElementById('end'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let score=0,time=60,running=false,locked=true,timer=null,size=3,state=[],initial=[],moves=0,stage=1;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function index(r,c){return r*size+c}
+function flipAt(arr,r,c){[[0,0],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{const rr=r+dr,cc=c+dc;if(rr>=0&&rr<size&&cc>=0&&cc<size){const i=index(rr,cc);arr[i]=arr[i]?0:1}})}
+function makePuzzle(){
+  size=stage<=2?3:4;state=Array(size*size).fill(0);
+  const scrambles=Math.min(size*size,3+stage);
+  for(let n=0;n<scrambles;n++)flipAt(state,Math.floor(Math.random()*size),Math.floor(Math.random()*size));
+  if(state.every(v=>!v))flipAt(state,Math.floor(Math.random()*size),Math.floor(Math.random()*size));
+  initial=[...state];moves=0;locked=false;render();el.status.textContent=`Puzzle ${stage} · ${size}×${size}`;
+}
+function render(){
+  el.board.style.gridTemplateColumns=`repeat(${size},1fr)`;el.board.innerHTML='';
+  state.forEach((v,i)=>{const b=document.createElement('button');b.type='button';b.className='tile '+(v?'on':'off');b.textContent=v?'●':'·';b.setAttribute('aria-label',v?'Lit tile':'Dark tile');b.disabled=!running||locked;b.onclick=()=>tap(i);el.board.appendChild(b)});
+}
+function tap(i){if(!running||locked)return;const r=Math.floor(i/size),c=i%size;flipAt(state,r,c);moves++;GameFactory.event(G,'move');render();if(state.every(v=>!v)){locked=true;score++;el.score.textContent=score;GameFactory.event(G,'puzzle_clear');el.status.textContent=`Cleared in ${moves} moves!`;stage++;setTimeout(()=>{if(running)makePuzzle()},420)}}
+function resetPuzzle(){if(!running||locked)return;state=[...initial];moves=0;time=Math.max(0,time-2);el.time.textContent=time;GameFactory.event(G,'reset');el.status.textContent='Reset · -2 sec';render();if(time===0)finish('Time!')}
+function begin(){clearInterval(timer);score=0;time=60;stage=1;running=true;locked=false;el.score.textContent='0';el.time.textContent='60';el.start.textContent='Restart';el.reset.disabled=false;el.end.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');GameFactory.event(G,'start');makePuzzle();timer=setInterval(()=>{if(!running)return;time--;el.time.textContent=time;if(time<=0)finish('Time!')},1000)}
+function finish(prefix){if(!running)return;running=false;locked=true;clearInterval(timer);render();const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`${prefix} Clears: ${score}. Best: ${s.best||score}.`;el.reset.disabled=true;el.end.disabled=true;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'finish')}
+function text(){return `I cleared ${score} puzzles in Grid Toggle. Can you beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.reset.onclick=resetPuzzle;el.end.onclick=()=>{GameFactory.event(G,'manual_end');finish('Game ended.')};el.share.onclick=async()=>{const r=await GameFactory.share(G,'Grid Toggle',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+state=Array(9).fill(0);size=3;render();
+})();
+</script>
+</body>
+</html>
