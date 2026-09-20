@@ -6,7 +6,11 @@ on:
       - 'games/**'
       - 'core.js'
       - 'core.css'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'sw.js'
       - 'scripts/build_distribution.py'
+      - 'scripts/validate_portfolio.py'
       - '.github/workflows/build-distribution.yml'
   push:
     branches: [main]
@@ -14,7 +18,11 @@ on:
       - 'games/**'
       - 'core.js'
       - 'core.css'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'sw.js'
       - 'scripts/build_distribution.py'
+      - 'scripts/validate_portfolio.py'
       - '.github/workflows/build-distribution.yml'
   workflow_dispatch:
 
@@ -27,6 +35,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Validate portfolio consistency
+        run: python3 scripts/validate_portfolio.py
 
       - name: Build standalone ZIP packages
         run: python3 scripts/build_distribution.py
