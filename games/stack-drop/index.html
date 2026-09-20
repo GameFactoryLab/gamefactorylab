@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Stack Drop — One-Tap Block Stacking Game</title>
+<meta name="description" content="Drop moving blocks onto the tower, keep the overlap, and build as high as you can. A fast free one-tap browser stacking game.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/stack-drop/">
+<meta property="og:title" content="Stack Drop — One-Tap Block Stacking Game">
+<meta property="og:description" content="Time each drop, keep the overlap, and build the tallest stack you can.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/stack-drop/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(34px,9vw,54px);line-height:1}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:10px;text-transform:uppercase}.stat b{display:block;font-size:24px}.stage{padding:10px}.stage canvas{display:block;width:min(100%,420px);height:auto;aspect-ratio:3/4;margin:0 auto;border-radius:16px;background:#0b1220;touch-action:none}.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.drop{grid-column:1/-1;font-size:18px;padding:15px}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Stack Drop</h1><p class="muted">One tap. Drop the moving block onto the tower. Only the overlap survives — miss once and the run ends.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Height</span><b id="score">0</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card stage"><canvas id="game" width="360" height="480" aria-label="Stack Drop game area"></canvas></section>
+<div id="status" class="status muted">Tap Start</div>
+<p class="muted rule">Perfect drops keep the full block width. The tower gets faster as it grows.</p>
+<div class="actions"><button id="drop" type="button" class="btn primary drop" disabled>Drop block</button><button id="start" type="button" class="btn secondary">Start</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='stack-drop',W=360,H=480,BH=24,BASE_Y=436,MAX_VISIBLE=15;
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const el={score:document.getElementById('score'),best:document.getElementById('best'),status:document.getElementById('status'),drop:document.getElementById('drop'),start:document.getElementById('start'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let stack=[],moving=null,score=0,running=false,last=0,raf=0;
+const colors=['#60a5fa','#34d399','#f97316','#facc15','#a78bfa','#fb7185'];
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function resetStack(){stack=[{x:70,w:220}];score=0;el.score.textContent='0';spawn()}
+function speed(){return Math.min(265,115+score*8)}
+function spawn(){const top=stack[stack.length-1],w=top.w,fromLeft=score%2===0;moving={x:fromLeft?0:W-w,w,vx:(fromLeft?1:-1)*speed()}}
+function drawBlock(x,y,w,color,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(x,y,w,BH-3);ctx.globalAlpha=1}
+function draw(){ctx.clearRect(0,0,W,H);const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#111827');grad.addColorStop(1,'#07101d');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(0,BASE_Y+BH, W,2);
+const visible=stack.slice(-MAX_VISIBLE);for(let i=0;i<visible.length;i++){const originalIndex=stack.length-visible.length+i;const y=BASE_Y-(visible.length-1-i)*BH;drawBlock(visible[i].x,y,visible[i].w,colors[originalIndex%colors.length])}
+if(moving){const y=BASE_Y-visible.length*BH;drawBlock(moving.x,y,moving.w,colors[stack.length%colors.length])}
+ctx.fillStyle='rgba(248,250,252,.64)';ctx.font='12px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(running?'Tap / press Space to drop':'Build the tallest tower',W/2,24)}
+function loop(ts){if(!running)return;const dt=Math.min(0.05,(ts-last||0)/1000);last=ts;if(moving){moving.x+=moving.vx*dt;if(moving.x<=0){moving.x=0;moving.vx=Math.abs(moving.vx)}else if(moving.x+moving.w>=W){moving.x=W-moving.w;moving.vx=-Math.abs(moving.vx)}}draw();raf=requestAnimationFrame(loop)}
+function begin(){cancelAnimationFrame(raf);running=true;last=0;resetStack();el.start.textContent='Restart';el.drop.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.status.textContent='Drop it on the tower';GameFactory.event(G,'start');draw();raf=requestAnimationFrame(loop)}
+function finish(){if(!running)return;running=false;cancelAnimationFrame(raf);el.drop.disabled=true;moving=null;const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`Missed! Height ${score}. Best ${s.best||score}.`;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'miss');GameFactory.event(G,'finish');draw()}
+function drop(){if(!running||!moving)return;const top=stack[stack.length-1];let left=Math.max(moving.x,top.x),right=Math.min(moving.x+moving.w,top.x+top.w),overlap=right-left;GameFactory.event(G,'block_drop');if(overlap<=2){finish();return}const error=Math.abs(moving.x-top.x);if(error<=4){left=top.x;overlap=top.w;GameFactory.event(G,'perfect_drop');el.status.textContent='Perfect!'}else{el.status.textContent=`${Math.round(overlap)} px left`}
+stack.push({x:left,w:overlap});score++;el.score.textContent=score;GameFactory.event(G,'block_land');spawn();draw()}
+function text(){return `I stacked ${score} blocks in Stack Drop. Can you build higher?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.drop.onclick=drop;canvas.addEventListener('pointerdown',e=>{if(running){e.preventDefault();drop()}});window.addEventListener('keydown',e=>{if((e.code==='Space'||e.code==='Enter')&&running){e.preventDefault();drop()}});el.share.onclick=async()=>{const r=await GameFactory.share(G,'Stack Drop',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;resetStack();moving=null;draw();
+})();
+</script>
+</body>
+</html>
