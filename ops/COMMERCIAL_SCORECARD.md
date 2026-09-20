@@ -8,6 +8,7 @@ This table is a decision aid, not vanity reporting. A game cannot be promoted be
 | Orbit Align | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Sum Vault | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Pixel Logic | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Route Once | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 
 ## Operating rules
 
