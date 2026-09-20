@@ -31,7 +31,8 @@ window.GameFactory=(()=>{
     {id:'tile-shift',title:'Tile Shift'},
     {id:'flood-grid',title:'Flood Grid'},
     {id:'stack-drop',title:'Stack Drop'},
-    {id:'color-stack-sort',title:'Color Stack Sort'}
+    {id:'color-stack-sort',title:'Color Stack Sort'},
+    {id:'merge-grid',title:'Merge Grid'}
   ];
   const sprintSize=5;
 
