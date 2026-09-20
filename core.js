@@ -32,7 +32,8 @@ window.GameFactory=(()=>{
     {id:'flood-grid',title:'Flood Grid'},
     {id:'stack-drop',title:'Stack Drop'},
     {id:'color-stack-sort',title:'Color Stack Sort'},
-    {id:'merge-grid',title:'Merge Grid'}
+    {id:'merge-grid',title:'Merge Grid'},
+    {id:'lane-dodge',title:'Lane Dodge'}
   ];
   const sprintSize=5;
 
