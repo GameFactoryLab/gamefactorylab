@@ -1,0 +1,75 @@
+name: Register Lane Dodge release
+
+on:
+  push:
+    branches: [release/lane-dodge]
+    paths:
+      - games/lane-dodge/index.html
+      - .github/workflows/register-lane-dodge.yml
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/lane-dodge
+      - name: Register game across portfolio surfaces
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          game_id = 'lane-dodge'
+          title = 'Lane Dodge'
+          url = 'https://gamefactorylab.github.io/gamefactorylab/games/lane-dodge/'
+
+          core = (root/'core.js').read_text()
+          if "{id:'lane-dodge',title:'Lane Dodge'}" not in core:
+              core = core.replace("    {id:'merge-grid',title:'Merge Grid'}\n  ];", "    {id:'merge-grid',title:'Merge Grid'},\n    {id:'lane-dodge',title:'Lane Dodge'}\n  ];")
+          (root/'core.js').write_text(core)
+
+          index = (root/'index.html').read_text()
+          index = index.replace('25 Quick Free Browser Games', '26 Quick Free Browser Games')
+          index = index.replace('twenty-five fast games', 'twenty-six fast games')
+          index = index.replace('twenty-five free browser games', 'twenty-six free browser games')
+          index = index.replace('numberOfItems\":25', 'numberOfItems\":26')
+          schema_old = '{"@type":"ListItem","position":25,"url":"https://gamefactorylab.github.io/gamefactorylab/games/merge-grid/","name":"Merge Grid"}]}'
+          schema_new = '{"@type":"ListItem","position":25,"url":"https://gamefactorylab.github.io/gamefactorylab/games/merge-grid/","name":"Merge Grid"},{"@type":"ListItem","position":26,"url":"'+url+'","name":"'+title+'"}]}'
+          index = index.replace(schema_old, schema_new)
+          card = '<a class="card game" href="games/lane-dodge/index.html"><div class="pill">Action dodge • New</div><h2>Lane Dodge</h2><p class="muted">Move across three lanes, dodge falling blocks and survive as the pace accelerates.</p><strong>Play →</strong></a>\n'
+          marker = '<a class="card game" href="games/merge-grid/index.html">'
+          if card not in index:
+              index = index.replace(marker, card + marker)
+          index = index.replace("'color-stack-sort','merge-grid'];", "'color-stack-sort','merge-grid','lane-dodge'];")
+          index = index.replace('Merging • stacking • sorting • logic', 'Dodging • merging • stacking • sorting • logic')
+          (root/'index.html').write_text(index)
+
+          sw = (root/'sw.js').read_text()
+          sw = sw.replace("gamefactory-v17", "gamefactory-v18")
+          if "'./games/lane-dodge/'" not in sw:
+              sw = sw.replace("'./games/merge-grid/'];", "'./games/merge-grid/','./games/lane-dodge/'];")
+          (root/'sw.js').write_text(sw)
+
+          sitemap = (root/'sitemap.xml').read_text()
+          lane_url = '  <url><loc>'+url+'</loc><priority>0.9</priority></url>\n'
+          if lane_url not in sitemap:
+              sitemap = sitemap.replace('</urlset>', lane_url + '</urlset>')
+          (root/'sitemap.xml').write_text(sitemap)
+          PY
+      - name: Validate portfolio
+        run: python scripts/validate_portfolio.py
+      - name: Build distribution packages
+        run: python scripts/build_distribution.py
+      - name: Commit registered release
+        run: |
+          git config user.name "GameFactoryLab Ops"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add core.js index.html sitemap.xml sw.js
+          if ! git diff --cached --quiet; then
+            git commit -m "Register Lane Dodge across 26-game portfolio [skip ci]"
+            git push origin HEAD:release/lane-dodge
+          fi
