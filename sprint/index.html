@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>5 Game Sprint — Free Daily Browser Challenge | GameFactoryLab</title>
+<meta name="description" content="Play a free five-game daily sprint from GameFactoryLab. Five quick browser challenges, one shared sequence, one streak to protect.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/sprint/">
+<meta property="og:title" content="5 Game Sprint — GameFactoryLab">
+<meta property="og:description" content="Five quick browser games. One daily sprint. Finish all five and protect your streak.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/sprint/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../core.css">
+<style>
+h1{font-size:clamp(38px,10vw,66px);line-height:.96;margin:8px 0 12px}.lead{font-size:18px}.steps{display:grid;gap:10px}.step{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center}.num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);font-weight:900}.step.done .num{background:var(--ok);color:#111827}.step strong{display:block}.status{font-size:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .btn{text-align:center;text-decoration:none}.summary{display:flex;gap:16px;flex-wrap:wrap}.metric{min-width:100px}.metric strong{display:block;font-size:24px}.back{text-decoration:none;font-weight:800}@media(max-width:440px){.actions{grid-template-columns:1fr}.step{grid-template-columns:38px 1fr}.status{grid-column:2}}
+</style>
+</head>
+<body>
+<main class="app">
+<section>
+<a class="back muted" href="../">← GameFactoryLab</a>
+<div class="muted" style="margin-top:18px;text-transform:uppercase;letter-spacing:.08em;font-size:12px">Daily multi-game mode</div>
+<h1>5 Game<br>Sprint.</h1>
+<p class="muted lead">Five different quick games. Same sequence for everyone today. Finish all five to bank the day and keep your sprint streak alive.</p>
+</section>
+<section class="card">
+<div class="summary">
+<div class="metric"><span class="muted">Progress</span><strong id="progress">0/5</strong></div>
+<div class="metric"><span class="muted">Streak</span><strong id="streak">0</strong></div>
+<div class="metric"><span class="muted">Best</span><strong id="best">0</strong></div>
+</div>
+</section>
+<section class="steps" id="steps"></section>
+<section class="actions">
+<a id="start" class="btn primary" href="#">Start sprint →</a>
+<button id="share" class="btn secondary" type="button">Share today’s sprint</button>
+</section>
+<p id="note" class="muted" style="text-align:center;font-size:13px"></p>
+</main>
+<script src="../core.js"></script>
+<script>
+(()=>{
+  const qs=new URLSearchParams(location.search);
+  const requested=qs.get('day');
+  const today=()=>new Date().toISOString().slice(0,10);
+  const valid=d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'');
+  const day=valid(requested)?requested:today();
+  const seq=GameFactory.sprintSequence(day);
+  const state=GameFactory.sprintState();
+  const sameDay=state.day===day;
+  const progress=sameDay?Math.min(5,state.step||0):0;
+  const completed=sameDay&&state.completed===true;
+  document.getElementById('progress').textContent=`${progress}/5`;
+  document.getElementById('streak').textContent=String(state.streak||0);
+  document.getElementById('best').textContent=String(state.bestStreak||0);
+  const steps=document.getElementById('steps');
+  seq.forEach((g,i)=>{
+    const row=document.createElement('div');
+    row.className='card step'+(i<progress?' done':'');
+    const n=document.createElement('div');n.className='num';n.textContent=i<progress?'✓':String(i+1);
+    const text=document.createElement('div');
+    const title=document.createElement('strong');title.textContent=g.title;
+    const sub=document.createElement('span');sub.className='muted';sub.textContent=i<progress?'Completed':i===progress&&!completed?'Up next':'Locked until previous challenge';
+    text.append(title,sub);
+    const status=document.createElement('span');status.className='status muted';status.textContent=`${i+1}/5`;
+    row.append(n,text,status);steps.appendChild(row);
+  });
+  const start=document.getElementById('start');
+  if(completed){start.textContent='Play today’s sprint again →';start.href=GameFactory.sprintGameUrl(day,0)}
+  else{start.textContent=progress?'Continue sprint →':'Start sprint →';start.href=GameFactory.sprintGameUrl(day,Math.min(progress,4))}
+  document.getElementById('note').textContent=day===today()?'Today’s five-game sequence resets with the UTC day.':'Shared sprint from '+day+'.';
+  document.getElementById('share').addEventListener('click',async()=>{
+    const url=GameFactory.sprintHomeUrl(day);
+    const text=`Can you finish today’s GameFactoryLab 5 Game Sprint? ${progress}/5 done.`;
+    if(navigator.share){try{await navigator.share({title:'GameFactoryLab 5 Game Sprint',text,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text+' '+url);document.getElementById('note').textContent='Sprint link copied.';return}catch(e){}}
+    document.getElementById('note').textContent=url;
+  });
+})();
+</script>
+</body>
+</html>

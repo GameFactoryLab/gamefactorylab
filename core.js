@@ -26,6 +26,7 @@ window.GameFactory=(()=>{
     {id:'grid-toggle',title:'Grid Toggle'},
     {id:'mini-sudoku-rush',title:'Mini Sudoku Rush'}
   ];
+  const sprintSize=5;
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
   function save(id,s){localStorage.setItem(p+id,JSON.stringify(s))}
@@ -49,8 +50,36 @@ window.GameFactory=(()=>{
     u.searchParams.set('from','daily');
     return u.href;
   }
+  function sprintSequence(day=today()){
+    const safe=validDay(day)?day:today();
+    let seed=2166136261;
+    for(const c of safe+'|5-game-sprint'){seed^=c.charCodeAt(0);seed=Math.imul(seed,16777619)}
+    seed>>>=0;
+    const pool=games.slice();
+    function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+    return pool.slice(0,sprintSize);
+  }
+  function sprintGameUrl(day=today(),step=0){
+    const safe=validDay(day)?day:today();
+    const safeStep=Math.max(0,Math.min(sprintSize-1,Number.isInteger(Number(step))?Number(step):0));
+    const g=sprintSequence(safe)[safeStep];
+    const u=new URL(gameUrl(g.id));
+    u.searchParams.set('sprint',safe);
+    u.searchParams.set('step',String(safeStep));
+    u.searchParams.set('from','sprint');
+    return u.href;
+  }
+  function sprintHomeUrl(day=today()){
+    const safe=validDay(day)?day:today();
+    const u=new URL('sprint/',baseUrl());
+    u.searchParams.set('day',safe);
+    return u.href;
+  }
   function dailyState(){try{return JSON.parse(localStorage.getItem(p+'daily')||'{}')}catch{return {}}}
   function saveDaily(s){localStorage.setItem(p+'daily',JSON.stringify(s))}
+  function sprintState(){try{return JSON.parse(localStorage.getItem(p+'sprint')||'{}')}catch{return {}}}
+  function saveSprint(s){localStorage.setItem(p+'sprint',JSON.stringify(s))}
   function previousDay(day){
     const d=new Date(day+'T00:00:00Z');
     d.setUTCDate(d.getUTCDate()-1);
@@ -60,6 +89,14 @@ window.GameFactory=(()=>{
   function dailyContext(id){
     const day=query().get('daily');
     return validDay(day)&&dailyGame(day).id===id?day:null;
+  }
+  function sprintContext(id){
+    const q=query();
+    const day=q.get('sprint');
+    const step=Number(q.get('step'));
+    if(!validDay(day)||!Number.isInteger(step)||step<0||step>=sprintSize)return null;
+    const seq=sprintSequence(day);
+    return seq[step]&&seq[step].id===id?{day,step,seq}:null;
   }
   function challengeTarget(){
     const raw=query().get('target');
@@ -90,8 +127,9 @@ window.GameFactory=(()=>{
   function ensureContext(id){
     if(!id||document.getElementById('gf-context'))return;
     const day=dailyContext(id);
+    const sprint=sprintContext(id);
     const shared=query().get('challenge')==='1';
-    if(!day&&!shared)return;
+    if(!day&&!shared&&!sprint)return;
     const wrap=document.createElement('section');
     wrap.id='gf-context';
     wrap.className='card gf-context';
@@ -101,7 +139,12 @@ window.GameFactory=(()=>{
     title.className='gf-context-title';
     const detail=document.createElement('div');
     detail.className='gf-context-detail muted';
-    if(day){
+    if(sprint){
+      const ss=sprintState();
+      label.textContent='5 Game Sprint';
+      title.textContent=`Challenge ${sprint.step+1} of ${sprintSize}: ${sprint.seq[sprint.step].title}`;
+      detail.textContent=ss.day===sprint.day&&ss.streak?`Daily sprint streak: ${ss.streak} · Finish this run to continue.`:'Finish this run to unlock the next challenge.';
+    }else if(day){
       const ds=dailyState();
       label.textContent=day===today()?'Daily challenge':'Shared daily challenge';
       title.textContent=day===today()?'Today’s challenge':'Daily challenge from '+day;
@@ -127,6 +170,21 @@ window.GameFactory=(()=>{
     if(completed&&day===today()){
       title.textContent='Daily challenge complete ✓';
       detail.textContent=`Daily streak: ${ds.streak||1} · Best: ${ds.bestStreak||ds.streak||1}`;
+    }
+  }
+  function refreshSprintContext(id){
+    const wrap=document.getElementById('gf-context');
+    const sprint=sprintContext(id);
+    if(!wrap||!sprint)return;
+    const title=wrap.querySelector('.gf-context-title');
+    const detail=wrap.querySelector('.gf-context-detail');
+    const ss=sprintState();
+    if(sprint.step===sprintSize-1){
+      title.textContent='5 Game Sprint complete ✓';
+      detail.textContent=`Sprint streak: ${ss.streak||1} · Best: ${ss.bestStreak||ss.streak||1}`;
+    }else{
+      title.textContent=`Challenge ${sprint.step+1} of ${sprintSize} complete ✓`;
+      detail.textContent=`${sprintSize-sprint.step-1} challenge${sprintSize-sprint.step-1===1?'':'s'} left in today’s sprint.`;
     }
   }
   function refreshChallenge(id,n){
@@ -159,31 +217,68 @@ window.GameFactory=(()=>{
     }
     refreshContext(id,true);
   }
+  function completeSprint(id){
+    const sprint=sprintContext(id);
+    if(!sprint)return;
+    const ss=sprintState();
+    if(ss.day!==sprint.day){ss.day=sprint.day;ss.step=0;ss.completed=false}
+    ss.step=Math.max(ss.step||0,sprint.step+1);
+    ss.lastSeen=Date.now();
+    if(sprint.step===sprintSize-1){
+      ss.completed=true;
+      if(ss.lastCompleted!==sprint.day){
+        ss.streak=ss.lastCompleted===previousDay(sprint.day)?(ss.streak||0)+1:1;
+        ss.lastCompleted=sprint.day;
+        ss.bestStreak=Math.max(ss.bestStreak||0,ss.streak);
+        ss.completions=(ss.completions||0)+1;
+      }
+    }
+    saveSprint(ss);
+    refreshSprintContext(id);
+  }
   function ensureNext(id){
     if(!id||document.getElementById('gf-next-challenge'))return;
-    const next=nextGame(id);
+    const sprint=sprintContext(id);
+    const next=sprint&&sprint.step<sprintSize-1?sprint.seq[sprint.step+1]:nextGame(id);
     const wrap=document.createElement('section');
     wrap.id='gf-next-challenge';
     wrap.className='card gf-next';
     wrap.hidden=true;
     const label=document.createElement('div');
     label.className='gf-next-label muted';
-    label.textContent='Keep the streak going';
     const title=document.createElement('strong');
     title.className='gf-next-title';
-    title.textContent='Next challenge: '+next.title;
     const actions=document.createElement('div');
     actions.className='gf-next-actions';
     const play=document.createElement('a');
     play.className='btn primary gf-next-play';
-    play.href=gameUrl(next.id)+`?from=${encodeURIComponent(id)}`;
-    play.textContent='Play next →';
-    play.addEventListener('click',()=>event(id,'next_click'));
     const daily=document.createElement('a');
     daily.className='btn secondary gf-next-daily';
-    daily.href=dailyUrl();
-    daily.textContent='Daily challenge';
-    daily.addEventListener('click',()=>event(id,'daily_click'));
+    if(sprint){
+      label.textContent='5 Game Sprint';
+      if(sprint.step===sprintSize-1){
+        title.textContent='Sprint complete — bank the streak';
+        play.href=sprintHomeUrl(sprint.day);
+        play.textContent='See sprint result →';
+        daily.href=sprintGameUrl(sprint.day,0);
+        daily.textContent='Play sprint again';
+      }else{
+        title.textContent=`Next: ${next.title} (${sprint.step+2}/${sprintSize})`;
+        play.href=sprintGameUrl(sprint.day,sprint.step+1);
+        play.textContent='Continue sprint →';
+        daily.href=sprintHomeUrl(sprint.day);
+        daily.textContent='Sprint overview';
+      }
+    }else{
+      label.textContent='Keep the streak going';
+      title.textContent='Next challenge: '+next.title;
+      play.href=gameUrl(next.id)+`?from=${encodeURIComponent(id)}`;
+      play.textContent='Play next →';
+      daily.href=dailyUrl();
+      daily.textContent='Daily challenge';
+    }
+    play.addEventListener('click',()=>event(id,sprint?'sprint_next_click':'next_click'));
+    daily.addEventListener('click',()=>event(id,sprint?'sprint_overview_click':'daily_click'));
     actions.append(play,daily);
     wrap.append(label,title,actions);
     (document.querySelector('main.app')||document.body).appendChild(wrap);
@@ -216,6 +311,10 @@ window.GameFactory=(()=>{
       s.events=s.events||{};
       s.events.daily_open=(s.events.daily_open||0)+1;
     }
+    if(sprintContext(id)){
+      s.events=s.events||{};
+      s.events.sprint_open=(s.events.sprint_open||0)+1;
+    }
     save(id,s);
     const init=()=>{ensureContext(id);ensureNext(id)};
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -244,6 +343,7 @@ window.GameFactory=(()=>{
     if(name==='start')hideNext();
     if(name==='finish'){
       completeDaily(id);
+      completeSprint(id);
       showNext(id);
     }
   }
@@ -297,5 +397,5 @@ window.GameFactory=(()=>{
     event(id,'share_manual');
     return 'manual';
   }
-  return{open,score,event,share,stats,dailyGame,dailyUrl,challengeUrl};
+  return{open,score,event,share,stats,dailyGame,dailyUrl,challengeUrl,sprintSequence,sprintGameUrl,sprintHomeUrl,sprintState};
 })();
