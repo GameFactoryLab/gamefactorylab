@@ -11,7 +11,7 @@ window.GameFactory=(()=>{
     {id:'memory-path',title:'Memory Path'},
     {id:'higher-lower',title:'Higher or Lower'}
   ];
-  const games=[
+  const sprintGames=[
     ...dailyGames,
     {id:'color-word-challenge',title:'Color Word Challenge'},
     {id:'number-hunt',title:'Number Hunt'},
@@ -25,6 +25,13 @@ window.GameFactory=(()=>{
     {id:'pair-flip',title:'Pair Flip'},
     {id:'grid-toggle',title:'Grid Toggle'},
     {id:'mini-sudoku-rush',title:'Mini Sudoku Rush'}
+  ];
+  const portfolioGames=[
+    ...sprintGames,
+    {id:'tile-shift',title:'Tile Shift'},
+    {id:'flood-grid',title:'Flood Grid'},
+    {id:'stack-drop',title:'Stack Drop'},
+    {id:'color-stack-sort',title:'Color Stack Sort'}
   ];
   const sprintSize=5;
 
@@ -55,7 +62,7 @@ window.GameFactory=(()=>{
     let seed=2166136261;
     for(const c of safe+'|5-game-sprint'){seed^=c.charCodeAt(0);seed=Math.imul(seed,16777619)}
     seed>>>=0;
-    const pool=games.slice();
+    const pool=sprintGames.slice();
     function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
     for(let i=pool.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
     return pool.slice(0,sprintSize);
@@ -121,8 +128,8 @@ window.GameFactory=(()=>{
     return u.href;
   }
   function nextGame(id){
-    const i=games.findIndex(g=>g.id===id);
-    return games[(i<0?0:i+1)%games.length];
+    const i=portfolioGames.findIndex(g=>g.id===id);
+    return portfolioGames[(i<0?0:i+1)%portfolioGames.length];
   }
   function ensureContext(id){
     if(!id||document.getElementById('gf-context'))return;
