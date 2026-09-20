@@ -31,11 +31,28 @@ jobs:
       - name: Build standalone ZIP packages
         run: python3 scripts/build_distribution.py
 
-      - name: Validate package count
+      - name: Validate package counts
         run: |
-          count=$(find dist -maxdepth 1 -name '*.zip' | wc -l)
-          test "$count" -ge 8
-          echo "Validated $count standalone game packages"
+          itch_count=$(find dist -maxdepth 1 -name '*_itch.zip' | wc -l)
+          portal_count=$(find dist/crazygames-basic -maxdepth 1 -name '*_crazygames_basic.zip' | wc -l)
+          test "$itch_count" -ge 15
+          test "$portal_count" -ge 15
+          echo "Validated $itch_count itch packages and $portal_count portal-safe packages"
+
+      - name: Guard CrazyGames Basic packages against cross-promotion
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          for path in Path('dist/crazygames-basic').glob('*.zip'):
+              with zipfile.ZipFile(path) as z:
+                  html = z.read('index.html').decode('utf-8')
+                  core = z.read('core.js').decode('utf-8')
+              assert 'href="https://gamefactorylab.github.io/gamefactorylab/' not in html, path
+              assert "href='https://gamefactorylab.github.io/gamefactorylab/" not in html, path
+              assert 'ensureContext(id);ensureNext(id)' not in core, path
+              assert 'Portal build override' in core, path
+          PY
 
       - name: Upload distribution bundle
         uses: actions/upload-artifact@v4
