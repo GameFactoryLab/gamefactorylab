@@ -53,6 +53,19 @@
       "return_sessions": null,
       "shares": null,
       "levels_per_session": null
+    },
+    {
+      "slug": "route-once",
+      "name": "Route Once",
+      "mechanic": "one-visit graph routing puzzle",
+      "status": "approval-gated",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
     }
   ]
 }
