@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Flood Grid — Fast Color Flood Puzzle</title>
+<meta name="description" content="Flood the whole grid with one color before the move limit runs out. A fast free browser color puzzle built for quick replays.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/flood-grid/">
+<meta property="og:title" content="Flood Grid — Fast Color Flood Puzzle">
+<meta property="og:description" content="Start in the top-left corner, choose colors, and flood the whole board before you run out of moves.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/flood-grid/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:10px;text-transform:uppercase}.stat b{display:block;font-size:21px}.board{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;max-width:430px;margin:0 auto}.cell{aspect-ratio:1;border-radius:8px;border:1px solid rgba(255,255,255,.08)}.c0{background:#60a5fa}.c1{background:#f97316}.c2{background:#34d399}.c3{background:#facc15}.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.color-btn{aspect-ratio:1.6;border:2px solid rgba(255,255,255,.16);border-radius:14px;cursor:pointer;touch-action:manipulation}.color-btn.active{outline:3px solid #f8fafc;outline-offset:2px}.color-btn:disabled{opacity:.45;cursor:default}.status{text-align:center;min-height:29px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Flood Grid</h1><p class="muted">The top-left area is yours. Pick a color to absorb touching tiles. Flood the whole 6×6 board before you run out of moves.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Clears</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">75</b></div><div class="card stat"><span class="muted">Moves</span><b id="moves">18</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card"><div id="board" class="board" aria-label="Color flood puzzle"></div></section>
+<section class="palette" aria-label="Choose a color"><button class="color-btn c0" data-color="0" aria-label="Blue"></button><button class="color-btn c1" data-color="1" aria-label="Orange"></button><button class="color-btn c2" data-color="2" aria-label="Green"></button><button class="color-btn c3" data-color="3" aria-label="Yellow"></button></section>
+<div id="status" class="status muted">Tap Start</div>
+<p class="muted rule">Every generated board is checked to have a solution within the move limit. Skipping a board costs 5 seconds.</p>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="skip" type="button" class="btn secondary" disabled>Skip board</button><button id="end" type="button" class="btn danger" disabled>End game</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='flood-grid',SIZE=6,COLORS=4,LIMIT=18;
+const el={board:document.getElementById('board'),score:document.getElementById('score'),time:document.getElementById('time'),moves:document.getElementById('moves'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),skip:document.getElementById('skip'),end:document.getElementById('end'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText'),colors:[...document.querySelectorAll('.color-btn')]};
+let board=[],score=0,time=75,movesLeft=LIMIT,running=false,locked=true,timer=null;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function neighbors(i){const r=Math.floor(i/SIZE),c=i%SIZE,out=[];if(r>0)out.push(i-SIZE);if(r<SIZE-1)out.push(i+SIZE);if(c>0)out.push(i-1);if(c<SIZE-1)out.push(i+1);return out}
+function region(b){const color=b[0],seen=new Set([0]),q=[0];while(q.length){const i=q.shift();for(const n of neighbors(i)){if(!seen.has(n)&&b[n]===color){seen.add(n);q.push(n)}}}return [...seen]}
+function floodCopy(b,color){const next=b.slice(),owned=region(next);for(const i of owned)next[i]=color;return next}
+function greedyMoves(candidate){let b=candidate.slice(),steps=0;while(region(b).length<b.length&&steps<40){const current=b[0];let best=null,bestCount=-1;for(let c=0;c<COLORS;c++){if(c===current)continue;const n=floodCopy(b,c),count=region(n).length;if(count>bestCount){best=n;bestCount=count}}if(!best||bestCount<=region(b).length)return 99;b=best;steps++}return region(b).length===b.length?steps:99}
+function makeBoard(){for(let tries=0;tries<500;tries++){const b=Array.from({length:SIZE*SIZE},()=>Math.floor(Math.random()*COLORS));const witness=greedyMoves(b);if(witness>=7&&witness<=16)return b}return Array.from({length:SIZE*SIZE},(_,i)=>(Math.floor(i/SIZE)+i)%COLORS)}
+function render(){el.board.innerHTML='';board.forEach((c,i)=>{const d=document.createElement('div');d.className=`cell c${c}`;d.setAttribute('aria-label',`Row ${Math.floor(i/SIZE)+1}, column ${i%SIZE+1}`);el.board.appendChild(d)});const current=board[0];el.colors.forEach(b=>{const c=Number(b.dataset.color);b.classList.toggle('active',c===current);b.disabled=!running||locked||c===current})}
+function updateMoves(){el.moves.textContent=movesLeft}
+function newBoard(){board=makeBoard();movesLeft=LIMIT;locked=false;updateMoves();render();el.status.textContent=`Board ${score+1} · ${region(board).length}/${board.length} flooded`}
+function choose(color){if(!running||locked||color===board[0])return;board=floodCopy(board,color);movesLeft--;updateMoves();GameFactory.event(G,'color_move');render();const filled=region(board).length;el.status.textContent=`${filled}/${board.length} flooded`;if(filled===board.length){locked=true;score++;el.score.textContent=score;GameFactory.event(G,'board_clear');el.status.textContent=`Board cleared with ${movesLeft} move${movesLeft===1?'':'s'} left!`;setTimeout(()=>{if(running)newBoard()},430);return}if(movesLeft<=0){locked=true;render();GameFactory.event(G,'board_fail');el.status.textContent='Out of moves — skip to the next board.'}}
+function skip(){if(!running)return;time=Math.max(0,time-5);el.time.textContent=time;GameFactory.event(G,'board_skip');if(time<=0){finish('Time!');return}newBoard();el.status.textContent='New board · -5 sec'}
+function begin(){clearInterval(timer);score=0;time=75;movesLeft=LIMIT;running=true;locked=false;el.score.textContent='0';el.time.textContent='75';el.start.textContent='Restart';el.skip.disabled=false;el.end.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');GameFactory.event(G,'start');newBoard();timer=setInterval(()=>{if(!running)return;time--;el.time.textContent=time;if(time<=0)finish('Time!')},1000)}
+function finish(prefix){if(!running)return;running=false;locked=true;clearInterval(timer);render();const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`${prefix} Clears: ${score}. Best: ${s.best||score}.`;el.skip.disabled=true;el.end.disabled=true;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'finish')}
+function text(){return `I cleared ${score} Flood Grid board${score===1?'':'s'} in 75 seconds. Can you beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.colors.forEach(b=>b.onclick=()=>choose(Number(b.dataset.color)));el.start.onclick=begin;el.skip.onclick=skip;el.end.onclick=()=>{GameFactory.event(G,'manual_end');finish('Game ended.')};el.share.onclick=async()=>{const r=await GameFactory.share(G,'Flood Grid',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;board=makeBoard();render();
+})();
+</script>
+</body>
+</html>
