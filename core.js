@@ -19,7 +19,10 @@ window.GameFactory=(()=>{
     {id:'five-second-sense',title:'Five Second Sense'},
     {id:'parity-rush',title:'Parity Rush'},
     {id:'one-back',title:'One Back'},
-    {id:'direction-switch',title:'Direction Switch'}
+    {id:'direction-switch',title:'Direction Switch'},
+    {id:'word-scramble-rush',title:'Word Scramble Rush'},
+    {id:'maze-dash',title:'Maze Dash'},
+    {id:'pair-flip',title:'Pair Flip'}
   ];
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
