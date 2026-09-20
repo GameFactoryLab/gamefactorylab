@@ -30,7 +30,7 @@ def standalone_html(html: str) -> str:
 
 
 def portal_html(html: str) -> str:
-    """Create a portal-safe build with no cross-promotion back to GameFactoryLab."""
+    """Create a portal-safe build with no links back to a playable GameFactoryLab URL."""
     html = html.replace('href="../../core.css"', 'href="./core.css"')
     html = html.replace("href='../../core.css'", "href='./core.css'")
     html = html.replace('src="../../core.js"', 'src="./core.js"')
@@ -41,6 +41,8 @@ def portal_html(html: str) -> str:
         html,
         flags=re.IGNORECASE | re.DOTALL,
     )
+    html = re.sub(r'\s*<link\s+rel=["\']canonical["\'][^>]*>\s*', '\n', html, flags=re.IGNORECASE)
+    html = re.sub(r'\s*<meta\s+property=["\']og:url["\'][^>]*>\s*', '\n', html, flags=re.IGNORECASE)
     return html
 
 
@@ -56,7 +58,8 @@ def portal_core(core_js: str) -> str:
     )
     core_js += r'''
 
-// Portal build override: share the current portal-hosted game, never an external playable URL.
+// Portal build overrides: never send players to an external playable GameFactoryLab URL.
+window.GameFactory.challengeUrl=function(){return location.href;};
 window.GameFactory.share=async function(id,title,text,url){
   window.GameFactory.event(id,'share_attempt');
   const target=location.href;
@@ -169,7 +172,8 @@ def main() -> None:
 
     (PORTAL_DIR / "README.txt").write_text(
         "CrazyGames Basic Launch packages.\n"
-        "Cross-promotion to GameFactoryLab is removed and sharing stays on the portal-hosted URL.\n"
+        "Cross-promotion and external playable GameFactoryLab URLs are removed.\n"
+        "Sharing remains on the portal-hosted URL.\n"
         "No external ads or CrazyGames SDK are included in these Basic Launch builds.\n"
         "SDK/monetization integration should only be added after a title qualifies for Full Launch.\n",
         encoding="utf-8",
