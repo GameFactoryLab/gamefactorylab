@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Color Stack Sort — Fast Color Sorting Puzzle</title>
+<meta name="description" content="Move colored dots between tubes and sort each stack before the clock runs out. A fast free browser puzzle built for quick replays.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/color-stack-sort/">
+<meta property="og:title" content="Color Stack Sort — Fast Color Sorting Puzzle">
+<meta property="og:description" content="Sort the colored stacks before time runs out, then try to clear one more board.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/color-stack-sort/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(34px,9vw,54px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:10px;text-transform:uppercase}.stat b{display:block;font-size:22px}.board{display:grid;grid-template-columns:repeat(5,minmax(48px,1fr));gap:9px;align-items:end}.tube{min-height:168px;border:2px solid rgba(255,255,255,.18);border-top:0;border-radius:0 0 18px 18px;background:rgba(11,18,32,.72);display:flex;flex-direction:column-reverse;justify-content:flex-start;align-items:center;gap:7px;padding:9px 5px;touch-action:manipulation}.tube.selected{outline:3px solid rgba(96,165,250,.75);transform:translateY(-4px)}.dot{width:clamp(28px,9vw,40px);aspect-ratio:1;border-radius:999px;box-shadow:inset 0 -5px 10px rgba(0,0,0,.2),0 3px 8px rgba(0,0,0,.18)}.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}@media(max-width:520px){.board{gap:5px}.tube{min-height:145px;padding:7px 3px}.dot{width:30px}}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Color Stack Sort</h1><p class="muted">Tap a tube, then another tube. Move the top dot and sort every full tube into one color before the clock hits zero.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Boards</span><b id="boards">0</b></div><div class="card stat"><span class="muted">Moves</span><b id="moves">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">75</b></div></section>
+<section class="card"><div id="board" class="board" aria-label="Color Stack Sort board"></div></section>
+<div id="status" class="status muted">Tap Start</div>
+<p class="muted rule">Any top dot can move into a tube with space. A board clears when every non-empty tube is full and contains one color.</p>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="undo" type="button" class="btn secondary" disabled>Undo</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='color-stack-sort',CAP=3,COLORS=['#60a5fa','#f97316','#34d399','#facc15'];
+const el={board:document.getElementById('board'),boards:document.getElementById('boards'),moves:document.getElementById('moves'),time:document.getElementById('time'),status:document.getElementById('status'),start:document.getElementById('start'),undo:document.getElementById('undo'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let tubes=[],selected=-1,boards=0,moves=0,left=75,running=false,timer=0,history=[];
+GameFactory.open(G);
+function rng(max){return Math.floor(Math.random()*max)}
+function makeBoard(){const colorCount=boards<2?3:4;const tokens=[];for(let c=0;c<colorCount;c++)for(let i=0;i<CAP;i++)tokens.push(c);for(let i=tokens.length-1;i>0;i--){const j=rng(i+1);[tokens[i],tokens[j]]=[tokens[j],tokens[i]]}tubes=[];for(let t=0;t<colorCount;t++)tubes.push(tokens.slice(t*CAP,t*CAP+CAP));tubes.push([]);selected=-1;history=[];render()}
+function solved(){return tubes.every(t=>t.length===0||(t.length===CAP&&t.every(v=>v===t[0])))}
+function render(){el.board.innerHTML='';tubes.forEach((tube,i)=>{const b=document.createElement('button');b.type='button';b.className='tube'+(i===selected?' selected':'');b.setAttribute('aria-label',`Tube ${i+1}, ${tube.length} dots`);tube.forEach(v=>{const d=document.createElement('span');d.className='dot';d.style.background=COLORS[v];b.appendChild(d)});b.onclick=()=>tap(i);el.board.appendChild(b)});el.boards.textContent=boards;el.moves.textContent=moves;el.time.textContent=Math.max(0,Math.ceil(left));el.undo.disabled=!running||history.length===0}
+function begin(){clearInterval(timer);boards=0;moves=0;left=75;running=true;el.start.textContent='Restart';el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.status.textContent='Sort every color stack';GameFactory.event(G,'start');makeBoard();timer=setInterval(()=>{left-=.25;if(left<=0){left=0;finish()}else render()},250)}
+function tap(i){if(!running)return;if(selected<0){if(!tubes[i].length)return;selected=i;render();return}if(i===selected){selected=-1;render();return}const from=tubes[selected],to=tubes[i];if(!from.length||to.length>=CAP){el.status.textContent='That tube is full';selected=-1;render();return}history.push({from:selected,to:i});to.push(from.pop());moves++;GameFactory.event(G,'tube_move');selected=-1;render();if(solved()){boards++;left=Math.min(90,left+8);GameFactory.event(G,'board_clear');el.status.textContent=`Board ${boards} clear! +8 seconds`;setTimeout(()=>{if(running)makeBoard()},350)}}
+function undo(){if(!running||!history.length)return;const m=history.pop();if(!tubes[m.to].length||tubes[m.from].length>=CAP)return;tubes[m.from].push(tubes[m.to].pop());moves=Math.max(0,moves-1);GameFactory.event(G,'undo');selected=-1;render()}
+function finish(){if(!running)return;running=false;clearInterval(timer);const score=boards*100+Math.max(0,60-moves);const s=GameFactory.score(G,score);GameFactory.event(G,'timeout');GameFactory.event(G,'finish');el.status.textContent=`Time! ${boards} board${boards===1?'':'s'} cleared · score ${score} · best ${s.best||score}`;el.share.disabled=false;el.showText.disabled=false;el.undo.disabled=true;render()}
+function text(){const score=boards*100+Math.max(0,60-moves);return `I cleared ${boards} board${boards===1?'':'s'} in Color Stack Sort for ${score} points. Can you beat it?`}
+function show(){const score=boards*100+Math.max(0,60-moves);el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.undo.onclick=undo;el.share.onclick=async()=>{const r=await GameFactory.share(G,'Color Stack Sort',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;makeBoard();
+})();
+</script>
+</body>
+</html>
