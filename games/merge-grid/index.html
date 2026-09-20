@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Merge Grid — Fast Number Merge Puzzle</title>
+<meta name="description" content="Swipe matching number tiles together, build bigger values, and chase a higher score in this free fast browser puzzle.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/merge-grid/">
+<meta property="og:title" content="Merge Grid — Fast Number Merge Puzzle">
+<meta property="og:description" content="Merge equal number tiles, build the biggest grid you can, and challenge a friend to beat your score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/merge-grid/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(34px,9vw,54px);line-height:1}.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.stat{text-align:center;padding:10px}.stat span{font-size:10px;text-transform:uppercase}.stat b{display:block;font-size:22px}.board{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:8px;max-width:430px;margin:auto;touch-action:none;user-select:none}.tile{aspect-ratio:1;border-radius:12px;display:grid;place-items:center;font-size:clamp(20px,8vw,34px);font-weight:900;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07)}.tile[data-v="2"]{background:rgba(96,165,250,.18)}.tile[data-v="4"]{background:rgba(52,211,153,.18)}.tile[data-v="8"]{background:rgba(250,204,21,.20)}.tile[data-v="16"]{background:rgba(249,115,22,.22)}.tile[data-v="32"]{background:rgba(251,113,133,.22)}.tile[data-v="64"]{background:rgba(167,139,250,.24)}.tile[data-v="128"],.tile[data-v="256"],.tile[data-v="512"],.tile[data-v="1024"],.tile[data-v="2048"]{background:rgba(244,114,182,.26)}.status{text-align:center;min-height:28px;font-weight:800}.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:auto}.pad button{font-size:24px;min-height:52px}.pad .up{grid-column:2}.pad .left{grid-column:1}.pad .down{grid-column:2}.pad .right{grid-column:3}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.rule{font-size:13px}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Merge Grid</h1><p class="muted">Swipe or use the arrows. Equal tiles merge. Build bigger numbers before the 4×4 grid locks up.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Score</span><b id="score">0</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div><div class="card stat"><span class="muted">Max tile</span><b id="maxTile">2</b></div></section>
+<section class="card"><div id="board" class="board" role="application" aria-label="Merge Grid game board"></div></section>
+<div id="status" class="status muted">Tap Start</div>
+<p class="muted rule">Keyboard: arrow keys or WASD. Mobile: swipe the grid or use the arrow buttons. Each move adds a new 2 or 4 tile.</p>
+<div class="pad"><button class="btn secondary up" data-dir="up" type="button">↑</button><button class="btn secondary left" data-dir="left" type="button">←</button><button class="btn secondary down" data-dir="down" type="button">↓</button><button class="btn secondary right" data-dir="right" type="button">→</button></div>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='merge-grid',N=4;
+const boardEl=document.getElementById('board');
+const el={score:document.getElementById('score'),best:document.getElementById('best'),maxTile:document.getElementById('maxTile'),status:document.getElementById('status'),start:document.getElementById('start'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let board=Array(N*N).fill(0),score=0,running=false,startX=0,startY=0;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function empty(){return board.map((v,i)=>v?null:i).filter(v=>v!==null)}
+function addTile(){const cells=empty();if(!cells.length)return;const i=cells[Math.floor(Math.random()*cells.length)];board[i]=Math.random()<.9?2:4}
+function render(){boardEl.innerHTML='';let max=2;for(const value of board){max=Math.max(max,value||0);const d=document.createElement('div');d.className='tile';d.dataset.v=String(value||0);d.textContent=value||'';boardEl.appendChild(d)}el.score.textContent=score;el.maxTile.textContent=max;const saved=GameFactory.stats(G).best||0;el.best.textContent=Math.max(saved,score)}
+function same(a,b){return a.every((v,i)=>v===b[i])}
+function collapse(line){const vals=line.filter(Boolean),out=[],merges=[];for(let i=0;i<vals.length;i++){if(vals[i]===vals[i+1]){const v=vals[i]*2;out.push(v);merges.push(v);score+=v;i++}else out.push(vals[i])}while(out.length<N)out.push(0);return{line:out,merges}}
+function indices(dir,k){if(dir==='left')return [0,1,2,3].map(c=>k*N+c);if(dir==='right')return [3,2,1,0].map(c=>k*N+c);if(dir==='up')return [0,1,2,3].map(r=>r*N+k);return [3,2,1,0].map(r=>r*N+k)}
+function canMove(){if(empty().length)return true;for(let r=0;r<N;r++)for(let c=0;c<N;c++){const v=board[r*N+c];if(c<N-1&&board[r*N+c+1]===v)return true;if(r<N-1&&board[(r+1)*N+c]===v)return true}return false}
+function finish(){if(!running)return;running=false;const s=GameFactory.score(G,score);el.best.textContent=s.best||score;el.status.textContent=`Grid locked. Score ${score}. Best ${s.best||score}.`;el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'grid_lock');GameFactory.event(G,'finish')}
+function move(dir){if(!running)return;const before=board.slice();let merged=0;for(let k=0;k<N;k++){const ids=indices(dir,k),res=collapse(ids.map(i=>board[i]));res.line.forEach((v,j)=>board[ids[j]]=v);for(const v of res.merges){merged++;GameFactory.event(G,'merge');if(v>=128&&v%128===0)GameFactory.event(G,'tile_'+v)}}if(same(before,board)){el.status.textContent='No move that way';return}GameFactory.event(G,'move');addTile();render();el.status.textContent=merged?`${merged} merge${merged===1?'':'s'}!`:'Keep building';if(!canMove())finish()}
+function begin(){board=Array(N*N).fill(0);score=0;running=true;addTile();addTile();el.start.textContent='Restart';el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.status.textContent='Swipe to merge matching tiles';GameFactory.event(G,'start');render()}
+function text(){return `I scored ${score} in Merge Grid. Can you beat it?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>move(b.dataset.dir));
+window.addEventListener('keydown',e=>{const map={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down'};const dir=map[e.key];if(dir&&running){e.preventDefault();move(dir)}});
+boardEl.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY});boardEl.addEventListener('pointerup',e=>{if(!running)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;move(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))});
+el.share.onclick=async()=>{const r=await GameFactory.share(G,'Merge Grid',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;render();
+})();
+</script>
+</body>
+</html>
