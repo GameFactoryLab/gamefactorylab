@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Maze Dash — Free Tap Maze Challenge</title>
+<meta name="description" content="Tap through quick mazes before the clock runs out. A free mobile-friendly maze challenge from GameFactoryLab.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/maze-dash/">
+<meta property="og:title" content="Maze Dash — Free Tap Maze Challenge">
+<meta property="og:description" content="Find the route from start to goal and clear as many mazes as you can before time runs out.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/maze-dash/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center}.stat span{font-size:11px;text-transform:uppercase}.stat b{display:block;font-size:22px}.maze-wrap{display:flex;justify-content:center}.maze{width:min(92vw,520px);aspect-ratio:1;display:grid;background:#0b1220;border-radius:12px;overflow:hidden;touch-action:manipulation}.cell{display:flex;align-items:center;justify-content:center;border:2px solid rgba(226,232,240,.72);background:rgba(255,255,255,.025);font-size:clamp(12px,4vw,23px);font-weight:900;padding:0}.cell.player{background:rgba(187,247,208,.18)}.cell.goal{background:rgba(226,232,240,.12)}.status{text-align:center;min-height:40px;font-weight:800}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:84px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Maze Dash</h1><p class="muted">Tap an open neighboring cell to move. Reach the goal, then race through the next maze.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Cleared</span><b id="score">0</b></div><div class="card stat"><span class="muted">Time</span><b id="time">45</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<section class="card maze-wrap"><div id="maze" class="maze"></div></section>
+<div id="status" class="status muted">Tap Start. Each cleared maze adds 2 seconds.</div>
+<div class="actions"><button id="start" class="btn primary" type="button">Start</button><button id="restartMaze" class="btn secondary" type="button" disabled>Restart maze</button><button id="share" class="btn secondary" type="button" disabled>Share score</button><button id="showText" class="btn secondary" type="button" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='maze-dash';
+const el={maze:document.getElementById('maze'),score:document.getElementById('score'),time:document.getElementById('time'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),restartMaze:document.getElementById('restartMaze'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let running=false,score=0,time=45,timer=null,n=5,cells=[],player=0,goal=0;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+function idx(r,c){return r*n+c}
+function rc(i){return [Math.floor(i/n),i%n]}
+function neighbors(i){const [r,c]=rc(i),a=[];if(r>0)a.push([idx(r-1,c),'t','b']);if(c<n-1)a.push([idx(r,c+1),'r','l']);if(r<n-1)a.push([idx(r+1,c),'b','t']);if(c>0)a.push([idx(r,c-1),'l','r']);return a}
+function generate(){n=score<3?5:score<7?6:7;cells=Array.from({length:n*n},()=>({t:1,r:1,b:1,l:1,v:0}));const stack=[0];cells[0].v=1;while(stack.length){const cur=stack[stack.length-1],opts=neighbors(cur).filter(([j])=>!cells[j].v);if(!opts.length){stack.pop();continue}const pick=opts[Math.floor(Math.random()*opts.length)],j=pick[0],a=pick[1],b=pick[2];cells[cur][a]=0;cells[j][b]=0;cells[j].v=1;stack.push(j)}cells.forEach(c=>delete c.v);player=0;goal=n*n-1;render()}
+function render(){el.maze.style.gridTemplateColumns=`repeat(${n},1fr)`;el.maze.innerHTML='';cells.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='cell'+(i===player?' player':'')+(i===goal?' goal':'');b.style.borderTopColor=c.t?'rgba(226,232,240,.72)':'transparent';b.style.borderRightColor=c.r?'rgba(226,232,240,.72)':'transparent';b.style.borderBottomColor=c.b?'rgba(226,232,240,.72)':'transparent';b.style.borderLeftColor=c.l?'rgba(226,232,240,.72)':'transparent';b.textContent=i===player?'●':i===goal?'◎':'';b.onclick=()=>move(i);el.maze.appendChild(b)})}
+function canMove(from,to){const [fr,fc]=rc(from),[tr,tc]=rc(to);if(Math.abs(fr-tr)+Math.abs(fc-tc)!==1)return false;if(tr===fr-1)return !cells[from].t;if(tc===fc+1)return !cells[from].r;if(tr===fr+1)return !cells[from].b;if(tc===fc-1)return !cells[from].l;return false}
+function move(i){if(!running||!canMove(player,i))return;player=i;if(player===goal){score++;time=Math.min(45,time+2);el.score.textContent=score;el.time.textContent=time;el.status.textContent='Maze cleared! +2 seconds';setTimeout(generate,220)}else render()}
+function begin(){clearInterval(timer);score=0;time=45;running=true;el.score.textContent='0';el.time.textContent='45';el.start.disabled=true;el.restartMaze.disabled=false;el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.status.textContent='Find the route to ◎';GameFactory.event(G,'start');generate();timer=setInterval(()=>{time--;el.time.textContent=time;if(time<=0)finish()},1000)}
+function restartMaze(){if(!running)return;player=0;render();el.status.textContent='Maze restarted.'}
+function finish(){if(!running)return;running=false;clearInterval(timer);const s=GameFactory.score(G,score);GameFactory.event(G,'finish');el.best.textContent=s.best||0;el.status.textContent=`Time! You cleared ${score} maze${score===1?'':'s'}.`;el.start.disabled=false;el.start.textContent='Play again';el.restartMaze.disabled=true;el.share.disabled=false;el.showText.disabled=false}
+function text(){return `I cleared ${score} mazes in Maze Dash. Can you beat me?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+el.start.onclick=begin;el.restartMaze.onclick=restartMaze;el.share.onclick=async()=>{const r=await GameFactory.share(G,'Maze Dash',text(),GameFactory.challengeUrl(G,score));if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()};el.showText.onclick=show;
+generate();
+})();
+</script>
+</body>
+</html>
