@@ -1,0 +1,86 @@
+name: Build Google Play Wave 1 AABs
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'mobile/android/**'
+      - 'games/color-stack-sort/**'
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - '.github/workflows/google-play-wave1.yml'
+      - 'mobile/play/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'mobile/android/**'
+      - 'games/color-stack-sort/**'
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - '.github/workflows/google-play-wave1.yml'
+      - 'mobile/play/**'
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - slug: color-stack-sort
+            source: games
+            title: Color Stack Sort
+            app_id: com.gamefactorylab.colorstacksort
+          - slug: ring-pins
+            source: games
+            title: Ring Pins
+            app_id: com.gamefactorylab.ringpins
+          - slug: circuit-flow
+            source: release-candidates
+            title: Circuit Flow
+            app_id: com.gamefactorylab.circuitflow
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Verify Android 16 / API 36
+        run: |
+          test -d "$ANDROID_HOME/platforms/android-36"
+          ls "$ANDROID_HOME/build-tools" | grep -q '^36'
+
+      - name: Package selected game
+        run: python3 mobile/android/prepare_assets.py --game-slug "${{ matrix.slug }}" --game-source "${{ matrix.source }}"
+
+      - name: Build Play AAB
+        working-directory: mobile/android
+        run: >
+          gradle --no-daemon :app:bundleRelease
+          -PgameSlug="${{ matrix.slug }}"
+          -PgameSource="${{ matrix.source }}"
+          -PgameTitle="${{ matrix.title }}"
+          -PgameAppId="${{ matrix.app_id }}"
+
+      - name: Verify AAB
+        run: |
+          test -s mobile/android/app/build/outputs/bundle/release/app-release.aab
+          unzip -l mobile/android/app/build/outputs/bundle/release/app-release.aab | grep -q 'base/assets/www/'
+
+      - name: Rename AAB
+        run: cp mobile/android/app/build/outputs/bundle/release/app-release.aab "GameFactoryLab_${{ matrix.slug }}_play-wave1.aab"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-wave1-${{ matrix.slug }}-aab
+          path: GameFactoryLab_${{ matrix.slug }}_play-wave1.aab
+          retention-days: 7
