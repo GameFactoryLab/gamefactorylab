@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/sequence-snap/">
 <link rel="stylesheet" href="../../core.css">
 <style>
-h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.seq,.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cell,.opt{aspect-ratio:1;border:0;border-radius:14px;font-size:clamp(26px,9vw,40px);display:flex;align-items:center;justify-content:center}.cell{background:#f8fafc;color:#111827}.opt{background:#e2e8f0;color:#111827;cursor:pointer;min-width:0;-webkit-tap-highlight-color:transparent}.opt:active{transform:scale(.97)}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{text-align:center}.stat b{display:block;font-size:22px}.status{text-align:center;min-height:26px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{min-height:44px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;font-size:13px;line-height:1.35;word-break:break-word}.sharebox.show{display:block}.sharebox strong{display:block;margin-bottom:5px}@media(max-width:360px){.app{gap:8px;padding-left:10px;padding-right:10px}.seq,.opts{gap:6px}.cell,.opt{border-radius:12px}.actions{gap:6px}}
+h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.seq,.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cell,.opt{aspect-ratio:1;border:0;border-radius:14px;font-size:clamp(26px,9vw,40px);display:flex;align-items:center;justify-content:center}.cell{background:#f8fafc;color:#111827}.opt{background:#e2e8f0;color:#111827;cursor:pointer;min-width:0;-webkit-tap-highlight-color:transparent}.opt:active{transform:scale(.97)}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{text-align:center}.stat b{display:block;font-size:22px}.status{text-align:center;min-height:26px;font-weight:800}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{min-height:44px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox,.result{display:none}.sharebox.show,.result.show{display:block}.sharebox{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;font-size:13px;line-height:1.35;word-break:break-word}.sharebox strong{display:block;margin-bottom:5px}.result{text-align:center;border:1px solid rgba(52,211,153,.28);background:rgba(16,185,129,.08)}.result .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#86efac}.result strong{display:block;font-size:28px;margin:4px 0 10px}.result-actions .primary{grid-column:1/-1}@media(max-width:360px){.app{gap:8px;padding-left:10px;padding-right:10px}.seq,.opts{gap:6px}.cell,.opt{border-radius:12px}.actions{gap:6px}}
 </style>
 </head>
 <body>
@@ -24,6 +24,7 @@ h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.seq,.opts{display:grid
 <div class="card"><div id="seq" class="seq"></div></div>
 <div id="opts" class="opts"></div>
 <div id="status" class="status muted">Tap Start</div>
+<section id="result" class="card result" aria-live="polite"><div class="eyebrow">Streak complete</div><strong id="resultSummary">Streak 0</strong><div class="result-actions"><button id="playAgain" type="button" class="btn primary">Play again</button><button id="resultShare" type="button" class="btn secondary">Share result</button><button id="resultText" type="button" class="btn secondary">Show share text</button></div></section>
 <div class="actions">
 <button id="start" type="button" class="btn primary">Start</button>
 <button id="end" type="button" class="btn danger" disabled>End streak</button>
@@ -35,41 +36,19 @@ h1{margin:0;font-size:clamp(32px,9vw,52px);line-height:1}.seq,.opts{display:grid
 <script src="../../core.js"></script>
 <script>
 (()=>{
-const G='sequence-snap',sy=['●','■','▲','◆','★','✚'],seq=document.getElementById('seq'),opts=document.getElementById('opts'),scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),status=document.getElementById('status'),start=document.getElementById('start'),end=document.getElementById('end'),share=document.getElementById('share'),showShare=document.getElementById('showShare'),shareBox=document.getElementById('shareBox');
+const G='sequence-snap',sy=['●','■','▲','◆','★','✚'];
+const el={seq:document.getElementById('seq'),opts:document.getElementById('opts'),score:document.getElementById('score'),best:document.getElementById('best'),status:document.getElementById('status'),start:document.getElementById('start'),end:document.getElementById('end'),share:document.getElementById('share'),showShare:document.getElementById('showShare'),shareBox:document.getElementById('shareBox'),result:document.getElementById('result'),resultSummary:document.getElementById('resultSummary'),playAgain:document.getElementById('playAgain'),resultShare:document.getElementById('resultShare'),resultText:document.getElementById('resultText')};
 let ans='',score=0,running=false;
-GameFactory.open(G);bestEl.textContent=GameFactory.stats(G).best||0;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
-function round(){
- const a=sy[Math.floor(Math.random()*sy.length)],pool=sy.filter(x=>x!==a),b=pool[Math.floor(Math.random()*pool.length)],mode=Math.floor(Math.random()*3),s=mode===0?[a,b,a,'?']:mode===1?[a,a,b,'?']:[a,b,b,'?'];
- ans=mode===0?b:a;
- seq.innerHTML=s.map(x=>'<div class="cell">'+x+'</div>').join('');
- opts.innerHTML=shuffle([ans,...shuffle(sy.filter(x=>x!==ans)).slice(0,3)]).map(x=>'<button type="button" class="opt">'+x+'</button>').join('');
- [...opts.children].forEach(btn=>btn.addEventListener('click',()=>pick(btn.textContent)));
-}
-function finish(prefix){
- if(!running)return;
- running=false;
- const s=GameFactory.score(G,score);
- bestEl.textContent=s.best||score;
- status.textContent=prefix+' Final streak: '+score+'.';
- end.disabled=true;share.disabled=false;showShare.disabled=false;
- GameFactory.event(G,'finish');
-}
-function pick(v){
- if(!running)return;
- if(v===ans){score++;scoreEl.textContent=score;status.textContent='Correct — keep going';GameFactory.event(G,'correct');round();}
- else finish('Wrong.');
-}
-function begin(){
- score=0;running=true;scoreEl.textContent='0';share.disabled=true;showShare.disabled=true;end.disabled=false;shareBox.classList.remove('show');shareBox.textContent='';status.textContent='Go!';start.textContent='Restart';GameFactory.event(G,'start');round();
-}
-function shareText(){return `I hit a ${score}-pattern streak in Sequence Snap. Can you beat it?`;}
-function showManual(){shareBox.innerHTML='<strong>Share this score:</strong>'+shareText()+' '+location.href;shareBox.classList.add('show');status.textContent='Use the text below to share your score.';GameFactory.event(G,'share_manual');}
-start.addEventListener('click',begin);
-end.addEventListener('click',()=>finish('Streak ended.'));
-share.addEventListener('click',async()=>{const r=await GameFactory.share(G,'Sequence Snap',shareText());if(r==='shared')status.textContent='Shared!';else if(r==='copied')status.textContent='Score link copied!';else if(r==='unsupported')showManual();});
-showShare.addEventListener('click',showManual);
-round();
+function round(){const a=sy[Math.floor(Math.random()*sy.length)],pool=sy.filter(x=>x!==a),b=pool[Math.floor(Math.random()*pool.length)],mode=Math.floor(Math.random()*3),s=mode===0?[a,b,a,'?']:mode===1?[a,a,b,'?']:[a,b,b,'?'];ans=mode===0?b:a;el.seq.innerHTML=s.map(x=>'<div class="cell">'+x+'</div>').join('');el.opts.innerHTML=shuffle([ans,...shuffle(sy.filter(x=>x!==ans)).slice(0,3)]).map(x=>'<button type="button" class="opt">'+x+'</button>').join('');[...el.opts.children].forEach(btn=>btn.addEventListener('click',()=>pick(btn.textContent)))}
+function finish(prefix){if(!running)return;running=false;const s=GameFactory.score(G,score),best=s.best||score;el.best.textContent=best;el.status.textContent=`${prefix} Final streak: ${score}. Best: ${best}.`;el.resultSummary.textContent=`Streak ${score} · Best ${best}`;el.result.classList.add('show');el.start.textContent='Play again';el.end.disabled=true;el.share.disabled=false;el.showShare.disabled=false;GameFactory.event(G,'finish');GameFactory.event(G,'result_view');setTimeout(()=>el.result.scrollIntoView({behavior:'smooth',block:'center'}),80)}
+function pick(v){if(!running)return;if(v===ans){score++;el.score.textContent=score;el.status.textContent='Correct — keep going';GameFactory.event(G,'correct');round()}else{GameFactory.event(G,'wrong');finish('Wrong.')}}
+function begin(){score=0;running=true;el.score.textContent='0';el.share.disabled=true;el.showShare.disabled=true;el.end.disabled=false;el.shareBox.classList.remove('show');el.shareBox.textContent='';el.result.classList.remove('show');el.status.textContent='Go!';el.start.textContent='Restart';GameFactory.event(G,'start');round()}
+function shareText(){return `I hit a ${score}-pattern streak in Sequence Snap. Can you beat it?`}
+function showManual(){el.shareBox.innerHTML='<strong>Share this score:</strong>'+shareText()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.status.textContent='Use the text below to share your score.'}
+async function doShare(source){if(source==='result')GameFactory.event(G,'result_share_click');const r=await GameFactory.share(G,'Sequence Snap',shareText());if(r==='shared')el.status.textContent='Shared!';else if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='manual')showManual()}
+el.start.addEventListener('click',begin);el.playAgain.addEventListener('click',()=>{GameFactory.event(G,'replay_click');begin()});el.end.addEventListener('click',()=>{GameFactory.event(G,'manual_end');finish('Streak ended.')});el.share.addEventListener('click',()=>doShare('toolbar'));el.resultShare.addEventListener('click',()=>doShare('result'));el.showShare.addEventListener('click',showManual);el.resultText.addEventListener('click',()=>{GameFactory.event(G,'result_share_click');showManual()});round();
 })();
 </script>
 </body>
