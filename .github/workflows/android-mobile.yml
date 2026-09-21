@@ -2,6 +2,12 @@ name: Build Android Mobile Games
 
 on:
   workflow_dispatch:
+    inputs:
+      build_all:
+        description: Build all 32 catalog targets instead of the priority set
+        required: false
+        default: false
+        type: boolean
   push:
     branches: [ main ]
     paths:
@@ -28,7 +34,32 @@ on:
       - '.github/workflows/android-mobile.yml'
 
 jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate mobile catalog
+        run: python3 mobile/android/validate_catalog.py
+      - name: Select standalone build matrix
+        id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BUILD_ALL: ${{ inputs.build_all || false }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          from pathlib import Path
+          data=json.loads(Path('mobile/android/game_catalog.json').read_text())
+          build_all=os.environ.get('EVENT_NAME')=='workflow_dispatch' and os.environ.get('BUILD_ALL','false').lower()=='true'
+          games=data['games'] if build_all else [g for g in data['games'] if g.get('auto_build')]
+          print('matrix='+json.dumps({'include':games},separators=(',',':')))
+          print(f'Selected {len(games)} standalone Android targets')
+          PY
+
   portfolio:
+    needs: catalog
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -57,43 +88,15 @@ jobs:
         with:
           name: gamefactory-quick-games-android
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+          retention-days: 1
 
   individual-games:
+    needs: catalog
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - slug: color-stack-sort
-            source: games
-            title: Color Stack Sort
-            app_id: com.gamefactorylab.colorstacksort
-          - slug: ring-pins
-            source: games
-            title: Ring Pins
-            app_id: com.gamefactorylab.ringpins
-          - slug: circuit-flow
-            source: release-candidates
-            title: Circuit Flow
-            app_id: com.gamefactorylab.circuitflow
-          - slug: route-once
-            source: release-candidates
-            title: Route Once
-            app_id: com.gamefactorylab.routeonce
-          - slug: pixel-logic
-            source: release-candidates
-            title: Pixel Logic
-            app_id: com.gamefactorylab.pixellogic
-          - slug: orbit-align
-            source: release-candidates
-            title: Orbit Align
-            app_id: com.gamefactorylab.orbitalign
-          - slug: sum-vault
-            source: release-candidates
-            title: Sum Vault
-            app_id: com.gamefactorylab.sumvault
+      matrix: ${{ fromJson(needs.catalog.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -127,4 +130,4 @@ jobs:
         with:
           name: gamefactory-${{ matrix.slug }}-android
           path: GameFactoryLab_${{ matrix.slug }}_android.apk
-          retention-days: 7
+          retention-days: 1
