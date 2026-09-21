@@ -12,6 +12,8 @@
     {"slug":"pulse-cascade","name":"Pulse Cascade","mechanic":"one-tap chain reaction","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null},
     {"slug":"cipher-sprint","name":"Cipher Sprint","mechanic":"timed code deduction","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null},
     {"slug":"rule-shift","name":"Rule Shift","mechanic":"changing-rule classification","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null},
-    {"slug":"vector-drift","name":"Vector Drift","mechanic":"momentum impulse arcade","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null}
+    {"slug":"vector-drift","name":"Vector Drift","mechanic":"momentum impulse arcade","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null},
+    {"slug":"gravity-flip","name":"Gravity Flip","mechanic":"one-tap gravity survival","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null},
+    {"slug":"bridge-snap","name":"Bridge Snap","mechanic":"hold-release precision bridge","status":"public-labs","sessions":0,"level3_reached":null,"level10_reached":null,"replay_sessions":null,"return_sessions":null,"shares":null,"levels_per_session":null}
   ]
 }
