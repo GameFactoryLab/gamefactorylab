@@ -21,8 +21,8 @@ h1{margin:0;font-size:clamp(34px,9vw,56px)}
 .target{width:150px;height:150px;border-radius:50%;border:0;font-size:24px;font-weight:900;background:#bbf7d0;color:#111827;display:none;touch-action:manipulation}
 .wait{font-size:24px;font-weight:800}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center}.stat b{display:block;font-size:22px}
-.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}
-.sharebox{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;font-size:13px;line-height:1.35;word-break:break-word}.sharebox.show{display:block}.sharebox strong{display:block;margin-bottom:5px}
+.status{text-align:center;min-height:28px;font-weight:800}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}
+.sharebox{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;font-size:13px;line-height:1.35;word-break:break-word}.sharebox.show{display:block}.sharebox strong{display:block;margin-bottom:5px}.result{display:none;text-align:center}.result.show{display:block}.result h2{margin:0 0 6px;font-size:24px}.result-score{font-size:42px;font-weight:950;line-height:1}.result-meta{margin:6px 0 14px}
 @media(max-height:700px){.app{gap:10px;padding-top:10px}.arena{height:250px;min-height:220px}.target{width:125px;height:125px}}
 </style>
 </head>
@@ -43,29 +43,33 @@ h1{margin:0;font-size:clamp(34px,9vw,56px)}
 <button id="share" type="button" class="btn secondary" disabled>Share score</button>
 <button id="showShare" type="button" class="btn secondary" disabled>Show share text</button>
 </div>
+<section id="result" class="card result" aria-live="polite"><h2>Run complete</h2><div id="resultScore" class="result-score">—</div><div class="muted result-meta">5 rounds · lower is better</div><div class="result-actions"><button id="replay" class="btn primary" type="button">Play again</button><button id="resultShare" class="btn secondary" type="button">Share result</button></div></section>
 <div id="shareBox" class="sharebox" aria-live="polite"></div>
 </main>
 <script src="../../core.js"></script>
 <script>
 (()=>{
-const G='reaction-rush',arena=document.getElementById('arena'),target=document.getElementById('target'),wait=document.getElementById('wait'),roundEl=document.getElementById('round'),last=document.getElementById('last'),avg=document.getElementById('avg'),status=document.getElementById('status'),start=document.getElementById('start'),end=document.getElementById('end'),share=document.getElementById('share'),showShare=document.getElementById('showShare'),shareBox=document.getElementById('shareBox');
+const G='reaction-rush',URL='https://gamefactorylab.github.io/gamefactorylab/games/reaction-rush/',arena=document.getElementById('arena'),target=document.getElementById('target'),wait=document.getElementById('wait'),roundEl=document.getElementById('round'),last=document.getElementById('last'),avg=document.getElementById('avg'),status=document.getElementById('status'),start=document.getElementById('start'),end=document.getElementById('end'),share=document.getElementById('share'),showShare=document.getElementById('showShare'),shareBox=document.getElementById('shareBox'),result=document.getElementById('result'),resultScore=document.getElementById('resultScore'),replay=document.getElementById('replay'),resultShare=document.getElementById('resultShare');
 let round=0,times=[],shownAt=0,pending=null,armed=false,running=false,recordedAverage=null;
 GameFactory.open(G);
 function average(){return times.length?Math.round(times.reduce((a,b)=>a+b,0)/times.length):0}
 function challengeScore(){return recordedAverage===null?null:Math.max(1,1000-recordedAverage)}
 function schedule(){if(!running)return;target.style.display='none';wait.style.display='block';wait.textContent='Wait for it…';armed=false;clearTimeout(pending);pending=setTimeout(()=>{if(!running)return;wait.style.display='none';target.style.display='block';shownAt=performance.now();armed=true},800+Math.random()*2200)}
-function begin(){clearTimeout(pending);round=0;times=[];recordedAverage=null;running=true;armed=false;roundEl.textContent='0/5';last.textContent='—';avg.textContent='—';share.disabled=true;showShare.disabled=true;end.disabled=false;shareBox.classList.remove('show');shareBox.textContent='';status.textContent='Focus…';start.textContent='Restart';GameFactory.event(G,'start');schedule()}
+function begin(){clearTimeout(pending);round=0;times=[];recordedAverage=null;running=true;armed=false;roundEl.textContent='0/5';last.textContent='—';avg.textContent='—';share.disabled=true;showShare.disabled=true;end.disabled=false;shareBox.classList.remove('show');shareBox.textContent='';result.classList.remove('show');status.textContent='Focus…';start.textContent='Restart';GameFactory.event(G,'start');schedule()}
 function hit(){if(!running||!armed)return;armed=false;const ms=Math.round(performance.now()-shownAt);times.push(ms);round++;roundEl.textContent=round+'/5';last.textContent=ms+' ms';avg.textContent=average()+' ms';GameFactory.event(G,'correct');if(round>=5)finish();else setTimeout(schedule,450)}
-function finish(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Done';recordedAverage=average();GameFactory.score(G,Math.max(1,1000-recordedAverage));status.textContent='Average: '+recordedAverage+' ms';end.disabled=true;share.disabled=false;showShare.disabled=false;GameFactory.event(G,'finish')}
-function endRun(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Run ended';status.textContent='Complete all 5 rounds to record a score.';end.disabled=true;share.disabled=true;showShare.disabled=true;GameFactory.event(G,'manual_end')}
+function finish(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Done';recordedAverage=average();GameFactory.score(G,Math.max(1,1000-recordedAverage));status.textContent='Average: '+recordedAverage+' ms';end.disabled=true;share.disabled=false;showShare.disabled=false;resultScore.textContent=recordedAverage+' ms avg';result.classList.add('show');GameFactory.event(G,'finish');GameFactory.event(G,'result_view');setTimeout(()=>result.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'}),80)}
+function endRun(){if(!running)return;clearTimeout(pending);running=false;armed=false;target.style.display='none';wait.style.display='block';wait.textContent='Run ended';status.textContent='Complete all 5 rounds to record a score.';end.disabled=true;share.disabled=true;showShare.disabled=true;result.classList.remove('show');GameFactory.event(G,'manual_end')}
 function shareText(){return `My 5-round reaction average was ${recordedAverage} ms. Can you beat it?`}
 function showManual(){if(recordedAverage===null)return;const url=GameFactory.challengeUrl(G,challengeScore());shareBox.innerHTML='<strong>Share this score:</strong>'+shareText()+' '+url;shareBox.classList.add('show');status.textContent='Use the text below to share your score.';GameFactory.event(G,'share_manual')}
+async function doShare(source){if(recordedAverage===null)return;if(source)GameFactory.event(G,source);const r=await GameFactory.share(G,'Reaction Rush',shareText(),URL);if(r==='shared')status.textContent='Shared!';else if(r==='copied')status.textContent='Score link copied!';else if(r==='manual'||r==='unsupported')showManual()}
 arena.addEventListener('pointerdown',e=>{if(e.target===target)return;if(running&&!armed){status.textContent='Too early — wait for the target';GameFactory.event(G,'early')}});
 target.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hit()});
 start.addEventListener('click',begin);
 end.addEventListener('click',endRun);
-share.addEventListener('click',async()=>{if(recordedAverage===null)return;const r=await GameFactory.share(G,'Reaction Rush',shareText());if(r==='shared')status.textContent='Shared!';else if(r==='copied')status.textContent='Score link copied!';else if(r==='manual')status.textContent='Use the share text below.'});
+share.addEventListener('click',()=>doShare('share_click'));
 showShare.addEventListener('click',showManual);
+replay.addEventListener('click',()=>{GameFactory.event(G,'replay_click');begin()});
+resultShare.addEventListener('click',()=>doShare('result_share_click'));
 })();
 </script>
 </body>
