@@ -118,6 +118,32 @@
       "return_sessions": null,
       "shares": null,
       "levels_per_session": null
+    },
+    {
+      "slug": "ceiling-shift",
+      "name": "Ceiling Shift",
+      "mechanic": "one-tap gravity runner",
+      "status": "public-labs",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
+    },
+    {
+      "slug": "grid-pack",
+      "name": "Grid Pack",
+      "mechanic": "block-placement line clear",
+      "status": "public-labs",
+      "sessions": 0,
+      "level3_reached": null,
+      "level10_reached": null,
+      "replay_sessions": null,
+      "return_sessions": null,
+      "shares": null,
+      "levels_per_session": null
     }
   ]
 }
