@@ -1,0 +1,33 @@
+{
+  "wave": 1,
+  "target_api": 36,
+  "apps": [
+    {
+      "slug": "color-stack-sort",
+      "title": "Color Stack Sort",
+      "app_id": "com.gamefactorylab.colorstacksort",
+      "short_description": "Sort every color into its own tube in a fast, replayable puzzle.",
+      "full_description": "Color Stack Sort is a quick mobile sorting puzzle built for short sessions and immediate replays. Move the top ball between tubes, group matching colors together, clear the board, and improve your result. Simple touch controls, offline play, no account required.",
+      "category": "Puzzle",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    },
+    {
+      "slug": "ring-pins",
+      "title": "Ring Pins",
+      "app_id": "com.gamefactorylab.ringpins",
+      "short_description": "Tap at the right moment, place pins, and survive the spinning ring.",
+      "full_description": "Ring Pins is a one-tap timing game for fast mobile sessions. Launch pins into a spinning ring without hitting the pins already attached. The pace rises as your score grows, making every clean placement harder than the last. Offline play, instant restart, no account required.",
+      "category": "Casual",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    },
+    {
+      "slug": "circuit-flow",
+      "title": "Circuit Flow",
+      "app_id": "com.gamefactorylab.circuitflow",
+      "short_description": "Rotate the circuit, complete the path, and progress through logic levels.",
+      "full_description": "Circuit Flow is a level-based mobile logic puzzle. Rotate circuit pieces to complete a valid path, use hints when needed, protect your lives, and progress through increasingly challenging boards. Progress is saved locally. Offline play, no account required.",
+      "category": "Puzzle",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    }
+  ]
+}
