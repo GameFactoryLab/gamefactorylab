@@ -1,1 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111827"><title>Perfect Tap — Timing Streak Challenge</title><meta name="description" content="Stop the moving line inside the target and build the longest timing streak you can. Free browser game."><link rel="stylesheet" href="../../core.css"><style>h1{margin:0;font-size:clamp(34px,9vw,56px)}.track{height:54px;border-radius:27px;background:rgba(255,255,255,.1);position:relative;overflow:hidden}.zone{position:absolute;left:42%;width:16%;top:0;bottom:0;background:rgba(187,247,208,.35)}.bar{position:absolute;width:8px;top:0;bottom:0;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{text-align:center}.stat b{display:block;font-size:24px}.status{text-align:center;min-height:28px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}</style></head><body><main class="app"><a href="../../index.html" class="muted">← GameFactoryLab</a><section><h1>Perfect Tap</h1><p class="muted">Tap inside the green zone. One miss ends the streak and the bar speeds up.</p></section><section class="stats"><div class="card stat"><span class="muted">Streak</span><b id="score">0</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section><div class="card"><div class="track"><div class="zone"></div><div id="bar" class="bar"></div></div></div><div id="status" class="status muted">Tap Start</div><button id="tap" class="btn primary" disabled>Tap</button><div class="actions"><button id="start" class="btn secondary">Start / Restart</button><button id="share" class="btn secondary" disabled>Share</button></div></main><script src="../../core.js"></script><script>(()=>{const G='perfect-tap',bar=document.getElementById('bar'),scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),status=document.getElementById('status'),tap=document.getElementById('tap'),start=document.getElementById('start'),share=document.getElementById('share');let x=0,d=1,score=0,running=false,speed=1.7;GameFactory.open(G);bestEl.textContent=GameFactory.stats(G).best||0;setInterval(()=>{x+=d*speed;if(x>=99){x=99;d=-1}else if(x<=0){x=0;d=1}bar.style.left=x+'%'},16);function begin(){score=0;speed=1.7;running=true;scoreEl.textContent='0';tap.disabled=false;share.disabled=true;status.textContent='Go!';GameFactory.event(G,'start')}function hit(){if(!running)return;if(x>=42&&x<=58){score++;speed=Math.min(4.2,1.7+score*.12);scoreEl.textContent=score;status.textContent='Perfect — faster now';GameFactory.event(G,'correct')}else{running=false;tap.disabled=true;const s=GameFactory.score(G,score);bestEl.textContent=s.best||score;status.textContent='Miss. Final streak: '+score;share.disabled=false;GameFactory.event(G,'finish')}}start.onclick=begin;tap.onclick=hit;share.onclick=async()=>{const r=await GameFactory.share(G,'Perfect Tap',`I hit a ${score}-tap timing streak in Perfect Tap. Can you beat it?`);if(r==='copied')status.textContent='Score link copied!'};})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Perfect Tap — Timing Streak Challenge</title>
+<meta name="description" content="Stop the moving line inside the target and build the longest timing streak you can. Free browser game.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/perfect-tap/">
+<meta property="og:title" content="Perfect Tap — Timing Streak Challenge">
+<meta property="og:description" content="Tap inside the target, build a streak, and challenge a friend.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/perfect-tap/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(34px,9vw,56px)}.track{height:54px;border-radius:27px;background:rgba(255,255,255,.1);position:relative;overflow:hidden}.zone{position:absolute;left:42%;width:16%;top:0;bottom:0;background:rgba(187,247,208,.35)}.bar{position:absolute;width:8px;top:0;bottom:0;background:#f8fafc}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{text-align:center}.stat b{display:block;font-size:24px}.status{text-align:center;min-height:28px;font-weight:800}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sharebox,.result{display:none}.sharebox.show,.result.show{display:block}.result{text-align:center;border:1px solid rgba(52,211,153,.28);background:rgba(16,185,129,.08)}.result .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#86efac}.result strong{display:block;font-size:28px;margin:4px 0 10px}.result-actions .primary{grid-column:1/-1}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Perfect Tap</h1><p class="muted">Tap inside the green zone. One miss ends the streak and the bar speeds up.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Streak</span><b id="score">0</b></div><div class="card stat"><span class="muted">Best</span><b id="best">0</b></div></section>
+<div class="card"><div class="track"><div class="zone"></div><div id="bar" class="bar"></div></div></div>
+<div id="status" class="status muted">Tap Start</div>
+<button id="tap" class="btn primary" disabled>Tap</button>
+<section id="result" class="card result" aria-live="polite"><div class="eyebrow">Streak complete</div><strong id="resultSummary">Streak 0</strong><div class="result-actions"><button id="playAgain" type="button" class="btn primary">Play again</button><button id="resultShare" type="button" class="btn secondary">Share result</button><button id="resultText" type="button" class="btn secondary">Show share text</button></div></section>
+<div class="actions"><button id="start" class="btn secondary">Start / Restart</button><button id="share" class="btn secondary" disabled>Share</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+const G='perfect-tap';
+const el={bar:document.getElementById('bar'),score:document.getElementById('score'),best:document.getElementById('best'),status:document.getElementById('status'),tap:document.getElementById('tap'),start:document.getElementById('start'),share:document.getElementById('share'),result:document.getElementById('result'),resultSummary:document.getElementById('resultSummary'),playAgain:document.getElementById('playAgain'),resultShare:document.getElementById('resultShare'),resultText:document.getElementById('resultText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let x=0,d=1,score=0,running=false,speed=1.7;
+GameFactory.open(G);el.best.textContent=GameFactory.stats(G).best||0;
+setInterval(()=>{x+=d*speed;if(x>=99){x=99;d=-1}else if(x<=0){x=0;d=1}el.bar.style.left=x+'%'},16);
+function begin(){score=0;speed=1.7;running=true;el.score.textContent='0';el.tap.disabled=false;el.share.disabled=true;el.result.classList.remove('show');el.shareBox.classList.remove('show');el.status.textContent='Go!';GameFactory.event(G,'start')}
+function finish(){if(!running)return;running=false;el.tap.disabled=true;const s=GameFactory.score(G,score),best=s.best||score;el.best.textContent=best;el.status.textContent=`Miss. Final streak: ${score}. Best: ${best}.`;el.resultSummary.textContent=`Streak ${score} · Best ${best}`;el.result.classList.add('show');el.share.disabled=false;GameFactory.event(G,'miss');GameFactory.event(G,'finish');GameFactory.event(G,'result_view');setTimeout(()=>el.result.scrollIntoView({behavior:'smooth',block:'center'}),80)}
+function hit(){if(!running)return;if(x>=42&&x<=58){score++;speed=Math.min(4.2,1.7+score*.12);el.score.textContent=score;el.status.textContent='Perfect — faster now';GameFactory.event(G,'correct')}else finish()}
+function text(){return `I hit a ${score}-tap timing streak in Perfect Tap. Can you beat it?`}
+function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+async function doShare(source){if(source==='result')GameFactory.event(G,'result_share_click');const r=await GameFactory.share(G,'Perfect Tap',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual')show()}
+el.start.onclick=begin;el.playAgain.onclick=()=>{GameFactory.event(G,'replay_click');begin()};el.tap.onclick=hit;el.share.onclick=()=>doShare('toolbar');el.resultShare.onclick=()=>doShare('result');el.resultText.onclick=()=>{GameFactory.event(G,'result_share_click');show()};
+})();
+</script>
+</body>
+</html>
