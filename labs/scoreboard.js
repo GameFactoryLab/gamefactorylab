@@ -10,7 +10,9 @@ window.GameFactoryLabs=(()=>{
     {id:'cluster-collapse',title:'Cluster Collapse',key:'gf_candidate_cluster_collapse_v1',total:null},
     {id:'balance-drop',title:'Balance Drop',key:'gf_candidate_balance_drop_v1',total:null},
     {id:'pulse-cascade',title:'Pulse Cascade',key:'gf_candidate_pulse_cascade_v1',total:20},
-    {id:'cipher-sprint',title:'Cipher Sprint',key:'gf_candidate_cipher_sprint_v1',total:null}
+    {id:'cipher-sprint',title:'Cipher Sprint',key:'gf_candidate_cipher_sprint_v1',total:null},
+    {id:'rule-shift',title:'Rule Shift',key:'gf_candidate_rule_shift_v1',total:null},
+    {id:'vector-drift',title:'Vector Drift',key:'gf_candidate_vector_drift_v1',total:null}
   ];
 
   function read(key){
