@@ -1,0 +1,73 @@
+name: Build Android Mobile Games
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mobile/android/**'
+      - 'games/**'
+      - 'sprint/**'
+      - 'labs/**'
+      - 'release-candidates/**'
+      - 'index.html'
+      - 'core.css'
+      - 'core.js'
+      - '.github/workflows/android-mobile.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'mobile/android/**'
+      - 'games/**'
+      - 'sprint/**'
+      - 'labs/**'
+      - 'release-candidates/**'
+      - 'index.html'
+      - 'core.css'
+      - 'core.js'
+      - '.github/workflows/android-mobile.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Install Android SDK 36
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Package HTML5 portfolio into APK assets
+        run: python3 mobile/android/prepare_assets.py
+
+      - name: Build installable debug APK
+        working-directory: mobile/android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          test -s mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          unzip -l mobile/android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'assets/www/index.html'
+          unzip -l mobile/android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'assets/www/games/ring-pins/index.html'
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-quick-games-android
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
