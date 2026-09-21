@@ -37,6 +37,8 @@
     {"slug":"orbit-align","source":"release-candidates","title":"Orbit Align","app_id":"com.gamefactorylab.orbitalign","auto_build":true},
     {"slug":"sum-vault","source":"release-candidates","title":"Sum Vault","app_id":"com.gamefactorylab.sumvault","auto_build":true},
     {"slug":"cluster-collapse","source":"release-candidates","title":"Cluster Collapse","app_id":"com.gamefactorylab.clustercollapse","auto_build":true},
-    {"slug":"balance-drop","source":"release-candidates","title":"Balance Drop","app_id":"com.gamefactorylab.balancedrop","auto_build":true}
+    {"slug":"balance-drop","source":"release-candidates","title":"Balance Drop","app_id":"com.gamefactorylab.balancedrop","auto_build":true},
+    {"slug":"pulse-cascade","source":"release-candidates","title":"Pulse Cascade","app_id":"com.gamefactorylab.pulsecascade","auto_build":true},
+    {"slug":"cipher-sprint","source":"release-candidates","title":"Cipher Sprint","app_id":"com.gamefactorylab.ciphersprint","auto_build":true}
   ]
 }
