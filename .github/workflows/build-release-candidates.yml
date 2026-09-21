@@ -1,0 +1,54 @@
+name: Build release candidates
+
+on:
+  pull_request:
+    paths:
+      - 'release-candidates/**'
+      - 'scripts/build_release_candidates.py'
+      - '.github/workflows/build-release-candidates.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'release-candidates/**'
+      - 'scripts/build_release_candidates.py'
+      - '.github/workflows/build-release-candidates.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build and validate zero-cash candidates
+        run: python3 scripts/build_release_candidates.py
+
+      - name: Inspect package contents
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          from pathlib import Path
+          manifest=json.loads(Path('dist-candidates/manifest.json').read_text())
+          assert manifest['candidates'], 'no candidates packaged'
+          for item in manifest['candidates']:
+              path=Path('dist-candidates')/item['zip']
+              with zipfile.ZipFile(path) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names, path
+                  html=z.read('index.html').decode('utf-8')
+                  assert 'http://' not in html and 'https://' not in html, path
+                  assert '__GAME_ID__' not in html, path
+              print(f"validated {item['id']} -> {item['zip']}")
+          PY
+
+      - name: Upload candidate bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactorylab-release-candidates
+          path: dist-candidates/
+          retention-days: 7
+          if-no-files-found: error
