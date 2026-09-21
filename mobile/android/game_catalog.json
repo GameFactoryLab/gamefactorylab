@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "policy": "zero-cash",
+  "build_set": "priority-commercial-test",
+  "games": [
+    {
+      "slug": "color-stack-sort",
+      "source": "games",
+      "title": "Color Stack Sort",
+      "app_id": "com.gamefactorylab.colorstacksort",
+      "priority": 1
+    },
+    {
+      "slug": "ring-pins",
+      "source": "games",
+      "title": "Ring Pins",
+      "app_id": "com.gamefactorylab.ringpins",
+      "priority": 1
+    },
+    {
+      "slug": "circuit-flow",
+      "source": "release-candidates",
+      "title": "Circuit Flow",
+      "app_id": "com.gamefactorylab.circuitflow",
+      "priority": 1
+    },
+    {
+      "slug": "route-once",
+      "source": "release-candidates",
+      "title": "Route Once",
+      "app_id": "com.gamefactorylab.routeonce",
+      "priority": 1
+    },
+    {
+      "slug": "pixel-logic",
+      "source": "release-candidates",
+      "title": "Pixel Logic",
+      "app_id": "com.gamefactorylab.pixellogic",
+      "priority": 1
+    },
+    {
+      "slug": "orbit-align",
+      "source": "release-candidates",
+      "title": "Orbit Align",
+      "app_id": "com.gamefactorylab.orbitalign",
+      "priority": 1
+    },
+    {
+      "slug": "sum-vault",
+      "source": "release-candidates",
+      "title": "Sum Vault",
+      "app_id": "com.gamefactorylab.sumvault",
+      "priority": 1
+    }
+  ]
+}
