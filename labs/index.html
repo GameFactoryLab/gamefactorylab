@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="../core.css">
 <style>
-h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.game{display:block;text-decoration:none;min-height:176px}.game.featured{grid-column:1/-1;min-height:200px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}.featured .pill{background:rgba(187,247,208,.16)}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hero-actions .btn{text-decoration:none}.note{font-size:13px}.metric{font-size:12px;color:#94a3b8;margin-top:10px}.lab-footer{padding-bottom:22px}
+h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.game{display:block;text-decoration:none;min-height:176px}.game.featured{grid-column:1/-1;min-height:200px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}.featured .pill{background:rgba(187,247,208,.16)}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hero-actions .btn{text-decoration:none}.note{font-size:13px}.metric{font-size:12px;color:#94a3b8;margin-top:10px}.lab-footer{padding-bottom:22px}.signal-board{display:grid;gap:8px}.signal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.signal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}.signal-row:first-of-type{border-top:0}.signal-score{font-weight:900;font-size:18px}.signal-row strong{display:block}.signal-detail{font-size:12px;color:#94a3b8}.signal-empty{font-size:13px;color:#94a3b8;margin:0}.signal-leader{color:#bbf7d0}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ItemList","name":"GameFactoryLab experimental browser games","numberOfItems":5,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://gamefactorylab.github.io/gamefactorylab/release-candidates/circuit-flow/","name":"Circuit Flow"},{"@type":"ListItem","position":2,"url":"https://gamefactorylab.github.io/gamefactorylab/release-candidates/route-once/","name":"Route Once"},{"@type":"ListItem","position":3,"url":"https://gamefactorylab.github.io/gamefactorylab/release-candidates/pixel-logic/","name":"Pixel Logic"},{"@type":"ListItem","position":4,"url":"https://gamefactorylab.github.io/gamefactorylab/release-candidates/orbit-align/","name":"Orbit Align"},{"@type":"ListItem","position":5,"url":"https://gamefactorylab.github.io/gamefactorylab/release-candidates/sum-vault/","name":"Sum Vault"}]}
@@ -27,7 +27,11 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 <h1>Find the next winner.</h1>
 <p class="muted">Five distinct prototypes are live for fast testing. No install, no account. Play one, replay if it earns it, and share the experiment that feels strongest.</p>
 <div class="hero-actions"><button id="dailyExperiment" class="btn primary" type="button">Play today’s experiment →</button><button id="randomExperiment" class="btn secondary" type="button">Random experiment</button><a class="btn secondary" href="../">27 released games</a></div>
-<p class="muted note">The experiment of the day rotates globally. These builds stay lightweight until replay, progression or sharing signals justify deeper work.</p>
+<p id="labRoutingNote" class="muted note">The experiment of the day rotates globally. These builds stay lightweight until replay, progression or sharing signals justify deeper work.</p>
+</section>
+<section id="signalBoard" class="card signal-board" aria-live="polite">
+<div class="signal-head"><div><strong>Your signal board</strong><div class="muted note">This device only. Progress, replay and share signals never leave your browser.</div></div><div class="pill">0 € analytics</div></div>
+<div id="signalRows"><p class="signal-empty">Play the experiments to build comparable signals.</p></div>
 </section>
 <section class="grid">
 <a class="card game featured" data-game="circuit-flow" href="../release-candidates/circuit-flow/?from=labs"><div class="pill">Logic campaign • 30 levels</div><h2>Circuit Flow</h2><p class="muted">Rotate circuit tiles, connect IN to OUT, and progress through increasingly difficult boards.</p><strong>Play experiment →</strong><div class="metric">Watch: level depth • wrong checks • hint use • replay</div></a>
@@ -38,9 +42,10 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 </section>
 <section class="card lab-footer"><strong>Why Labs?</strong><p class="muted">GameFactoryLab ships small, tests broadly and only expands mechanics that earn stronger replay, progression, sharing or traffic. Every experiment here is self-contained and runs without paid runtime services.</p></section>
 </main>
+<script src="scoreboard.js"></script>
 <script>
 (()=>{
-  const games=['circuit-flow','route-once','pixel-logic','orbit-align','sum-vault'];
+  const games=window.GameFactoryLabs?.candidates?.map(x=>x.id)||['circuit-flow','route-once','pixel-logic','orbit-align','sum-vault'];
   const base='../release-candidates/';
   const today=()=>new Date().toISOString().slice(0,10);
   function dayIndex(day){let h=2166136261;for(const c of day){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%games.length}
@@ -48,7 +53,28 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
     try{const key='gf_labs';const s=JSON.parse(localStorage.getItem(key)||'{}');s.opens=(s.opens||0)+1;s.last=id;s.lastSeen=Date.now();s.sources=s.sources||{};s.sources[source]=(s.sources[source]||0)+1;localStorage.setItem(key,JSON.stringify(s))}catch(e){}
     location.href=`${base}${id}/?from=${encodeURIComponent(source)}`;
   }
-  document.getElementById('dailyExperiment').addEventListener('click',()=>openGame(games[dayIndex(today())],'labs-daily'));
+  const board=window.GameFactoryLabs?.board?.()||[];
+  const winner=window.GameFactoryLabs?.winner?.()||null;
+  const rows=document.getElementById('signalRows');
+  if(rows&&board.some(x=>x.activity>0||x.progress>0)){
+    rows.innerHTML='';
+    board.forEach((row,index)=>{
+      const wrap=document.createElement('div');wrap.className='signal-row';
+      const left=document.createElement('div');
+      const title=document.createElement('strong');title.textContent=`${index===0?'#1 ':''}${row.title}`;if(index===0)title.classList.add('signal-leader');
+      const detail=document.createElement('div');detail.className='signal-detail';detail.textContent=`progress ${Math.round(row.progress*100)}% • clears ${row.clears} • replays ${row.replays} • shares ${row.shares}`;
+      const score=document.createElement('div');score.className='signal-score';score.textContent=String(row.score);
+      left.append(title,detail);wrap.append(left,score);rows.appendChild(wrap);
+    });
+  }
+  const daily=document.getElementById('dailyExperiment');
+  if(winner){
+    daily.textContent=`Keep testing ${winner.title} →`;
+    document.getElementById('labRoutingNote').textContent=`Your local signals currently favor ${winner.title}. Returning traffic on this device is routed there while the other experiments remain available.`;
+    daily.addEventListener('click',()=>openGame(winner.id,'labs-signal-winner'));
+  }else{
+    daily.addEventListener('click',()=>openGame(games[dayIndex(today())],'labs-daily'));
+  }
   document.getElementById('randomExperiment').addEventListener('click',()=>openGame(games[Math.floor(Math.random()*games.length)],'labs-random'));
   document.querySelectorAll('[data-game]').forEach(a=>a.addEventListener('click',()=>{try{const key='gf_labs';const s=JSON.parse(localStorage.getItem(key)||'{}');s.cardClicks=(s.cardClicks||0)+1;s.last=a.dataset.game;s.lastSeen=Date.now();localStorage.setItem(key,JSON.stringify(s))}catch(e){}}));
 })();
