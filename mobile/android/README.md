@@ -1,29 +1,56 @@
-# Game Factory Quick Games — Android
+# Game Factory Android Factory
 
-Zero-cash Android wrapper for the existing GameFactoryLab HTML5 portfolio.
+Zero-cash Android packaging for the existing GameFactoryLab HTML5 portfolio.
 
-## What it does
+## Current outputs
 
-- Packages the live HTML5 games locally into an Android APK.
-- Runs without paid hosting or paid runtime dependencies.
-- Reuses the same game code as the web portfolio.
-- Preserves local score/progress storage through Android WebView.
-- Provides a native Android share sheet through the existing GameFactoryNative bridge.
-- Automatically includes new live games in future builds.
+The same native WebView/share shell produces:
 
-## Build
+- one portfolio app containing all live games + Labs
+- standalone installable Android APKs for selected games
+- unique application IDs, so standalone games can coexist on one phone
 
-The GitHub Actions workflow `android-mobile.yml` uses:
+The first priority batch is tracked in `game_catalog.json`:
 
-- JDK 17
-- Gradle 9.6
-- Android SDK 36
-- Android Gradle Plugin 9.4
+- Color Stack Sort
+- Ring Pins
+- Circuit Flow
+- Route Once
+- Pixel Logic
+- Orbit Align
+- Sum Vault
 
-The workflow first runs `prepare_assets.py`, then builds an installable debug APK and publishes it as the `gamefactory-quick-games-android` artifact.
+## Architecture
 
-## Zero-cash commercial policy
+`prepare_assets.py` supports either the full portfolio or one selected game. Standalone builds preserve each HTML5 game's original directory depth so existing `../../core.css` and `../../core.js` references remain valid.
 
-This mobile build intentionally contains no paid advertising SDK, subscription, paid asset, paid hosting dependency or app-store commitment.
+Gradle properties control each standalone identity:
 
-Google Play registration, production signing/account commitments and ad-network terms remain explicit owner-approval gates. Until Game Factory has realized cash flow, APK distribution stays on zero-cost channels.
+```
+-PgameSlug=color-stack-sort
+-PgameSource=games
+-PgameTitle="Color Stack Sort"
+-PgameAppId=com.gamefactorylab.colorstacksort
+```
+
+The Android activity launches the selected source directly through `BuildConfig.GAME_START`.
+
+## Release factory
+
+`.github/workflows/android-mobile.yml` builds the portfolio APK and the priority standalone APKs in parallel. Each standalone output gets its own artifact and application ID. Adding another title requires only a validated source folder plus a catalog/workflow entry; no new native code is needed.
+
+## Zero-cash policy
+
+- no Play Console registration
+- no paid app-store publishing
+- no ad SDK or ad-network account
+- no paid hosting
+- no paid assets
+- no subscription or contractor dependency
+- no Internet permission in the APK
+
+External sharing still uses Android's native share sheet. Store signing, ad-network terms and any legally binding distribution terms remain owner approval gates.
+
+## Commercial operating rule
+
+Build fast, sideload-test first, and allocate deeper mobile work only after replay, completion, sharing or retention signals justify it. The factory exists so one mobile release per day is a floor rather than a ceiling.
