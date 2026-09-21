@@ -10,7 +10,7 @@ The same native WebView/share shell produces:
 - standalone installable Android APKs for selected games
 - unique application IDs, so standalone games can coexist on one phone
 
-The first priority batch is tracked in `game_catalog.json`:
+The current auto-build batch is tracked in `game_catalog.json`:
 
 - Color Stack Sort
 - Ring Pins
@@ -19,6 +19,10 @@ The first priority batch is tracked in `game_catalog.json`:
 - Pixel Logic
 - Orbit Align
 - Sum Vault
+- Cluster Collapse
+- Balance Drop
+- Pulse Cascade
+- Cipher Sprint
 
 ## Architecture
 
