@@ -8,10 +8,13 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GAMES = ROOT / "games"
 DIST = ROOT / "dist"
 CANONICAL = "https://gamefactorylab.github.io/gamefactorylab/"
 PORTAL_DIR = DIST / "crazygames-basic"
+SOURCES = (
+    ("games", ROOT / "games"),
+    ("release-candidates", ROOT / "release-candidates"),
+)
 
 
 def extract_meta(html: str, pattern: str, fallback: str) -> str:
@@ -115,44 +118,48 @@ def main() -> None:
     rows = []
     portal_rows = []
 
-    for game_dir in sorted(p for p in GAMES.iterdir() if p.is_dir()):
-        index_path = game_dir / "index.html"
-        if not index_path.exists():
+    for source_name, source_dir in SOURCES:
+        if not source_dir.exists():
             continue
+        for game_dir in sorted(p for p in source_dir.iterdir() if p.is_dir()):
+            index_path = game_dir / "index.html"
+            if not index_path.exists():
+                continue
 
-        game_id = game_dir.name
-        source_html = index_path.read_text(encoding="utf-8")
-        html = standalone_html(source_html)
-        cg_html = portal_html(source_html)
-        title = extract_meta(html, r"<title>(.*?)</title>", game_id)
-        description = extract_meta(
-            html,
-            r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']',
-            "Free browser challenge from GameFactoryLab.",
-        )
+            game_id = game_dir.name
+            source_html = index_path.read_text(encoding="utf-8")
+            html = standalone_html(source_html)
+            cg_html = portal_html(source_html)
+            title = extract_meta(html, r"<title>(.*?)</title>", game_id)
+            description = extract_meta(
+                html,
+                r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']',
+                "Free browser challenge from GameFactoryLab.",
+            )
+            canonical_path = "games" if source_name == "games" else "release-candidates"
 
-        zip_name = f"GameFactoryLab_{game_id.replace('-', '_')}_itch.zip"
-        write_zip(DIST / zip_name, html, core_css, core_js, game_dir, index_path)
-        rows.append(
-            {
-                "game_id": game_id,
-                "title": title,
-                "description": description,
-                "canonical_url": f"{CANONICAL}games/{game_id}/",
-                "zip": zip_name,
-            }
-        )
+            zip_name = f"GameFactoryLab_{game_id.replace('-', '_')}_itch.zip"
+            write_zip(DIST / zip_name, html, core_css, core_js, game_dir, index_path)
+            rows.append(
+                {
+                    "game_id": game_id,
+                    "title": title,
+                    "description": description,
+                    "canonical_url": f"{CANONICAL}{canonical_path}/{game_id}/",
+                    "zip": zip_name,
+                }
+            )
 
-        portal_zip_name = f"GameFactoryLab_{game_id.replace('-', '_')}_crazygames_basic.zip"
-        write_zip(PORTAL_DIR / portal_zip_name, cg_html, core_css, cg_core_js, game_dir, index_path)
-        portal_rows.append(
-            {
-                "game_id": game_id,
-                "title": title,
-                "description": description,
-                "zip": portal_zip_name,
-            }
-        )
+            portal_zip_name = f"GameFactoryLab_{game_id.replace('-', '_')}_crazygames_basic.zip"
+            write_zip(PORTAL_DIR / portal_zip_name, cg_html, core_css, cg_core_js, game_dir, index_path)
+            portal_rows.append(
+                {
+                    "game_id": game_id,
+                    "title": title,
+                    "description": description,
+                    "zip": portal_zip_name,
+                }
+            )
 
     with (DIST / "distribution-metadata.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(

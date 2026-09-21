@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'games/**'
+      - 'release-candidates/**'
       - 'core.js'
       - 'core.css'
       - 'index.html'
@@ -17,6 +18,7 @@ on:
     branches: [main]
     paths:
       - 'games/**'
+      - 'release-candidates/**'
       - 'core.js'
       - 'core.css'
       - 'index.html'
@@ -51,9 +53,10 @@ jobs:
         run: |
           itch_count=$(find dist -maxdepth 1 -name '*_itch.zip' | wc -l)
           portal_count=$(find dist/crazygames-basic -maxdepth 1 -name '*_crazygames_basic.zip' | wc -l)
-          test "$itch_count" -ge 15
-          test "$portal_count" -ge 15
-          echo "Validated $itch_count itch packages and $portal_count portal-safe packages"
+          expected=$(find games release-candidates -mindepth 2 -maxdepth 2 -name index.html | wc -l)
+          test "$itch_count" -eq "$expected"
+          test "$portal_count" -eq "$expected"
+          echo "Validated $expected itch packages and $expected portal-safe packages"
 
       - name: Guard CrazyGames Basic packages against cross-promotion
         run: |
