@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
         });
 
         setContentView(webView);
-        webView.loadUrl(LOCAL_ROOT + "index.html?app=android");
+        webView.loadUrl(LOCAL_ROOT + BuildConfig.GAME_START);
     }
 
     private boolean route(WebView view, Uri uri) {
@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_SUBJECT, title == null ? "GameFactoryLab" : title);
+                intent.putExtra(Intent.EXTRA_SUBJECT, title == null ? "Game Factory" : title);
                 String body = (text == null ? "" : text) + (url == null || url.isEmpty() ? "" : " " + url);
                 intent.putExtra(Intent.EXTRA_TEXT, body.trim());
                 startActivity(Intent.createChooser(intent, "Share challenge"));
