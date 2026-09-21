@@ -55,7 +55,7 @@ jobs:
           build_all=os.environ.get('EVENT_NAME')=='workflow_dispatch' and os.environ.get('BUILD_ALL','false').lower()=='true'
           games=data['games'] if build_all else [g for g in data['games'] if g.get('auto_build')]
           print('matrix='+json.dumps({'include':games},separators=(',',':')))
-          print(f'Selected {len(games)} standalone Android targets')
+          print(f'Selected {len(games)} standalone Android targets', file=__import__('sys').stderr)
           PY
 
   portfolio:
@@ -71,10 +71,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.0'
-      - name: Install Android SDK 36
+      - name: Verify preinstalled Android 16 SDK
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          test -d "$ANDROID_HOME/platforms/android-36"
+          ls "$ANDROID_HOME/build-tools" | grep -q '^36'
       - name: Package portfolio
         run: python3 mobile/android/prepare_assets.py
       - name: Build portfolio APK
@@ -106,10 +106,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.0'
-      - name: Install Android SDK 36
+      - name: Verify preinstalled Android 16 SDK
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          test -d "$ANDROID_HOME/platforms/android-36"
+          ls "$ANDROID_HOME/build-tools" | grep -q '^36'
       - name: Package one game
         run: python3 mobile/android/prepare_assets.py --game-slug "${{ matrix.slug }}" --game-source "${{ matrix.source }}"
       - name: Build standalone APK
