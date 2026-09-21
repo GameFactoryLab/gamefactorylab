@@ -13,6 +13,8 @@ This table is a decision aid, not vanity reporting. A game cannot be promoted be
 | Balance Drop | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Pulse Cascade | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Cipher Sprint | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Ceiling Shift | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Grid Pack | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 
 ## Operating rules
 
