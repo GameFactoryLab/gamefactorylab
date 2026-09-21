@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Circuit Flow — Rotate the Path Puzzle</title>
+<meta name="description" content="Rotate circuit tiles, connect the powered path from IN to OUT, clear boards fast and chase a higher score in this free mobile-friendly browser puzzle.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/games/circuit-flow/">
+<meta property="og:title" content="Circuit Flow — Rotate the Path Puzzle">
+<meta property="og:description" content="Rotate the tiles. Connect IN to OUT. How many circuits can you clear in 45 seconds?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/games/circuit-flow/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../../core.css">
+<style>
+h1{margin:0;font-size:clamp(30px,8vw,48px);line-height:1}.app{gap:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stat{text-align:center;padding:7px}.stat span{font-size:9px;letter-spacing:.06em;text-transform:uppercase}.stat b{display:block;font-size:20px;margin-top:2px}.board-wrap{padding:8px}.board{display:grid;gap:5px;width:min(84vw,390px);margin:0 auto;touch-action:manipulation;user-select:none}.tile{aspect-ratio:1;border:0;border-radius:11px;background:#111827;position:relative;overflow:hidden;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);-webkit-tap-highlight-color:transparent}.tile:active{transform:scale(.97)}.tile.powered{background:#0f2f2d}.arm{position:absolute;background:#60a5fa;border-radius:999px;box-shadow:0 0 10px rgba(96,165,250,.3)}.powered .arm{background:#34d399;box-shadow:0 0 12px rgba(52,211,153,.45)}.arm.n,.arm.s{width:22%;height:55%;left:39%}.arm.e,.arm.w{height:22%;width:55%;top:39%}.arm.n{top:-5%}.arm.s{bottom:-5%}.arm.e{right:-5%}.arm.w{left:-5%}.hub{position:absolute;width:28%;height:28%;border-radius:50%;left:36%;top:36%;background:#93c5fd}.powered .hub{background:#6ee7b7}.source::after,.exit::after{position:absolute;z-index:4;top:50%;transform:translateY(-50%);font-weight:900;font-size:9px;color:#f8fafc;padding:3px 4px;border-radius:5px}.source::after{content:'IN';left:1px;background:#2563eb}.exit::after{content:'OUT';right:1px;background:#059669}.status{text-align:center;min-height:24px;font-weight:800;font-size:14px}.rule{margin:0;text-align:center;font-size:11px}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}.actions .btn,.result-actions .btn{min-height:42px;padding:8px 10px}.result{display:none;text-align:center}.result.show{display:block}.result h2{margin:0 0 6px;font-size:22px}.result-score{font-size:34px;font-weight:900;line-height:1;margin:4px 0}.result-meta{margin:0 0 10px}.result-actions .primary{grid-column:1/-1}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:82px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.board{width:min(88vw,360px);gap:4px}.tile{border-radius:9px}}@media(max-height:700px){.app{gap:5px}.board{width:min(68vh,330px)}.card{padding:6px}.result-score{font-size:28px}.rule{font-size:10px}}
+</style>
+</head>
+<body>
+<main class="app">
+<a href="../../index.html" class="muted">← GameFactoryLab</a>
+<section><h1>Circuit Flow</h1><p class="muted">Rotate the circuit tiles until power can travel from IN to OUT. Clear as many boards as you can in 45 seconds.</p></section>
+<section class="stats"><div class="card stat"><span class="muted">Time</span><b id="time">45.0</b></div><div class="card stat"><span class="muted">Score</span><b id="score">0</b></div><div class="card stat"><span class="muted">Boards</span><b id="clears">0</b></div><div class="card stat"><span class="muted">Moves</span><b id="moves">0</b></div></section>
+<section class="card board-wrap"><div id="board" class="board" aria-label="Circuit Flow puzzle board"></div></section>
+<div id="status" class="status muted">Tap Start, then rotate tiles to power the path.</div>
+<p class="muted rule">Every tap rotates one tile 90°. Power can travel through any connected circuit from the left edge to the right edge.</p>
+<section id="result" class="card result" aria-live="polite"><h2>Run complete</h2><div id="resultScore" class="result-score">0</div><p id="resultMeta" class="muted result-meta">0 boards • 0 moves</p><div class="result-actions"><button id="again" type="button" class="btn primary">Play again</button><button id="resultShare" type="button" class="btn secondary">Share result</button><button id="resultText" type="button" class="btn secondary">Show share text</button></div></section>
+<div class="actions"><button id="start" type="button" class="btn primary">Start 45s run</button><button id="share" type="button" class="btn secondary" disabled>Share score</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Long-press to copy and share:</label><textarea id="shareText" readonly></textarea></section>
+</main>
+<script src="../../core.js"></script>
+<script>
+(()=>{
+'use strict';
+const G='circuit-flow',RUN_MS=45000,D=['n','e','s','w'],DR={n:-1,e:0,s:1,w:0},DC={n:0,e:1,s:0,w:-1},OPP={n:'s',e:'w',s:'n',w:'e'};
+const el={board:document.getElementById('board'),time:document.getElementById('time'),score:document.getElementById('score'),clears:document.getElementById('clears'),moves:document.getElementById('moves'),status:document.getElementById('status'),start:document.getElementById('start'),share:document.getElementById('share'),result:document.getElementById('result'),resultScore:document.getElementById('resultScore'),resultMeta:document.getElementById('resultMeta'),again:document.getElementById('again'),resultShare:document.getElementById('resultShare'),resultText:document.getElementById('resultText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let size=4,tiles=[],pathIds=[],score=0,clears=0,moves=0,boardMoves=0,running=false,locked=true,endAt=0,timer=0,seed=1;
+GameFactory.open(G);
+function rng(s){let x=(s*2654435761)>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}}
+function idx(r,c){return r*size+c}
+function rc(i){return[Math.floor(i/size),i%size]}
+function dirBetween(a,b){const[ar,ac]=rc(a),[br,bc]=rc(b);if(br<ar)return'n';if(br>ar)return's';if(bc>ac)return'e';return'w'}
+function rotateDirs(base,rot){return base.map(d=>D[(D.indexOf(d)+rot)%4])}
+function baseFor(dirs){const s=new Set(dirs);if((s.has('n')&&s.has('s'))||(s.has('e')&&s.has('w')))return s.has('n')?['n','s']:['e','w'];return dirs}
+function makePath(random){const cells=[];let row=Math.floor(random()*size);cells.push(idx(row,0));for(let c=0;c<size-1;c++){let target=Math.floor(random()*size);while(row!==target){row+=target>row?1:-1;cells.push(idx(row,c))}cells.push(idx(row,c+1))}return cells}
+function dirsForPath(i,pos){const dirs=[];const prev=pos===0?null:pathIds[pos-1],next=pos===pathIds.length-1?null:pathIds[pos+1];if(prev===null)dirs.push('w');else dirs.push(dirBetween(i,prev));if(next===null)dirs.push('e');else dirs.push(dirBetween(i,next));return dirs}
+function generate(){size=clears>=3?5:4;boardMoves=0;seed=(Date.now()+clears*7919+moves*17)>>>0;const random=rng(seed||1);pathIds=makePath(random);const pos=new Map(pathIds.map((v,i)=>[v,i]));tiles=Array.from({length:size*size},(_,i)=>{if(pos.has(i)){const base=baseFor(dirsForPath(i,pos.get(i)));return{base,rot:Math.floor(random()*4)}}const corner=[['n','e'],['e','s'],['s','w'],['w','n']];const base=random()<.45?(random()<.5?['n','s']:['e','w']):corner[Math.floor(random()*corner.length)];return{base,rot:Math.floor(random()*4)}});if(pathSolved()){const j=pathIds[Math.floor(pathIds.length/2)];tiles[j].rot=(tiles[j].rot+1)%4}locked=false;render();el.status.textContent=size===4?'Power IN to OUT.':'5×5 board — keep the circuit alive.'}
+function tileDirs(t){return rotateDirs(t.base,t.rot)}
+function connectedSet(){const visited=new Set(),queue=[];const start=pathIds[0];if(start!==undefined&&tileDirs(tiles[start]).includes('w')){visited.add(start);queue.push(start)}while(queue.length){const i=queue.shift(),[r,c]=rc(i);for(const d of tileDirs(tiles[i])){const nr=r+DR[d],nc=c+DC[d];if(nr<0||nr>=size||nc<0||nc>=size)continue;const j=idx(nr,nc);if(tileDirs(tiles[j]).includes(OPP[d])&&!visited.has(j)){visited.add(j);queue.push(j)}}}return visited}
+function pathSolved(){const powered=connectedSet(),end=pathIds[pathIds.length-1];return end!==undefined&&powered.has(end)&&tileDirs(tiles[end]).includes('e')}
+function render(){const powered=connectedSet();el.board.innerHTML='';el.board.style.gridTemplateColumns=`repeat(${size},1fr)`;tiles.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.className='tile';b.setAttribute('aria-label',`Rotate circuit tile ${i+1}`);if(powered.has(i))b.classList.add('powered');if(i===pathIds[0])b.classList.add('source');if(i===pathIds[pathIds.length-1])b.classList.add('exit');for(const d of tileDirs(t)){const arm=document.createElement('span');arm.className='arm '+d;b.appendChild(arm)}const hub=document.createElement('span');hub.className='hub';b.appendChild(hub);b.addEventListener('click',()=>rotate(i));el.board.appendChild(b)});el.score.textContent=score;el.clears.textContent=clears;el.moves.textContent=moves}
+function rotate(i){if(!running||locked)return;tiles[i].rot=(tiles[i].rot+1)%4;moves++;boardMoves++;GameFactory.event(G,'rotate');render();if(pathSolved())clearBoard()}
+function clearBoard(){if(locked)return;locked=true;clears++;const earned=100+size*25+Math.max(0,80-boardMoves*3);score+=earned;el.score.textContent=score;el.clears.textContent=clears;GameFactory.event(G,'board_clear');el.status.textContent=`Circuit powered! +${earned}`;setTimeout(()=>{if(running)generate()},330)}
+function tick(){if(!running)return;const left=Math.max(0,endAt-performance.now());el.time.textContent=(left/1000).toFixed(1);if(left<=0)finish()}
+function begin(){clearInterval(timer);score=0;clears=0;moves=0;running=true;locked=false;endAt=performance.now()+RUN_MS;el.time.textContent='45.0';el.score.textContent='0';el.clears.textContent='0';el.moves.textContent='0';el.result.classList.remove('show');el.shareBox.classList.remove('show');el.share.disabled=true;el.start.textContent='Restart run';GameFactory.event(G,'start');generate();timer=setInterval(tick,100)}
+function finish(){if(!running)return;running=false;locked=true;clearInterval(timer);el.time.textContent='0.0';const s=GameFactory.score(G,score),best=s.best||score;el.resultScore.textContent=`${score} points`;el.resultMeta.textContent=`${clears} board${clears===1?'':'s'} • ${moves} moves • Best ${best}`;el.result.classList.add('show');el.share.disabled=false;el.status.textContent=`Time! ${clears} circuit${clears===1?'':'s'} powered.`;GameFactory.event(G,'result_view');GameFactory.event(G,'finish');requestAnimationFrame(()=>el.result.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}))}
+function text(){return `I scored ${score} points and powered ${clears} circuit${clears===1?'':'s'} in Circuit Flow. Can you beat me?`}
+function showText(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+async function shareResult(){const r=await GameFactory.share(G,'Circuit Flow',text(),GameFactory.challengeUrl(G,score));if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual'||r==='unsupported')showText()}
+el.start.onclick=begin;el.again.onclick=()=>{GameFactory.event(G,'replay_click');begin()};el.share.onclick=shareResult;el.resultShare.onclick=()=>{GameFactory.event(G,'result_share_click');shareResult()};el.resultText.onclick=showText;generate();locked=true;
+})();
+</script>
+</body>
+</html>
