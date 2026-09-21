@@ -26,12 +26,13 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 <section>
 <div class="pill">GameFactoryLab</div>
 <h1>Quick games.<br>One more try.</h1>
-<p class="muted">A new daily challenge, a five-game sprint and twenty-seven free browser games. No install. Chase a better score, protect a streak, challenge a friend, then roll into the next game.</p>
-<div class="hero-actions"><button id="daily" class="btn primary" type="button">Play today’s challenge →</button><a class="btn secondary" href="sprint/">Play 5 Game Sprint</a><button id="random" class="btn secondary" type="button">Surprise me</button><a class="btn secondary" href="games/odd-one-out/index.html">Play flagship</a></div>
-<p id="dailyNote" class="muted daily-note">Today’s challenge and five-game sprint are shared globally and change each day.</p>
+<p class="muted">A new daily challenge, a five-game sprint, five Labs prototypes and twenty-seven free browser games. No install. Chase a better score, protect a streak, challenge a friend, then help surface the next winning mechanic.</p>
+<div class="hero-actions"><button id="daily" class="btn primary" type="button">Play today’s challenge →</button><button id="labDaily" class="btn secondary" type="button">Test today’s prototype</button><a class="btn secondary" href="sprint/">Play 5 Game Sprint</a><button id="random" class="btn secondary" type="button">Surprise me</button><a class="btn secondary" href="games/odd-one-out/index.html">Play flagship</a></div>
+<p id="dailyNote" class="muted daily-note">Today’s challenge, five-game sprint and Labs prototype are shared globally and change each day.</p>
 <p class="muted count">One-tap • dodging • merging • stacking • sorting • logic • Sudoku • sliding • color flood • reflex • visual • memory • matching • pattern • timing • math • words • mazes • cognitive flexibility</p>
 </section>
 <section class="grid">
+<a class="card game featured" href="labs/?from=homepage-featured"><div class="pill">Labs • 5 experiments • New</div><h2>Help find the next winner</h2><p class="muted">Test Circuit Flow, Route Once, Pixel Logic, Orbit Align and Sum Vault before deeper development. Replay the one that earns it.</p><strong>Explore Labs →</strong></a>
 <a class="card game featured" href="sprint/"><div class="pill">New mode • 5 games • Daily</div><h2>5 Game Sprint</h2><p class="muted">Five different quick games in one daily run. Finish all five to bank the day and keep your sprint streak alive.</p><strong>Start today’s sprint →</strong></a>
 <a class="card game featured" href="games/odd-one-out/index.html"><div class="pill">Flagship test • 30 seconds</div><h2>Odd One Out</h2><p class="muted">Spot the different symbol before time runs out. The grid gets harder as your score climbs.</p><strong>Play the challenge →</strong></a>
 <a class="card game" href="games/ring-pins/index.html"><div class="pill">One-tap timing • New</div><h2>Ring Pins</h2><p class="muted">Launch pins into a spinning ring, avoid every pin already attached, and survive as the speed climbs.</p><strong>Play →</strong></a>
@@ -65,10 +66,13 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
 <script>
 (()=>{
   const dailyGames=['odd-one-out','reaction-rush','sequence-snap','perfect-tap','flash-count','quick-sum','memory-path','higher-lower'];
+  const labGames=['circuit-flow','route-once','pixel-logic','orbit-align','sum-vault'];
   const games=[...dailyGames,'color-word-challenge','number-hunt','dot-compare','five-second-sense','parity-rush','one-back','direction-switch','word-scramble-rush','maze-dash','pair-flip','grid-toggle','mini-sudoku-rush','tile-shift','flood-grid','stack-drop','color-stack-sort','merge-grid','lane-dodge','ring-pins'];
   const today=()=>new Date().toISOString().slice(0,10);
   function dayIndex(day){let h=2166136261;for(const c of day){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%dailyGames.length}
+  function labIndex(day){let h=2166136261;for(const c of `${day}:labs`){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%labGames.length}
   document.getElementById('daily').addEventListener('click',()=>{const day=today(),g=dailyGames[dayIndex(day)];location.href=`games/${g}/?daily=${day}&from=homepage-daily`});
+  document.getElementById('labDaily').addEventListener('click',()=>{const day=today(),g=labGames[labIndex(day)];location.href=`release-candidates/${g}/?daily=${day}&from=homepage-lab-daily`});
   document.getElementById('random').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g}/?from=homepage-random`});
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 })();
