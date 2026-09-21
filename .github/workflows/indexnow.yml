@@ -6,6 +6,9 @@ on:
     paths:
       - 'index.html'
       - 'games/**/index.html'
+      - 'labs/**/index.html'
+      - 'labs/index.html'
+      - 'release-candidates/**/index.html'
       - 'sitemap.xml'
       - '.github/workflows/indexnow.yml'
   workflow_dispatch:
@@ -62,6 +65,12 @@ jobs:
                       if p == 'index.html':
                           urls.append(base)
                       elif p.startswith('games/') and p.endswith('/index.html'):
+                          urls.append(base + p[:-10])
+                      elif p == 'labs/index.html':
+                          urls.append(base + 'labs/')
+                      elif p.startswith('labs/') and p.endswith('/index.html'):
+                          urls.append(base + p[:-10])
+                      elif p.startswith('release-candidates/') and p.endswith('/index.html'):
                           urls.append(base + p[:-10])
 
           urls = sorted(set(urls))

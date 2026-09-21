@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/</loc><priority>1.0</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/sprint/</loc><priority>0.9</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/labs/</loc><priority>0.8</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/odd-one-out/</loc><priority>0.9</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/sequence-snap/</loc><priority>0.7</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/perfect-tap/</loc><priority>0.7</priority></url>
@@ -29,4 +30,9 @@
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/merge-grid/</loc><priority>0.9</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/lane-dodge/</loc><priority>0.9</priority></url>
   <url><loc>https://gamefactorylab.github.io/gamefactorylab/games/ring-pins/</loc><priority>0.9</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/release-candidates/circuit-flow/</loc><priority>0.6</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/release-candidates/route-once/</loc><priority>0.6</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/release-candidates/pixel-logic/</loc><priority>0.6</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/release-candidates/orbit-align/</loc><priority>0.6</priority></url>
+  <url><loc>https://gamefactorylab.github.io/gamefactorylab/release-candidates/sum-vault/</loc><priority>0.6</priority></url>
 </urlset>
