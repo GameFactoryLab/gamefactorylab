@@ -1,0 +1,58 @@
+{
+  "wave": 3,
+  "cash_spend_eur": 0,
+  "priority": "broaden zero-cost external testing with three distinct mechanics before building more concepts",
+  "games": [
+    {
+      "slug": "pulse-cascade",
+      "source": "release-candidates",
+      "title": "Pulse Cascade",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Trigger one expanding pulse, chain moving dots together, and clear escalating one-tap levels.",
+      "description": "Pulse Cascade is a one-tap chain-reaction game built for instant retries. Place a single expanding pulse, catch moving dots, and turn every hit into another pulse. Targets rise level by level, creating short visual runs with clear progression, replay and share signals.",
+      "tags": ["html5", "casual", "arcade", "one-button", "chain-reaction", "skill", "high-score", "mobile", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_pulse_cascade_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_pulse_cascade_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "level_clear_depth", "big_chain_rate", "replay_click_per_finish", "result_share_click_per_finish"]
+    },
+    {
+      "slug": "balance-drop",
+      "source": "release-candidates",
+      "title": "Balance Drop",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Place incoming weights across a beam, control torque, and survive increasingly tight balance rounds.",
+      "description": "Balance Drop is a compact one-tap strategy game. Each incoming weight creates torque based on where it lands, and the goal is to survive twelve placements without tipping the beam. Safe limits tighten between rounds while perfect balances create bonus-score moments worth replaying.",
+      "tags": ["html5", "strategy", "physics", "balance", "one-button", "high-score", "mobile", "casual", "puzzle", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_balance_drop_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_balance_drop_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "board_clear_depth", "perfect_balance_rate", "replay_click_per_finish", "result_share_click_per_finish"]
+    },
+    {
+      "slug": "cipher-sprint",
+      "source": "release-candidates",
+      "title": "Cipher Sprint",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Break four-digit ciphers against the clock using exact and misplaced clues.",
+      "description": "Cipher Sprint is a 90-second deduction challenge. Build four-digit guesses from digits one to six, use exact and misplaced clues to narrow the code, and solve as many ciphers as possible before time expires. It gives the portfolio a slower cognitive mechanic to compare against arcade and visual-puzzle traffic.",
+      "tags": ["html5", "puzzle", "logic", "deduction", "numbers", "brain", "high-score", "mobile", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_cipher_sprint_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_cipher_sprint_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "result_clear_rate", "fast_clear_rate", "solved_per_run", "replay_click_per_finish", "result_share_click_per_finish"]
+    }
+  ]
+}
