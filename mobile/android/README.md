@@ -54,3 +54,7 @@ External sharing still uses Android's native share sheet. Store signing, ad-netw
 ## Commercial operating rule
 
 Build fast, sideload-test first, and allocate deeper mobile work only after replay, completion, sharing or retention signals justify it. The factory exists so one mobile release per day is a floor rather than a ceiling.
+
+## CI verification
+
+A successful Android CI build must produce an installable APK whose archive contains the expected local HTML5 game assets. The catalog-driven workflow separately validates the priority standalone targets before upload.
