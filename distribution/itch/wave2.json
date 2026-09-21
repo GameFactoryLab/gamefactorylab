@@ -1,0 +1,58 @@
+{
+  "wave": 2,
+  "cash_spend_eur": 0,
+  "priority": "broaden free external testing with three mechanically distinct short-session candidates",
+  "games": [
+    {
+      "slug": "gravity-flip",
+      "source": "release-candidates",
+      "title": "Gravity Flip",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Flip gravity with one tap, thread the runner through moving gates, and chase a longer survival streak.",
+      "description": "Gravity Flip is a fast one-tap survival game. Your runner moves automatically while you reverse gravity to move between floor and ceiling and pass through moving gate openings. Speed rises with progress, failures are instant, and every run is built for quick replay and sharing.",
+      "tags": ["html5", "arcade", "one-button", "skill", "timing", "high-score", "mobile", "casual", "runner", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_gravity_flip_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_gravity_flip_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "replay_click_per_finish", "result_share_click_per_finish", "gate_pass_depth", "streak_5_rate"]
+    },
+    {
+      "slug": "bridge-snap",
+      "source": "release-candidates",
+      "title": "Bridge Snap",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Hold to grow a bridge, release to drop it across the gap, and chain precise crossings.",
+      "description": "Bridge Snap is a compact hold-and-release precision game. Grow a bridge, release when its length matches the next gap, and keep crossing without falling short or overshooting. Perfect center landings reward precision while instant failure keeps the replay loop fast.",
+      "tags": ["html5", "casual", "precision", "one-button", "skill", "high-score", "mobile", "timing", "arcade", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_bridge_snap_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_bridge_snap_crazygames_basic.zip",
+      "signal_to_watch": ["crossing_depth", "perfect_landing_rate", "replay_click_per_finish", "share_attempt_per_finish"]
+    },
+    {
+      "slug": "cluster-collapse",
+      "source": "release-candidates",
+      "title": "Cluster Collapse",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Tap connected color groups, build combos, and chase a high score in a fast 60-second puzzle.",
+      "description": "Cluster Collapse is a 60-second connected-group color puzzle. Tap matching clusters to clear them, build larger pops for stronger scores, and keep your combo alive until time runs out. The fixed short session makes score depth, replay and sharing easy to compare against the arcade candidates.",
+      "tags": ["html5", "puzzle", "color", "match", "combo", "high-score", "mobile", "casual", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_cluster_collapse_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_cluster_collapse_crazygames_basic.zip",
+      "signal_to_watch": ["session_finish", "score_depth", "combo_depth", "replay_click_per_finish", "share_attempt_per_finish"]
+    }
+  ]
+}
