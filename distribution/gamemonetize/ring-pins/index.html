@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Ring Pins — One-Tap Timing Challenge</title>
+<meta name="description" content="Tap to launch pins into a spinning ring, avoid every pin already attached, and chase a higher score in this fast one-tap arcade game.">
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1220;color:#f8fafc;--panel:#111827;--muted:#94a3b8;--accent:#e2e8f0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#0f172a,#111827);color:#f8fafc}body{overscroll-behavior:none}.app{width:min(100%,520px);min-height:100vh;margin:0 auto;padding:14px 14px 24px;display:flex;flex-direction:column;gap:8px}.brand{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#93c5fd}.title{margin:0;font-size:clamp(34px,10vw,50px);line-height:1}.muted{color:var(--muted)}.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{text-align:center;padding:8px}.stat span{display:block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8}.stat b{display:block;font-size:21px;margin-top:2px}.stage{padding:7px}.stage canvas{display:block;width:min(80vw,340px);height:auto;aspect-ratio:8/9;margin:0 auto;border-radius:15px;background:#0b1220;touch-action:none}.status{text-align:center;min-height:24px;font-weight:800;font-size:14px}.rule{margin:0;text-align:center;font-size:11px}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.btn{appearance:none;border:0;border-radius:13px;padding:11px 12px;font-weight:800;font-size:14px;cursor:pointer}.btn.primary{background:#e2e8f0;color:#111827}.btn.secondary{background:rgba(255,255,255,.08);color:#f8fafc;border:1px solid rgba(255,255,255,.1)}.btn:disabled{opacity:.45;cursor:not-allowed}.fire{grid-column:1/-1;font-size:17px;min-height:46px}.result{display:none;text-align:center}.result.show{display:block}.result h2{margin:0 0 5px;font-size:22px}.result-score{font-size:34px;font-weight:900;line-height:1;margin:5px 0}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:76px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.footer{text-align:center;font-size:11px;color:#64748b;padding:4px 0}.menu{position:fixed;inset:0;background:rgba(3,7,18,.9);display:grid;place-items:center;padding:20px;z-index:20}.panel{width:min(100%,430px);background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.45)}.panel h2{font-size:38px;margin:4px 0 8px}.panel p{line-height:1.45}.panel .btn{width:100%;margin-top:9px}.hidden{display:none!important}@media(max-height:700px){.app{gap:5px}.stage canvas{width:min(68vw,270px)}.card{padding:7px}.result-score{font-size:28px}}
+</style>
+</head>
+<body>
+<main class="app">
+<section><div class="brand">GameFactoryLab • commercial candidate</div><h1 class="title">Ring Pins</h1><p class="muted">Tap to launch. Miss the pins. Build the streak.</p></section>
+<section class="stats"><div class="card stat"><span>Score</span><b id="score">0</b></div><div class="card stat"><span>Best</span><b id="best">0</b></div><div class="card stat"><span>Speed</span><b id="speed">1.0×</b></div></section>
+<section class="card stage"><canvas id="game" width="320" height="360" aria-label="Ring Pins game area"></canvas></section>
+<div id="status" class="status muted">Tap Play to start.</div>
+<p class="muted rule">The ring speeds up as your score climbs and reverses every 8 pins.</p>
+<section id="result" class="card result" aria-live="polite"><h2>Run complete</h2><div id="resultScore" class="result-score">0 pins</div><p id="resultBest" class="muted">Best 0</p><div class="result-actions"><button id="again" type="button" class="btn primary">Play again</button><button id="share" type="button" class="btn secondary">Share score</button></div></section>
+<div class="actions"><button id="fire" type="button" class="btn primary fire" disabled>Launch pin</button><button id="restart" type="button" class="btn secondary" disabled>Restart</button><button id="showText" type="button" class="btn secondary" disabled>Copy score</button></div>
+<section id="shareBox" class="card sharebox"><label for="shareText" class="muted">Share text:</label><textarea id="shareText" readonly></textarea></section>
+<div class="footer">One-tap arcade • mobile + desktop • progress stored locally</div>
+</main>
+<section id="menu" class="menu"><div class="panel"><div class="brand">GameFactoryLab</div><h2>Ring Pins</h2><p>Launch pins into the spinning ring. Hit an attached pin and the run ends. Speed rises with every point and the ring reverses direction every eight pins.</p><p class="muted">One tap • instant replay • local best score</p><button id="play" class="btn primary" type="button">Play</button></div></section>
+<script>
+(()=>{
+'use strict';
+const GAME_ID='__GAME_ID__',SAVE_KEY='gf_gm_ring_pins_v1',W=320,H=360,CX=160,CY=142,R=56,PIN=62,LAND_Y=CY+R+9,START_Y=332;
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const el={score:document.getElementById('score'),best:document.getElementById('best'),speed:document.getElementById('speed'),status:document.getElementById('status'),fire:document.getElementById('fire'),restart:document.getElementById('restart'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText'),result:document.getElementById('result'),resultScore:document.getElementById('resultScore'),resultBest:document.getElementById('resultBest'),again:document.getElementById('again'),share:document.getElementById('share'),menu:document.getElementById('menu'),play:document.getElementById('play')};
+let pins=[],score=0,running=false,launching=null,omega=1.15,last=0,raf=0,direction=1,adPaused=false,runs=0;
+function load(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch{return {}}}
+function save(patch){const s={...load(),...patch};localStorage.setItem(SAVE_KEY,JSON.stringify(s));return s}
+function metric(name){const s=load(),m={...(s.metrics||{})};m[name]=(m[name]||0)+1;save({metrics:m})}
+function norm(a){a%=Math.PI*2;if(a<0)a+=Math.PI*2;return a}
+function angleDistance(a,b){const d=Math.abs(norm(a)-norm(b));return Math.min(d,Math.PI*2-d)}
+function speedFactor(){return Math.abs(omega)/1.15}
+function seedPins(){pins=[-1.55,-.15,1.15].map(a=>({a:norm(a)}))}
+function reset(){score=0;direction=1;omega=1.15;launching=null;seedPins();el.score.textContent='0';el.speed.textContent='1.0×';el.result.classList.remove('show');el.shareBox.classList.remove('show');el.fire.disabled=false;el.restart.disabled=false;el.showText.disabled=true}
+function drawPin(a){const x1=CX+Math.cos(a)*(R+4),y1=CY+Math.sin(a)*(R+4),x2=CX+Math.cos(a)*(R+PIN),y2=CY+Math.sin(a)*(R+PIN);ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.fillStyle='#cbd5e1';ctx.beginPath();ctx.arc(x2,y2,6,0,Math.PI*2);ctx.fill()}
+function draw(){ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111827');g.addColorStop(1,'#07101d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(CX,CY,R+PIN,0,Math.PI*2);ctx.stroke();pins.forEach(p=>drawPin(p.a));ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111827';ctx.font='900 25px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(score),CX,CY);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.setLineDash([5,7]);ctx.beginPath();ctx.moveTo(CX,LAND_Y+6);ctx.lineTo(CX,START_Y-14);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=launching?'#f8fafc':running?'#bbf7d0':'#64748b';ctx.beginPath();ctx.arc(CX,launching?launching.y:START_Y,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(248,250,252,.65)';ctx.font='12px system-ui,sans-serif';ctx.fillText(running?'Tap to launch':'Ready',CX,H-11)}
+function collisionAtBottom(){const a=Math.PI/2,threshold=.255;return pins.some(p=>angleDistance(p.a,a)<threshold)}
+function finish(){if(!running)return;running=false;launching=null;cancelAnimationFrame(raf);runs++;const s=load(),best=Math.max(Number(s.bestScore||0),score);save({bestScore:best,lastScore:score,runs});el.best.textContent=best;el.fire.disabled=true;el.showText.disabled=false;el.status.textContent=`Collision! Score ${score}. Best ${best}.`;el.resultScore.textContent=`${score} pin${score===1?'':'s'}`;el.resultBest.textContent=`Best ${best}`;el.result.classList.add('show');metric('run_finish');draw();if(runs%3===0)setTimeout(showAd,250)}
+function land(){launching=null;if(collisionAtBottom()){finish();return}pins.push({a:Math.PI/2});score++;el.score.textContent=score;metric('pin_land');if(score%8===0){direction*=-1;metric('direction_reverse')}omega=direction*(1.15+Math.min(1.75,score*.055));el.speed.textContent=speedFactor().toFixed(1)+'×';el.status.textContent=score%8===0?'Reverse!':score%5===0?'Nice gap!':'Keep going'}
+function launch(){if(adPaused||!running||launching)return;launching={y:START_Y};metric('launch');el.status.textContent='';draw()}
+function loop(ts){if(!running)return;if(adPaused){last=ts;raf=requestAnimationFrame(loop);return}const dt=Math.min(.04,(ts-last||0)/1000);last=ts;for(const p of pins)p.a=norm(p.a+omega*dt);if(launching){launching.y-=690*dt;if(launching.y<=LAND_Y)land()}draw();raf=requestAnimationFrame(loop)}
+function begin(){cancelAnimationFrame(raf);reset();running=true;last=0;el.status.textContent='Wait for a gap, then tap';metric('start');draw();raf=requestAnimationFrame(loop)}
+function shareText(){return `I placed ${score} pins in Ring Pins. Can you beat ${score}?`}
+function showText(){el.shareText.value=shareText();el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select();try{navigator.clipboard?.writeText(shareText());metric('share_copy')}catch(_){}}
+async function shareResult(){metric('share_attempt');try{if(navigator.share){await navigator.share({title:'Ring Pins',text:shareText()});metric('result_share_click');return}}catch(e){if(e&&e.name==='AbortError')return}showText()}
+function loadSdk(){if(!GAME_ID||GAME_ID==='__GAME_ID__')return;window.SDK_OPTIONS={gameId:GAME_ID,onEvent:function(a){if(!a||!a.name)return;if(a.name==='SDK_GAME_PAUSE')adPaused=true;else if(a.name==='SDK_GAME_START')adPaused=false}};const s=document.createElement('script');s.id='gamemonetize-sdk';s.src='https://api.gamemonetize.com/sdk.js';document.head.appendChild(s)}
+function showAd(){if(typeof window.sdk!=='undefined'&&typeof window.sdk.showBanner==='function'){try{window.sdk.showBanner()}catch(_){}}}
+el.play.addEventListener('click',()=>{el.menu.classList.add('hidden');showAd();begin()});el.again.addEventListener('click',()=>{metric('replay_click');begin()});el.restart.addEventListener('click',()=>{metric('restart');begin()});el.fire.addEventListener('click',launch);canvas.addEventListener('pointerdown',e=>{if(running){e.preventDefault();launch()}});window.addEventListener('keydown',e=>{if((e.code==='Space'||e.code==='Enter')&&running){e.preventDefault();launch()}});el.showText.addEventListener('click',showText);el.share.addEventListener('click',shareResult);loadSdk();const s=load();runs=Number(s.runs||0);el.best.textContent=Number(s.bestScore||0);reset();el.fire.disabled=true;el.restart.disabled=true;draw();
+})();
+</script>
+</body>
+</html>
