@@ -1,0 +1,75 @@
+name: Build free distribution wave 1
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/**'
+      - '.github/workflows/build-free-wave1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/**'
+      - '.github/workflows/build-free-wave1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable distribution packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble priority wave
+        run: |
+          mkdir -p wave1/itch wave1/crazygames-basic wave1/metadata
+          cp dist/GameFactoryLab_ring_pins_itch.zip wave1/itch/
+          cp dist/GameFactoryLab_circuit_flow_itch.zip wave1/itch/
+          cp dist/crazygames-basic/GameFactoryLab_ring_pins_crazygames_basic.zip wave1/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_circuit_flow_crazygames_basic.zip wave1/crazygames-basic/
+          cp distribution/itch/wave1.json wave1/metadata/
+          cp distribution/itch/README.md wave1/metadata/
+
+      - name: Validate upload-ready ZIP roots
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          packages=list(Path('wave1').glob('*/*.zip'))
+          assert len(packages)==4, packages
+          for p in packages:
+              with zipfile.ZipFile(p) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names, p
+                  assert 'core.css' in names, p
+                  assert 'core.js' in names, p
+          print('Validated 4 priority upload packages')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-free-wave1
+          path: wave1/
+          retention-days: 7
+          if-no-files-found: error
