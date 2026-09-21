@@ -1,6 +1,8 @@
 {
   "wave": 3,
   "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
   "priority": "broaden zero-cost external testing with three distinct mechanics before building more concepts",
   "games": [
     {
