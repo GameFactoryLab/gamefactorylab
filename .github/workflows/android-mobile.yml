@@ -55,7 +55,7 @@ jobs:
           build_all=os.environ.get('EVENT_NAME')=='workflow_dispatch' and os.environ.get('BUILD_ALL','false').lower()=='true'
           games=data['games'] if build_all else [g for g in data['games'] if g.get('auto_build')]
           print('matrix='+json.dumps({'include':games},separators=(',',':')))
-          print(f'Selected {len(games)} standalone Android targets')
+          print(f'Selected {len(games)} standalone Android targets', file=__import__('sys').stderr)
           PY
 
   portfolio:
