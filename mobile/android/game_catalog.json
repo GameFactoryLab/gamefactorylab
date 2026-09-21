@@ -4,229 +4,39 @@
   "build_set": "all-live-plus-labs",
   "notes": "auto_build titles build on every relevant main/PR run; full catalog is available through manual workflow_dispatch.",
   "games": [
-    {
-      "slug": "odd-one-out",
-      "source": "games",
-      "title": "Odd One Out",
-      "app_id": "com.gamefactorylab.oddoneout",
-      "auto_build": false
-    },
-    {
-      "slug": "reaction-rush",
-      "source": "games",
-      "title": "Reaction Rush",
-      "app_id": "com.gamefactorylab.reactionrush",
-      "auto_build": false
-    },
-    {
-      "slug": "sequence-snap",
-      "source": "games",
-      "title": "Sequence Snap",
-      "app_id": "com.gamefactorylab.sequencesnap",
-      "auto_build": false
-    },
-    {
-      "slug": "perfect-tap",
-      "source": "games",
-      "title": "Perfect Tap",
-      "app_id": "com.gamefactorylab.perfecttap",
-      "auto_build": false
-    },
-    {
-      "slug": "flash-count",
-      "source": "games",
-      "title": "Flash Count",
-      "app_id": "com.gamefactorylab.flashcount",
-      "auto_build": false
-    },
-    {
-      "slug": "quick-sum",
-      "source": "games",
-      "title": "Quick Sum",
-      "app_id": "com.gamefactorylab.quicksum",
-      "auto_build": false
-    },
-    {
-      "slug": "memory-path",
-      "source": "games",
-      "title": "Memory Path",
-      "app_id": "com.gamefactorylab.memorypath",
-      "auto_build": false
-    },
-    {
-      "slug": "higher-lower",
-      "source": "games",
-      "title": "Higher or Lower",
-      "app_id": "com.gamefactorylab.higherlower",
-      "auto_build": false
-    },
-    {
-      "slug": "color-word-challenge",
-      "source": "games",
-      "title": "Color Word Challenge",
-      "app_id": "com.gamefactorylab.colorwordchallenge",
-      "auto_build": false
-    },
-    {
-      "slug": "number-hunt",
-      "source": "games",
-      "title": "Number Hunt",
-      "app_id": "com.gamefactorylab.numberhunt",
-      "auto_build": false
-    },
-    {
-      "slug": "dot-compare",
-      "source": "games",
-      "title": "Dot Compare",
-      "app_id": "com.gamefactorylab.dotcompare",
-      "auto_build": false
-    },
-    {
-      "slug": "five-second-sense",
-      "source": "games",
-      "title": "Five Second Sense",
-      "app_id": "com.gamefactorylab.fivesecondsense",
-      "auto_build": false
-    },
-    {
-      "slug": "parity-rush",
-      "source": "games",
-      "title": "Parity Rush",
-      "app_id": "com.gamefactorylab.parityrush",
-      "auto_build": false
-    },
-    {
-      "slug": "one-back",
-      "source": "games",
-      "title": "One Back",
-      "app_id": "com.gamefactorylab.oneback",
-      "auto_build": false
-    },
-    {
-      "slug": "direction-switch",
-      "source": "games",
-      "title": "Direction Switch",
-      "app_id": "com.gamefactorylab.directionswitch",
-      "auto_build": false
-    },
-    {
-      "slug": "word-scramble-rush",
-      "source": "games",
-      "title": "Word Scramble Rush",
-      "app_id": "com.gamefactorylab.wordscramblerush",
-      "auto_build": false
-    },
-    {
-      "slug": "maze-dash",
-      "source": "games",
-      "title": "Maze Dash",
-      "app_id": "com.gamefactorylab.mazedash",
-      "auto_build": false
-    },
-    {
-      "slug": "pair-flip",
-      "source": "games",
-      "title": "Pair Flip",
-      "app_id": "com.gamefactorylab.pairflip",
-      "auto_build": false
-    },
-    {
-      "slug": "grid-toggle",
-      "source": "games",
-      "title": "Grid Toggle",
-      "app_id": "com.gamefactorylab.gridtoggle",
-      "auto_build": false
-    },
-    {
-      "slug": "mini-sudoku-rush",
-      "source": "games",
-      "title": "Mini Sudoku Rush",
-      "app_id": "com.gamefactorylab.minisudokurush",
-      "auto_build": false
-    },
-    {
-      "slug": "tile-shift",
-      "source": "games",
-      "title": "Tile Shift",
-      "app_id": "com.gamefactorylab.tileshift",
-      "auto_build": false
-    },
-    {
-      "slug": "flood-grid",
-      "source": "games",
-      "title": "Flood Grid",
-      "app_id": "com.gamefactorylab.floodgrid",
-      "auto_build": false
-    },
-    {
-      "slug": "stack-drop",
-      "source": "games",
-      "title": "Stack Drop",
-      "app_id": "com.gamefactorylab.stackdrop",
-      "auto_build": false
-    },
-    {
-      "slug": "color-stack-sort",
-      "source": "games",
-      "title": "Color Stack Sort",
-      "app_id": "com.gamefactorylab.colorstacksort",
-      "auto_build": true
-    },
-    {
-      "slug": "merge-grid",
-      "source": "games",
-      "title": "Merge Grid",
-      "app_id": "com.gamefactorylab.mergegrid",
-      "auto_build": false
-    },
-    {
-      "slug": "lane-dodge",
-      "source": "games",
-      "title": "Lane Dodge",
-      "app_id": "com.gamefactorylab.lanedodge",
-      "auto_build": false
-    },
-    {
-      "slug": "ring-pins",
-      "source": "games",
-      "title": "Ring Pins",
-      "app_id": "com.gamefactorylab.ringpins",
-      "auto_build": true
-    },
-    {
-      "slug": "circuit-flow",
-      "source": "release-candidates",
-      "title": "Circuit Flow",
-      "app_id": "com.gamefactorylab.circuitflow",
-      "auto_build": true
-    },
-    {
-      "slug": "route-once",
-      "source": "release-candidates",
-      "title": "Route Once",
-      "app_id": "com.gamefactorylab.routeonce",
-      "auto_build": true
-    },
-    {
-      "slug": "pixel-logic",
-      "source": "release-candidates",
-      "title": "Pixel Logic",
-      "app_id": "com.gamefactorylab.pixellogic",
-      "auto_build": true
-    },
-    {
-      "slug": "orbit-align",
-      "source": "release-candidates",
-      "title": "Orbit Align",
-      "app_id": "com.gamefactorylab.orbitalign",
-      "auto_build": true
-    },
-    {
-      "slug": "sum-vault",
-      "source": "release-candidates",
-      "title": "Sum Vault",
-      "app_id": "com.gamefactorylab.sumvault",
-      "auto_build": true
-    }
+    {"slug":"odd-one-out","source":"games","title":"Odd One Out","app_id":"com.gamefactorylab.oddoneout","auto_build":false},
+    {"slug":"reaction-rush","source":"games","title":"Reaction Rush","app_id":"com.gamefactorylab.reactionrush","auto_build":false},
+    {"slug":"sequence-snap","source":"games","title":"Sequence Snap","app_id":"com.gamefactorylab.sequencesnap","auto_build":false},
+    {"slug":"perfect-tap","source":"games","title":"Perfect Tap","app_id":"com.gamefactorylab.perfecttap","auto_build":false},
+    {"slug":"flash-count","source":"games","title":"Flash Count","app_id":"com.gamefactorylab.flashcount","auto_build":false},
+    {"slug":"quick-sum","source":"games","title":"Quick Sum","app_id":"com.gamefactorylab.quicksum","auto_build":false},
+    {"slug":"memory-path","source":"games","title":"Memory Path","app_id":"com.gamefactorylab.memorypath","auto_build":false},
+    {"slug":"higher-lower","source":"games","title":"Higher or Lower","app_id":"com.gamefactorylab.higherlower","auto_build":false},
+    {"slug":"color-word-challenge","source":"games","title":"Color Word Challenge","app_id":"com.gamefactorylab.colorwordchallenge","auto_build":false},
+    {"slug":"number-hunt","source":"games","title":"Number Hunt","app_id":"com.gamefactorylab.numberhunt","auto_build":false},
+    {"slug":"dot-compare","source":"games","title":"Dot Compare","app_id":"com.gamefactorylab.dotcompare","auto_build":false},
+    {"slug":"five-second-sense","source":"games","title":"Five Second Sense","app_id":"com.gamefactorylab.fivesecondsense","auto_build":false},
+    {"slug":"parity-rush","source":"games","title":"Parity Rush","app_id":"com.gamefactorylab.parityrush","auto_build":false},
+    {"slug":"one-back","source":"games","title":"One Back","app_id":"com.gamefactorylab.oneback","auto_build":false},
+    {"slug":"direction-switch","source":"games","title":"Direction Switch","app_id":"com.gamefactorylab.directionswitch","auto_build":false},
+    {"slug":"word-scramble-rush","source":"games","title":"Word Scramble Rush","app_id":"com.gamefactorylab.wordscramblerush","auto_build":false},
+    {"slug":"maze-dash","source":"games","title":"Maze Dash","app_id":"com.gamefactorylab.mazedash","auto_build":false},
+    {"slug":"pair-flip","source":"games","title":"Pair Flip","app_id":"com.gamefactorylab.pairflip","auto_build":false},
+    {"slug":"grid-toggle","source":"games","title":"Grid Toggle","app_id":"com.gamefactorylab.gridtoggle","auto_build":false},
+    {"slug":"mini-sudoku-rush","source":"games","title":"Mini Sudoku Rush","app_id":"com.gamefactorylab.minisudokurush","auto_build":false},
+    {"slug":"tile-shift","source":"games","title":"Tile Shift","app_id":"com.gamefactorylab.tileshift","auto_build":false},
+    {"slug":"flood-grid","source":"games","title":"Flood Grid","app_id":"com.gamefactorylab.floodgrid","auto_build":false},
+    {"slug":"stack-drop","source":"games","title":"Stack Drop","app_id":"com.gamefactorylab.stackdrop","auto_build":false},
+    {"slug":"color-stack-sort","source":"games","title":"Color Stack Sort","app_id":"com.gamefactorylab.colorstacksort","auto_build":true},
+    {"slug":"merge-grid","source":"games","title":"Merge Grid","app_id":"com.gamefactorylab.mergegrid","auto_build":false},
+    {"slug":"lane-dodge","source":"games","title":"Lane Dodge","app_id":"com.gamefactorylab.lanedodge","auto_build":false},
+    {"slug":"ring-pins","source":"games","title":"Ring Pins","app_id":"com.gamefactorylab.ringpins","auto_build":true},
+    {"slug":"circuit-flow","source":"release-candidates","title":"Circuit Flow","app_id":"com.gamefactorylab.circuitflow","auto_build":true},
+    {"slug":"route-once","source":"release-candidates","title":"Route Once","app_id":"com.gamefactorylab.routeonce","auto_build":true},
+    {"slug":"pixel-logic","source":"release-candidates","title":"Pixel Logic","app_id":"com.gamefactorylab.pixellogic","auto_build":true},
+    {"slug":"orbit-align","source":"release-candidates","title":"Orbit Align","app_id":"com.gamefactorylab.orbitalign","auto_build":true},
+    {"slug":"sum-vault","source":"release-candidates","title":"Sum Vault","app_id":"com.gamefactorylab.sumvault","auto_build":true},
+    {"slug":"cluster-collapse","source":"release-candidates","title":"Cluster Collapse","app_id":"com.gamefactorylab.clustercollapse","auto_build":true},
+    {"slug":"balance-drop","source":"release-candidates","title":"Balance Drop","app_id":"com.gamefactorylab.balancedrop","auto_build":true}
   ]
 }

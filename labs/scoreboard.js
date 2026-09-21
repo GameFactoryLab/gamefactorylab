@@ -6,7 +6,9 @@ window.GameFactoryLabs=(()=>{
     {id:'route-once',title:'Route Once',key:'gf_candidate_route_once_v1',total:16},
     {id:'pixel-logic',title:'Pixel Logic',key:'gf_candidate_pixel_logic_v1',total:12},
     {id:'orbit-align',title:'Orbit Align',key:'gf_candidate_orbit_align_v1',total:20},
-    {id:'sum-vault',title:'Sum Vault',key:'gf_candidate_sum_vault_v1',total:null}
+    {id:'sum-vault',title:'Sum Vault',key:'gf_candidate_sum_vault_v1',total:null},
+    {id:'cluster-collapse',title:'Cluster Collapse',key:'gf_candidate_cluster_collapse_v1',total:null},
+    {id:'balance-drop',title:'Balance Drop',key:'gf_candidate_balance_drop_v1',total:null}
   ];
 
   function read(key){
