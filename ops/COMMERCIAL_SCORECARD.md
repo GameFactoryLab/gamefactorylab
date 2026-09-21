@@ -9,6 +9,10 @@ This table is a decision aid, not vanity reporting. A game cannot be promoted be
 | Sum Vault | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Pixel Logic | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 | Route Once | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Cluster Collapse | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Balance Drop | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Pulse Cascade | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| Cipher Sprint | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
 
 ## Operating rules
 
