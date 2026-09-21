@@ -1,0 +1,41 @@
+{
+  "wave": 1,
+  "cash_spend_eur": 0,
+  "priority": "first external free-distribution validation",
+  "games": [
+    {
+      "slug": "ring-pins",
+      "source": "games",
+      "title": "Ring Pins",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "One-tap timing challenge. Launch pins into the spinning ring without hitting another pin.",
+      "description": "Ring Pins is a fast one-tap timing game built for quick replays. Launch pins into a spinning ring and avoid every pin already attached. The ring speeds up as your score climbs and periodically changes direction, making each placement harder. Simple one-tap controls, increasing speed, instant restart, local best-score tracking and shareable results.",
+      "tags": ["html5", "casual", "arcade", "one-button", "high-score", "mobile", "skill", "timing", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_ring_pins_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_ring_pins_crazygames_basic.zip",
+      "signal_to_watch": ["completed_runs", "replay_click_per_finish", "share_attempt_per_finish", "pin_land_depth"]
+    },
+    {
+      "slug": "circuit-flow",
+      "source": "release-candidates",
+      "title": "Circuit Flow",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Rotate circuit pieces, complete the path, and progress through increasingly challenging logic levels.",
+      "description": "Circuit Flow is a level-based logic puzzle where you rotate circuit pieces to create a complete working path from IN to OUT. Solve increasingly challenging layouts, protect your lives, use hints when needed, and continue saved progress across multiple sessions. Includes 30 deterministic levels and mobile-friendly controls.",
+      "tags": ["html5", "puzzle", "logic", "brain", "mobile", "casual", "levels", "strategy", "browser", "singleplayer"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_circuit_flow_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_circuit_flow_crazygames_basic.zip",
+      "signal_to_watch": ["level_depth", "level_clear_rate", "replay_click", "share_attempt", "return_progress"]
+    }
+  ]
+}
