@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <title>Challenge a Friend — Free Browser Game Duels | Game Factory</title>
-<meta name="description" content="Pick a free Game Factory browser game, set an optional score to beat, and send a challenge link to a friend. No install, account, or payment required.">
+<meta name="description" content="Pick from thirteen free Game Factory browser games, set an optional score to beat, and send a challenge link to a friend. No install, account, or payment required.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/challenge/">
 <meta property="og:title" content="Challenge a Friend — Game Factory">
 <meta property="og:description" content="Pick a game, set a score to beat, and send a free browser-game challenge. No install required.">
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="../core.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Challenge a Friend — Game Factory","url":"https://gamefactorylab.github.io/gamefactorylab/challenge/","description":"Create and share free browser-game challenges with friends."}</script>
 <style>
-.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.game-choice{position:relative}.game-choice input{position:absolute;opacity:0;pointer-events:none}.game-choice label{display:block;height:100%;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220;cursor:pointer;font-weight:800}.game-choice small{display:block;margin-top:5px;font-weight:500;color:#94a3b8}.game-choice input:checked+label{outline:2px solid #38bdf8;background:#111c31}.field{display:grid;gap:6px;margin:12px 0}.field label{font-weight:800}.field input{width:100%;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0b1220;color:#f8fafc;padding:10px 12px;font:inherit}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{grid-column:1/-1}.share-output{display:none;margin-top:10px}.share-output.show{display:block}.share-output textarea{width:100%;min-height:98px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:#f8fafc;padding:10px;font:inherit;resize:none}.steps{margin:0;padding-left:20px;color:#cbd5e1}.steps li+li{margin-top:6px}@media(max-width:520px){.challenge-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions .primary{grid-column:auto}}
+.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.game-choice{position:relative}.game-choice input{position:absolute;opacity:0;pointer-events:none}.game-choice label{display:block;height:100%;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220;cursor:pointer;font-weight:800}.game-choice small{display:block;margin-top:5px;font-weight:500;color:#94a3b8}.game-choice .candidate{color:#bbf7d0;font-weight:800}.game-choice input:checked+label{outline:2px solid #38bdf8;background:#111c31}.field{display:grid;gap:6px;margin:12px 0}.field label{font-weight:800}.field input{width:100%;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0b1220;color:#f8fafc;padding:10px 12px;font:inherit}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{grid-column:1/-1}.share-output{display:none;margin-top:10px}.share-output.show{display:block}.share-output textarea{width:100%;min-height:98px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:#f8fafc;padding:10px;font:inherit;resize:none}.steps{margin:0;padding-left:20px;color:#cbd5e1}.steps li+li{margin-top:6px}.signal{margin-top:8px;font-size:12px;color:#94a3b8}@media(max-width:520px){.challenge-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions .primary{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -24,12 +24,17 @@
 <div class="muted">Game Factory · zero-install challenge</div>
 <h1>Challenge a friend</h1>
 <p>Choose a game, optionally add a score to beat, then share one link. Your friend opens it directly in the browser—no account or download.</p>
+<p class="signal" id="signal">Top 5 candidates are included so every friend challenge can also help surface the mechanic worth building bigger.</p>
 </section>
 
 <section class="card">
 <h2>1. Pick the duel</h2>
 <div class="challenge-grid" id="games">
-<div class="game-choice"><input type="radio" name="game" id="g-ring" value="ring-pins" checked><label for="g-ring">Ring Pins<small>One-tap timing</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-ring" value="ring-pins" checked><label for="g-ring">Ring Pins<small class="candidate">Top 5 candidate · one-tap timing</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-circuit" value="circuit-flow"><label for="g-circuit">Circuit Flow<small class="candidate">Top 5 candidate · logic progression</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-gravity" value="gravity-flip"><label for="g-gravity">Gravity Flip<small class="candidate">Top 5 candidate · one-tap survival</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-bridge" value="bridge-snap"><label for="g-bridge">Bridge Snap<small class="candidate">Top 5 candidate · hold-release precision</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-cluster" value="cluster-collapse"><label for="g-cluster">Cluster Collapse<small class="candidate">Top 5 candidate · 60-second puzzle</small></label></div>
 <div class="game-choice"><input type="radio" name="game" id="g-merge" value="merge-grid"><label for="g-merge">Merge Grid<small>Number merge puzzle</small></label></div>
 <div class="game-choice"><input type="radio" name="game" id="g-lane" value="lane-dodge"><label for="g-lane">Lane Dodge<small>Fast survival</small></label></div>
 <div class="game-choice"><input type="radio" name="game" id="g-stack" value="stack-drop"><label for="g-stack">Stack Drop<small>Precision stacking</small></label></div>
@@ -46,7 +51,7 @@
 <div class="actions">
 <button class="btn primary" id="share">Create & share challenge</button>
 <a class="btn secondary" id="play" href="../games/ring-pins/?from=challenge-hub">Play first</a>
-<a class="btn secondary" href="../top5/">Top 5 showdown</a>
+<a class="btn secondary" href="../top5/?from=challenge-hub">Top 5 showdown</a>
 </div>
 <div class="share-output" id="output">
 <strong>Challenge link ready</strong>
@@ -64,16 +69,34 @@
 </main>
 <script>
 (()=>{
-  const base='https://gamefactorylab.github.io/gamefactorylab/games/';
-  const names={'ring-pins':'Ring Pins','merge-grid':'Merge Grid','lane-dodge':'Lane Dodge','stack-drop':'Stack Drop','tile-shift':'Tile Shift','grid-toggle':'Grid Toggle','flood-grid':'Flood Grid','mini-sudoku-rush':'Mini Sudoku Rush','dot-compare':'Dot Compare'};
+  const routes={
+    'ring-pins':'../games/ring-pins/',
+    'circuit-flow':'../release-candidates/circuit-flow/',
+    'gravity-flip':'../release-candidates/gravity-flip/',
+    'bridge-snap':'../release-candidates/bridge-snap/',
+    'cluster-collapse':'../release-candidates/cluster-collapse/',
+    'merge-grid':'../games/merge-grid/',
+    'lane-dodge':'../games/lane-dodge/',
+    'stack-drop':'../games/stack-drop/',
+    'tile-shift':'../games/tile-shift/',
+    'grid-toggle':'../games/grid-toggle/',
+    'flood-grid':'../games/flood-grid/',
+    'mini-sudoku-rush':'../games/mini-sudoku-rush/',
+    'dot-compare':'../games/dot-compare/'
+  };
+  const names={'ring-pins':'Ring Pins','circuit-flow':'Circuit Flow','gravity-flip':'Gravity Flip','bridge-snap':'Bridge Snap','cluster-collapse':'Cluster Collapse','merge-grid':'Merge Grid','lane-dodge':'Lane Dodge','stack-drop':'Stack Drop','tile-shift':'Tile Shift','grid-toggle':'Grid Toggle','flood-grid':'Flood Grid','mini-sudoku-rush':'Mini Sudoku Rush','dot-compare':'Dot Compare'};
+  const SIGNAL_KEY='gf_challenge_hub_v2';
   const selected=()=>document.querySelector('input[name="game"]:checked').value;
   const play=document.getElementById('play');
   const target=document.getElementById('target');
   const output=document.getElementById('output');
   const copytext=document.getElementById('copytext');
+  const signal=document.getElementById('signal');
+  function load(){try{return JSON.parse(localStorage.getItem(SIGNAL_KEY)||'{}')}catch{return {}}}
+  function mark(kind,id){const s=load();s[kind]=(s[kind]||0)+1;s.games=s.games||{};s.games[id]=(s.games[id]||0)+1;s.last=id;s.lastSeen=Date.now();try{localStorage.setItem(SIGNAL_KEY,JSON.stringify(s))}catch(e){};return s}
   function gameUrl(challenge=false){
     const id=selected();
-    const u=new URL(id+'/',base);
+    const u=new URL(routes[id],location.href);
     u.searchParams.set('from','challenge-hub');
     if(challenge){
       u.searchParams.set('challenge','1');
@@ -84,14 +107,16 @@
   }
   function sync(){play.href=gameUrl(false)}
   document.getElementById('games').addEventListener('change',sync);
+  play.addEventListener('click',()=>mark('plays',selected()));
   document.getElementById('share').addEventListener('click',async()=>{
     const id=selected();
     const url=gameUrl(true);
     const n=target.value.trim();
     const text=n?`I scored ${n} in ${names[id]}. Can you beat me?`:`I challenge you to ${names[id]}. Can you beat my run?`;
-    if(navigator.share){try{await navigator.share({title:`${names[id]} challenge`,text,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+    mark('created',id);
+    if(navigator.share){try{await navigator.share({title:`${names[id]} challenge`,text,url});signal.textContent=`Challenge sent for ${names[id]}. Replay and share-back are the signal to watch.`;return}catch(e){if(e&&e.name==='AbortError')return}}
     const payload=text+' '+url;
-    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(payload);copytext.value=payload;output.classList.add('show');return}catch(e){}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(payload);copytext.value=payload;output.classList.add('show');signal.textContent=`Challenge copied for ${names[id]}.`;return}catch(e){}}
     copytext.value=payload;output.classList.add('show');copytext.focus();copytext.select();
   });
   document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(copytext.value)}catch(e){copytext.focus();copytext.select()}});
