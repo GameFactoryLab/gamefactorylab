@@ -1,0 +1,115 @@
+name: Build zero-cash 5 Game Sprint
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'distribution/sprint5/**'
+      - 'distribution/itch/sprint5.json'
+      - 'games/ring-pins/**'
+      - 'games/reaction-rush/**'
+      - 'games/odd-one-out/**'
+      - 'games/sequence-snap/**'
+      - 'games/perfect-tap/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - '.github/workflows/build-free-sprint5.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'distribution/sprint5/**'
+      - 'distribution/itch/sprint5.json'
+      - 'games/ring-pins/**'
+      - 'games/reaction-rush/**'
+      - 'games/odd-one-out/**'
+      - 'games/sequence-snap/**'
+      - 'games/perfect-tap/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - '.github/workflows/build-free-sprint5.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build portal-safe reusable game packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble self-contained 5 Game Sprint packages
+        run: |
+          python3 - <<'PY'
+          import json
+          import shutil
+          import zipfile
+          from pathlib import Path
+
+          root=Path('.')
+          out=root/'sprint5'
+          if out.exists(): shutil.rmtree(out)
+          (out/'itch').mkdir(parents=True)
+          (out/'crazygames-basic').mkdir(parents=True)
+          (out/'metadata').mkdir(parents=True)
+          meta=json.loads((root/'distribution/itch/sprint5.json').read_text())
+          assert meta['cash_spend_eur']==0
+          assert meta['distribution_status']=='upload-ready'
+          product=meta['product']
+          games=product['games']
+          assert games==['ring-pins','reaction-rush','odd-one-out','sequence-snap','perfect-tap']
+
+          def package(target_zip: Path):
+              staging=out/('_stage_'+target_zip.stem)
+              staging.mkdir(parents=True)
+              shutil.copy2(root/'distribution/sprint5/index.html', staging/'index.html')
+              for game in games:
+                  source=root/'dist/crazygames-basic'/f"GameFactoryLab_{game.replace('-', '_')}_crazygames_basic.zip"
+                  assert source.exists(), source
+                  game_dir=staging/'games'/game
+                  game_dir.mkdir(parents=True)
+                  with zipfile.ZipFile(source) as z:
+                      z.extractall(game_dir)
+                  for required in ('index.html','core.css','core.js'):
+                      assert (game_dir/required).exists(), (game, required)
+              with zipfile.ZipFile(target_zip,'w',zipfile.ZIP_DEFLATED) as z:
+                  for p in sorted(staging.rglob('*')):
+                      if p.is_file(): z.write(p,p.relative_to(staging).as_posix())
+              shutil.rmtree(staging)
+
+          package(out/'itch'/product['itch_package'])
+          package(out/'crazygames-basic'/product['crazygames_basic_package'])
+          shutil.copy2(root/'distribution/itch/sprint5.json', out/'metadata/sprint5.json')
+
+          for zip_path in (out/'itch').glob('*.zip'):
+              with zipfile.ZipFile(zip_path) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names
+                  for game in games:
+                      assert f'games/{game}/index.html' in names
+          for zip_path in (out/'crazygames-basic').glob('*.zip'):
+              with zipfile.ZipFile(zip_path) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names
+                  for game in games:
+                      assert f'games/{game}/index.html' in names
+          print('Validated 2 upload-ready 5 Game Sprint packages with 5 embedded games each')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-5-game-sprint
+          path: sprint5/
+          retention-days: 7
+          if-no-files-found: error
