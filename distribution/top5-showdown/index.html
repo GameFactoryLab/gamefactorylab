@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Game Factory: Top 5 Showdown</title>
+<meta name="description" content="Five current Game Factory contenders in one zero-install browser showdown. Try each mechanic, replay the one that earns it, and share the lineup.">
+<style>
+:root{color-scheme:dark;--bg:#07101d;--card:#0b1220;--line:rgba(255,255,255,.12);--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--ok:#86efac}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#111827,#07101d 46%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{width:min(100%,900px);margin:0 auto;padding:14px;display:grid;gap:12px}.card{background:rgba(11,18,32,.96);border:1px solid var(--line);border-radius:18px;padding:14px}h1{margin:4px 0 8px;font-size:clamp(34px,8vw,58px);line-height:.95}.muted{color:var(--muted)}.lead{font-size:16px;line-height:1.45}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{text-align:center}.metric strong{display:block;font-size:24px;margin-top:3px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.pick{appearance:none;text-align:left;min-height:132px;border:1px solid var(--line);border-radius:15px;background:#0b1220;color:var(--text);padding:12px;cursor:pointer;font:inherit}.pick.current{outline:2px solid var(--accent)}.pick.played{border-color:rgba(134,239,172,.55)}.pick b,.pick span{display:block}.pick b{font-size:18px;margin:5px 0}.pick small{color:var(--muted);line-height:1.3}.pill{display:inline-block!important;width:max-content;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{min-height:46px;border:0;border-radius:13px;padding:10px 12px;font:inherit;font-weight:900;cursor:pointer;text-align:center}.primary{background:#f8fafc;color:#111827}.secondary{background:#172033;color:#f8fafc;border:1px solid var(--line)}.frame-wrap{display:none}.frame-wrap.show{display:block}.frame-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.frame{width:100%;height:min(74vh,720px);border:1px solid var(--line);border-radius:15px;background:#07101d}.complete{display:none;text-align:center}.complete.show{display:block}@media(max-width:560px){.summary{grid-template-columns:1fr 1fr 1fr}.controls{grid-template-columns:1fr}.frame{height:70vh}}
+</style>
+</head>
+<body>
+<main class="app">
+<section><div class="muted" style="text-transform:uppercase;letter-spacing:.08em;font-size:12px">Game Factory · current winner-search lineup</div><h1>Top 5<br>Showdown.</h1><p class="muted lead">Five different mechanics in one compact package. Try each contender, replay only the one that earns another run, then share the showdown. No install, account, subscription, or paid dependency.</p></section>
+<section class="card summary"><div class="metric"><span class="muted">Opened</span><strong id="opened">0</strong></div><div class="metric"><span class="muted">Different</span><strong id="different">0/5</strong></div><div class="metric"><span class="muted">Replays</span><strong id="replays">0</strong></div></section>
+<section class="grid" id="grid"></section>
+<section class="controls"><button class="btn primary" id="next">Play next contender →</button><button class="btn secondary" id="share">Share showdown</button></section>
+<section class="card frame-wrap" id="frameWrap"><div class="frame-head"><strong id="gameTitle">Contender</strong><button class="btn secondary" id="close">Back to lineup</button></div><iframe id="frame" class="frame" title="Game Factory Top 5 contender" allow="fullscreen; clipboard-write"></iframe></section>
+<section class="card complete" id="complete"><h2>Showdown sampled ✓</h2><p class="muted">You opened all five contenders. Replay the mechanic that earned another run, or share the lineup with someone else.</p><button class="btn secondary" id="shareDone">Share Top 5</button></section>
+<p id="note" class="muted" style="text-align:center;font-size:12px">Local-only session signals. Cash spend: €0.</p>
+</main>
+<script>
+(()=>{
+const games=[
+{id:'ring-pins',title:'Ring Pins',tag:'One-tap timing',desc:'Fast failure and immediate restart.',url:'games/ring-pins/index.html'},
+{id:'circuit-flow',title:'Circuit Flow',tag:'Logic progression',desc:'Thirty levels of route-building puzzles.',url:'games/circuit-flow/index.html'},
+{id:'gravity-flip',title:'Gravity Flip',tag:'One-tap survival',desc:'Flip gravity and survive tightening gates.',url:'games/gravity-flip/index.html'},
+{id:'bridge-snap',title:'Bridge Snap',tag:'Hold-release precision',desc:'Grow the bridge and land clean crossings.',url:'games/bridge-snap/index.html'},
+{id:'cluster-collapse',title:'Cluster Collapse',tag:'60-second puzzle',desc:'Pop color groups and chase a stronger combo.',url:'games/cluster-collapse/index.html'}
+];
+const KEY='gf_top5_bundle_v1';
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
+const save=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+let state=load();state.opens=state.opens||0;state.games=state.games||{};state.replays=state.replays||0;state.shares=state.shares||0;let current='';
+const grid=document.getElementById('grid'),frame=document.getElementById('frame'),wrap=document.getElementById('frameWrap'),title=document.getElementById('gameTitle'),complete=document.getElementById('complete');
+function leastOpened(){return games.reduce((best,g)=>(state.games[g.id]||0)<(state.games[best.id]||0)?g:best,games[0])}
+function render(){document.getElementById('opened').textContent=String(state.opens);document.getElementById('different').textContent=`${Object.keys(state.games).length}/5`;document.getElementById('replays').textContent=String(state.replays);grid.innerHTML='';games.forEach((g,i)=>{const count=state.games[g.id]||0;const b=document.createElement('button');b.className='pick'+(count?' played':'')+(current===g.id?' current':'');b.innerHTML=`<span class="pill">#${i+1} · ${g.tag}</span><b>${g.title}</b><small>${g.desc}${count?` · opened ${count}×`:''}</small>`;b.onclick=()=>openGame(g);grid.appendChild(b)});complete.classList.toggle('show',Object.keys(state.games).length===5);const next=games.find(g=>!state.games[g.id])||leastOpened();document.getElementById('next').textContent=(Object.keys(state.games).length===5?'Replay: ':'Play next: ')+next.title+' →';document.getElementById('next').dataset.id=next.id}
+function openGame(g){const prior=state.games[g.id]||0;state.opens+=1;state.games[g.id]=prior+1;if(prior)state.replays+=1;save(state);current=g.id;title.textContent=g.title;frame.src=g.url+'?from=top5-bundle';wrap.classList.add('show');render();wrap.scrollIntoView({behavior:'smooth',block:'start'})}
+function close(){frame.src='about:blank';wrap.classList.remove('show');current='';render();window.scrollTo({top:0,behavior:'smooth'})}
+async function share(){state.shares+=1;save(state);const text='Five Game Factory contenders. Which one earns your replay?';const url=location.href.split('#')[0];if(navigator.share){try{await navigator.share({title:'Game Factory: Top 5 Showdown',text,url});document.getElementById('note').textContent='Showdown shared.';return}catch(e){if(e&&e.name==='AbortError')return}}if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text+' '+url);document.getElementById('note').textContent='Showdown link copied.';return}catch(e){}}document.getElementById('note').textContent=url}
+document.getElementById('next').onclick=e=>{const g=games.find(x=>x.id===e.currentTarget.dataset.id);if(g)openGame(g)};document.getElementById('close').onclick=close;document.getElementById('share').onclick=share;document.getElementById('shareDone').onclick=share;render();
+})();
+</script>
+</body>
+</html>
