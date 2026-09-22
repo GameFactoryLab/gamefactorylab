@@ -45,9 +45,9 @@ function same(a,b){return a.every((v,i)=>v===b[i])}
 function collapse(line){const vals=line.filter(Boolean),out=[],merges=[];for(let i=0;i<vals.length;i++){if(vals[i]===vals[i+1]){const v=vals[i]*2;out.push(v);merges.push(v);score+=v;i++}else out.push(vals[i])}while(out.length<N)out.push(0);return{line:out,merges}}
 function indices(dir,k){if(dir==='left')return [0,1,2,3].map(c=>k*N+c);if(dir==='right')return [3,2,1,0].map(c=>k*N+c);if(dir==='up')return [0,1,2,3].map(r=>r*N+k);return [3,2,1,0].map(r=>r*N+k)}
 function canMove(){if(empty().length)return true;for(let r=0;r<N;r++)for(let c=0;c<N;c++){const v=board[r*N+c];if(c<N-1&&board[r*N+c+1]===v)return true;if(r<N-1&&board[(r+1)*N+c]===v)return true}return false}
-function finish(){if(!running)return;running=false;const s=GameFactory.score(G,score),best=s.best||score,max=Math.max(2,...board);el.best.textContent=best;el.status.textContent=`Grid locked. Score ${score}. Best ${best}.`;el.resultScore.textContent=`${score} points · max ${max}`;el.resultBest.textContent=`Best ${best}`;el.result.classList.add('show');el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'grid_lock');GameFactory.event(G,'finish');requestAnimationFrame(()=>el.result.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}))}
+function finish(){if(!running)return;running=false;updateControls();const s=GameFactory.score(G,score),best=s.best||score,max=Math.max(2,...board);el.best.textContent=best;el.status.textContent=`Grid locked. Score ${score}. Best ${best}.`;el.resultScore.textContent=`${score} points · max ${max}`;el.resultBest.textContent=`Best ${best}`;el.result.classList.add('show');el.share.disabled=false;el.showText.disabled=false;GameFactory.event(G,'grid_lock');GameFactory.event(G,'finish');requestAnimationFrame(()=>el.result.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}))}
 function move(dir){if(!running)return;const before=board.slice();let merged=0;for(let k=0;k<N;k++){const ids=indices(dir,k),res=collapse(ids.map(i=>board[i]));res.line.forEach((v,j)=>board[ids[j]]=v);for(const v of res.merges){merged++;GameFactory.event(G,'merge');if(v>=128&&v%128===0)GameFactory.event(G,'tile_'+v)}}if(same(before,board)){el.status.textContent='No move that way';return}GameFactory.event(G,'move');addTile();render();el.status.textContent=merged?`${merged} merge${merged===1?'':'s'}!`:'Keep building';if(!canMove())finish()}
-function begin(){board=Array(N*N).fill(0);score=0;running=true;addTile();addTile();el.start.textContent='Restart';el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.result.classList.remove('show');el.status.textContent='Swipe to merge matching tiles';GameFactory.event(G,'start');render()}
+function begin(){board=Array(N*N).fill(0);score=0;running=true;updateControls();addTile();addTile();el.start.textContent='Restart';el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.result.classList.remove('show');el.status.textContent='Swipe to merge matching tiles';GameFactory.event(G,'start');render()}
 function text(){return `I scored ${score} in Merge Grid. Can you beat it?`}
 function show(){el.shareText.value=text()+' '+GameFactory.challengeUrl(G,score);el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
 async function shareResult(){const r=await GameFactory.share(G,'Merge Grid',text());if(r==='copied')el.status.textContent='Challenge link copied!';else if(r==='shared')el.status.textContent='Shared!';else if(r==='manual'||r==='unsupported')show()}
@@ -55,20 +55,35 @@ el.start.addEventListener('click',begin);
 el.again.onclick=()=>{GameFactory.event(G,'replay_click');begin()};
 el.resultShare.onclick=()=>{GameFactory.event(G,'result_share_click');shareResult()};
 el.resultText.onclick=show;
-document.querySelectorAll('[data-dir]').forEach(b=>{
-  const fire=e=>{e.preventDefault();e.stopPropagation();move(b.dataset.dir)};
-  b.addEventListener('pointerup',fire);
-  b.addEventListener('click',e=>{if(e.pointerType)return;e.preventDefault();e.stopPropagation();move(b.dataset.dir)});
+const dirButtons=[...document.querySelectorAll('[data-dir]')];
+function updateControls(){dirButtons.forEach(b=>{b.disabled=!running})}
+dirButtons.forEach(b=>{
+  b.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    move(b.dataset.dir);
+  });
 });
 window.addEventListener('keydown',e=>{const map={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down'};const dir=map[e.key];if(dir&&running){e.preventDefault();move(dir)}});
-boardEl.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY});
-boardEl.addEventListener('pointerup',e=>{
+function swipeEnd(x,y){
   if(!running)return;
-  const dx=e.clientX-startX,dy=e.clientY-startY;
+  const dx=x-startX,dy=y-startY;
   if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
   move(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));
-});
-el.share.onclick=shareResult;el.showText.onclick=show;render();
+}
+boardEl.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY});
+boardEl.addEventListener('pointerup',e=>swipeEnd(e.clientX,e.clientY));
+boardEl.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0];
+  if(!t)return;
+  startX=t.clientX;startY=t.clientY;
+},{passive:true});
+boardEl.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0];
+  if(!t)return;
+  swipeEnd(t.clientX,t.clientY);
+},{passive:true});
+el.share.onclick=shareResult;el.showText.onclick=show;updateControls();render();
 })();
 </script>
 </body>
