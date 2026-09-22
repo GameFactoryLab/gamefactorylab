@@ -84,11 +84,10 @@ jobs:
                   assert (ring_dir/required).exists(), required
 
               for game in games[1:]:
-                  source=root/'release-candidates'/game/'index.html'
-                  assert source.exists(), source
+                  source=root/'release-candidates'/game
+                  assert (source/'index.html').exists(), source
                   game_dir=staging/'games'/game
-                  game_dir.mkdir(parents=True)
-                  shutil.copy2(source, game_dir/'index.html')
+                  shutil.copytree(source, game_dir, ignore=shutil.ignore_patterns('submission.md'))
 
               with zipfile.ZipFile(target_zip,'w',zipfile.ZIP_DEFLATED) as z:
                   for p in sorted(staging.rglob('*')):
