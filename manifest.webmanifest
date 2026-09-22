@@ -1,1 +1,58 @@
-{"name":"GameFactoryLab","short_name":"GameFactory","start_url":"./","scope":"./","display":"standalone","background_color":"#0f172a","theme_color":"#111827","description":"Fast, free browser games built for quick replays and friendly challenges.","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "id": "./",
+  "name": "GameFactoryLab",
+  "short_name": "GameFactory",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#111827",
+  "description": "Fast, free browser games built for quick replays, friendly challenges and zero-install play.",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ring Pins",
+      "short_name": "Ring Pins",
+      "description": "One-tap timing challenge",
+      "url": "./games/ring-pins/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Circuit Flow",
+      "short_name": "Circuit Flow",
+      "description": "Rotate the path puzzle",
+      "url": "./release-candidates/circuit-flow/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Gravity Flip",
+      "short_name": "Gravity Flip",
+      "description": "One-tap gravity survival",
+      "url": "./release-candidates/gravity-flip/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Bridge Snap",
+      "short_name": "Bridge Snap",
+      "description": "Hold-and-release precision",
+      "url": "./release-candidates/bridge-snap/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Cluster Collapse",
+      "short_name": "Cluster Collapse",
+      "description": "60-second color puzzle",
+      "url": "./release-candidates/cluster-collapse/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    }
+  ]
+}
