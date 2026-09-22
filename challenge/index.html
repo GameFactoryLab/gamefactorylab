@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Challenge a Friend — Free Browser Game Duels | Game Factory</title>
+<meta name="description" content="Pick a free Game Factory browser game, set an optional score to beat, and send a challenge link to a friend. No install, account, or payment required.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/challenge/">
+<meta property="og:title" content="Challenge a Friend — Game Factory">
+<meta property="og:description" content="Pick a game, set a score to beat, and send a free browser-game challenge. No install required.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/challenge/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../core.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Challenge a Friend — Game Factory","url":"https://gamefactorylab.github.io/gamefactorylab/challenge/","description":"Create and share free browser-game challenges with friends."}</script>
+<style>
+.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.game-choice{position:relative}.game-choice input{position:absolute;opacity:0;pointer-events:none}.game-choice label{display:block;height:100%;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220;cursor:pointer;font-weight:800}.game-choice small{display:block;margin-top:5px;font-weight:500;color:#94a3b8}.game-choice input:checked+label{outline:2px solid #38bdf8;background:#111c31}.field{display:grid;gap:6px;margin:12px 0}.field label{font-weight:800}.field input{width:100%;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0b1220;color:#f8fafc;padding:10px 12px;font:inherit}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{grid-column:1/-1}.share-output{display:none;margin-top:10px}.share-output.show{display:block}.share-output textarea{width:100%;min-height:98px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:#f8fafc;padding:10px;font:inherit;resize:none}.steps{margin:0;padding-left:20px;color:#cbd5e1}.steps li+li{margin-top:6px}@media(max-width:520px){.challenge-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions .primary{grid-column:auto}}
+</style>
+</head>
+<body>
+<main class="app">
+<section class="card">
+<div class="muted">Game Factory · zero-install challenge</div>
+<h1>Challenge a friend</h1>
+<p>Choose a game, optionally add a score to beat, then share one link. Your friend opens it directly in the browser—no account or download.</p>
+</section>
+
+<section class="card">
+<h2>1. Pick the duel</h2>
+<div class="challenge-grid" id="games">
+<div class="game-choice"><input type="radio" name="game" id="g-ring" value="ring-pins" checked><label for="g-ring">Ring Pins<small>One-tap timing</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-merge" value="merge-grid"><label for="g-merge">Merge Grid<small>Number merge puzzle</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-lane" value="lane-dodge"><label for="g-lane">Lane Dodge<small>Fast survival</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-stack" value="stack-drop"><label for="g-stack">Stack Drop<small>Precision stacking</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-tile" value="tile-shift"><label for="g-tile">Tile Shift<small>Speed puzzle</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-toggle" value="grid-toggle"><label for="g-toggle">Grid Toggle<small>Logic board</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-flood" value="flood-grid"><label for="g-flood">Flood Grid<small>Color strategy</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-sudoku" value="mini-sudoku-rush"><label for="g-sudoku">Mini Sudoku Rush<small>Quick logic</small></label></div>
+<div class="game-choice"><input type="radio" name="game" id="g-dots" value="dot-compare"><label for="g-dots">Dot Compare<small>30-second speed test</small></label></div>
+</div>
+<div class="field">
+<label for="target">2. Score to beat <span class="muted">(optional)</span></label>
+<input id="target" inputmode="decimal" type="number" min="0" max="1000000" step="any" placeholder="Leave blank for an open challenge">
+</div>
+<div class="actions">
+<button class="btn primary" id="share">Create & share challenge</button>
+<a class="btn secondary" id="play" href="../games/ring-pins/?from=challenge-hub">Play first</a>
+<a class="btn secondary" href="../top5/">Top 5 showdown</a>
+</div>
+<div class="share-output" id="output">
+<strong>Challenge link ready</strong>
+<textarea id="copytext" readonly></textarea>
+<button class="btn secondary" id="copy">Copy link</button>
+</div>
+</section>
+
+<section class="card">
+<h2>How it works</h2>
+<ol class="steps"><li>Pick one of the lightweight HTML5 games.</li><li>Add your visible score if you want a specific target.</li><li>Send the generated link. The recipient lands directly in the selected game.</li><li>After their run, they can replay or send a challenge back.</li></ol>
+</section>
+
+<section class="card"><p class="muted">All games run free in the browser. No account, install, subscription, or purchase is required.</p><a class="btn secondary" href="../discover/">Browse more Game Factory experiments</a></section>
+</main>
+<script>
+(()=>{
+  const base='https://gamefactorylab.github.io/gamefactorylab/games/';
+  const names={'ring-pins':'Ring Pins','merge-grid':'Merge Grid','lane-dodge':'Lane Dodge','stack-drop':'Stack Drop','tile-shift':'Tile Shift','grid-toggle':'Grid Toggle','flood-grid':'Flood Grid','mini-sudoku-rush':'Mini Sudoku Rush','dot-compare':'Dot Compare'};
+  const selected=()=>document.querySelector('input[name="game"]:checked').value;
+  const play=document.getElementById('play');
+  const target=document.getElementById('target');
+  const output=document.getElementById('output');
+  const copytext=document.getElementById('copytext');
+  function gameUrl(challenge=false){
+    const id=selected();
+    const u=new URL(id+'/',base);
+    u.searchParams.set('from','challenge-hub');
+    if(challenge){
+      u.searchParams.set('challenge','1');
+      const n=Number(target.value);
+      if(target.value!==''&&Number.isFinite(n)&&n>=0&&n<=1000000)u.searchParams.set('target',String(Math.round(n*1000)/1000));
+    }
+    return u.href;
+  }
+  function sync(){play.href=gameUrl(false)}
+  document.getElementById('games').addEventListener('change',sync);
+  document.getElementById('share').addEventListener('click',async()=>{
+    const id=selected();
+    const url=gameUrl(true);
+    const n=target.value.trim();
+    const text=n?`I scored ${n} in ${names[id]}. Can you beat me?`:`I challenge you to ${names[id]}. Can you beat my run?`;
+    if(navigator.share){try{await navigator.share({title:`${names[id]} challenge`,text,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+    const payload=text+' '+url;
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(payload);copytext.value=payload;output.classList.add('show');return}catch(e){}}
+    copytext.value=payload;output.classList.add('show');copytext.focus();copytext.select();
+  });
+  document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(copytext.value)}catch(e){copytext.focus();copytext.select()}});
+  sync();
+})();
+</script>
+</body>
+</html>
