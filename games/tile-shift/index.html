@@ -15,6 +15,13 @@
 <link rel="stylesheet" href="../../core.css">
 <style>
 h1{margin:0;font-size:clamp(30px,8vw,46px);line-height:1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stat{text-align:center;padding:7px 4px}.stat span{font-size:9px;text-transform:uppercase}.stat b{display:block;font-size:19px}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:340px;width:min(82vw,340px);margin:0 auto}.tile{aspect-ratio:1;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#f8fafc;color:#111827;font-size:clamp(30px,12vw,54px);font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:transform .1s ease,opacity .1s ease}.tile:active{transform:scale(.96)}.tile.blank{background:rgba(255,255,255,.035);border-style:dashed;color:transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}.tile:disabled{opacity:.82}.status{text-align:center;min-height:24px;font-weight:800}.actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}.actions .btn{min-height:42px;padding:8px 10px}.danger{background:rgba(254,202,202,.12);color:#fecaca;border:1px solid rgba(254,202,202,.25)}.sharebox,.result{display:none}.sharebox.show,.result.show{display:block}.sharebox textarea{width:100%;min-height:88px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:#0b1220;color:#f8fafc;font:inherit;resize:none}.result{text-align:center;border:1px solid rgba(52,211,153,.28);background:rgba(16,185,129,.08)}.result .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#86efac}.result strong{display:block;font-size:25px;margin:4px 0 10px}.result-actions .primary{grid-column:1/-1}.rule{font-size:11px;margin:2px 0}.app{gap:7px}.card{padding:8px}@media(max-height:700px){.board{max-width:300px;width:min(74vw,300px)}.app{gap:5px}.card{padding:6px}.actions .btn{min-height:40px;padding:7px 8px;font-size:13px}}
+
+/* itch.io/mobile embed: keep run controls visible */
+.app{padding-bottom:150px}
+.actions{position:fixed;left:50%;transform:translateX(-50%);bottom:max(8px,env(safe-area-inset-bottom));width:min(calc(100% - 20px),740px);z-index:60;padding:6px;background:rgba(15,23,42,.96);border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 -8px 28px rgba(0,0,0,.28)}
+@media(max-height:720px){.board{max-width:260px;width:min(64vw,260px)}.app{padding-top:8px;padding-bottom:146px}.actions .btn{min-height:38px;padding:6px 8px}.rule{font-size:10px}}
+@media(max-height:610px){.board{max-width:220px;width:min(56vw,220px)}h1{font-size:28px}.stats{gap:4px}.stat{padding:5px}.stat b{font-size:17px}}
+
 </style>
 </head>
 <body>
