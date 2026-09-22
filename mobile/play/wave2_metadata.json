@@ -1,0 +1,34 @@
+{
+  "wave": 2,
+  "target_api": 36,
+  "status": "QA-approved",
+  "apps": [
+    {
+      "slug": "mini-sudoku-rush",
+      "title": "Mini Sudoku Rush",
+      "app_id": "com.gamefactorylab.minisudokurush",
+      "short_description": "Solve fast 4×4 Sudoku boards before the clock and lives run out.",
+      "full_description": "Mini Sudoku Rush is a compact mobile Sudoku challenge designed for quick sessions. Solve 4×4 boards, protect your three lives, beat the clock, and improve your best result. Simple touch controls, instant replay, offline play, no account required.",
+      "category": "Puzzle",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    },
+    {
+      "slug": "dot-compare",
+      "title": "Dot Compare",
+      "app_id": "com.gamefactorylab.dotcompare",
+      "short_description": "Pick the side with more dots before the visual difference disappears.",
+      "full_description": "Dot Compare is a fast visual-estimation game. Choose the side with more dots, build your score, and keep going as the differences become harder to spot. Quick rounds, immediate replay, offline play, no account required.",
+      "category": "Casual",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    },
+    {
+      "slug": "flood-grid",
+      "title": "Flood Grid",
+      "app_id": "com.gamefactorylab.floodgrid",
+      "short_description": "Flood the board with color and clear the grid before moves run out.",
+      "full_description": "Flood Grid is a compact color puzzle for short mobile sessions. Start from the top-left region, choose colors to expand your area, and capture the full board before the move limit runs out. Replay instantly, improve your clears, and play offline with no account required.",
+      "category": "Puzzle",
+      "monetization": "Ads planned after owner-approved ad-network integration; no paid IAP at launch."
+    }
+  ]
+}
