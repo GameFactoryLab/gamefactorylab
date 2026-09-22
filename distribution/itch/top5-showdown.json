@@ -1,0 +1,25 @@
+{
+  "release": "top5-showdown",
+  "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
+  "priority": "test the current winner-search contenders in one external multi-game package before creating more standalone mechanics",
+  "product": {
+    "slug": "game-factory-top-5-showdown",
+    "title": "Game Factory: Top 5 Showdown",
+    "classification": "Game",
+    "kind": "HTML",
+    "release_status": "Released",
+    "pricing": "Free",
+    "short_description": "Try five mechanically different Game Factory contenders in one browser showdown and replay the one that earns it.",
+    "description": "Game Factory: Top 5 Showdown packages the current winner-search lineup into one zero-install HTML5 product: Ring Pins, Circuit Flow, Gravity Flip, Bridge Snap, and Cluster Collapse. Players sample each contender, replay freely, and share the full lineup. The bundle is designed to increase session depth while exposing which mechanic earns repeat play without adding a new game concept.",
+    "tags": ["html5", "minigames", "arcade", "puzzle", "casual", "mobile", "challenge", "high-score", "browser", "logic"],
+    "mobile_friendly": true,
+    "fullscreen": true,
+    "itch_package": "GameFactoryLab_top5_showdown_itch.zip",
+    "crazygames_basic_package": "GameFactoryLab_top5_showdown_crazygames_basic.zip",
+    "games": ["ring-pins", "circuit-flow", "gravity-flip", "bridge-snap", "cluster-collapse"],
+    "controls": "Touch, mouse, or the controls shown inside each contender.",
+    "signal_to_watch": ["showdown_start", "unique_contenders_opened", "replay_per_contender", "five_of_five_sampling_rate", "share_attempt"]
+  }
+}
