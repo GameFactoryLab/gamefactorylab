@@ -1,1 +1,53 @@
-const CACHE='gamefactory-v19';const ASSETS=['./','./index.html','./core.css','./core.js','./manifest.webmanifest','./icon.svg','./sprint/','./games/odd-one-out/','./games/sequence-snap/','./games/perfect-tap/','./games/flash-count/','./games/memory-path/','./games/quick-sum/','./games/reaction-rush/','./games/higher-lower/','./games/color-word-challenge/','./games/number-hunt/','./games/dot-compare/','./games/five-second-sense/','./games/parity-rush/','./games/one-back/','./games/direction-switch/','./games/word-scramble-rush/','./games/maze-dash/','./games/pair-flip/','./games/grid-toggle/','./games/mini-sudoku-rush/','./games/tile-shift/','./games/flood-grid/','./games/stack-drop/','./games/color-stack-sort/','./games/merge-grid/','./games/lane-dodge/','./games/ring-pins/'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+const CACHE='gamefactory-v20';
+const ASSETS=[
+  './',
+  './index.html',
+  './core.css',
+  './core.js',
+  './manifest.webmanifest',
+  './icon.svg',
+  './sprint/',
+  './labs/',
+  './labs/scoreboard.js',
+  './games/odd-one-out/',
+  './games/sequence-snap/',
+  './games/perfect-tap/',
+  './games/flash-count/',
+  './games/memory-path/',
+  './games/quick-sum/',
+  './games/reaction-rush/',
+  './games/higher-lower/',
+  './games/color-word-challenge/',
+  './games/number-hunt/',
+  './games/dot-compare/',
+  './games/five-second-sense/',
+  './games/parity-rush/',
+  './games/one-back/',
+  './games/direction-switch/',
+  './games/word-scramble-rush/',
+  './games/maze-dash/',
+  './games/pair-flip/',
+  './games/grid-toggle/',
+  './games/mini-sudoku-rush/',
+  './games/tile-shift/',
+  './games/flood-grid/',
+  './games/stack-drop/',
+  './games/color-stack-sort/',
+  './games/merge-grid/',
+  './games/lane-dodge/',
+  './games/ring-pins/',
+  './release-candidates/circuit-flow/',
+  './release-candidates/gravity-flip/',
+  './release-candidates/bridge-snap/',
+  './release-candidates/cluster-collapse/'
+];
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
+});
+self.addEventListener('activate',event=>{
+  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))));
+});
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET')return;
+  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request)));
+});
