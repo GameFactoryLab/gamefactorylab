@@ -73,7 +73,7 @@ h1{font-size:clamp(36px,8vw,64px);margin:0}.grid{display:grid;grid-template-colu
   const today=()=>new Date().toISOString().slice(0,10);
   function dayIndex(day){let h=2166136261;for(const c of day){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%dailyGames.length}
   function labIndex(day){let h=2166136261;for(const c of `${day}:labs`){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h>>>0)%labGames.length}
-  document.getElementById('daily').addEventListener('click',()=>{const day=today(),g=dailyGames[dayIndex(day)];location.href=`games/${g}/?daily=${day}&from=homepage-daily`});
+  document.getElementById('daily').addEventListener('click',()=>{location.href='daily/?from=homepage-daily'});
   document.getElementById('labDaily').addEventListener('click',()=>{const day=today(),g=labGames[labIndex(day)];location.href=`release-candidates/${g}/?daily=${day}&from=homepage-lab-daily`});
   document.getElementById('random').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g}/?from=homepage-random`});
   if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
