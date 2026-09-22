@@ -1,0 +1,25 @@
+{
+  "release": "sprint5",
+  "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
+  "priority": "increase session depth and reuse proven lightweight mechanics before creating more standalone concepts",
+  "product": {
+    "slug": "game-factory-5-game-sprint",
+    "title": "Game Factory: 5 Game Sprint",
+    "classification": "Game",
+    "kind": "HTML",
+    "release_status": "Released",
+    "pricing": "Free",
+    "short_description": "Finish five quick browser challenges in one compact session and replay to improve your run.",
+    "description": "Game Factory: 5 Game Sprint bundles five existing fast HTML5 mechanics into one zero-install session: Ring Pins, Reaction Rush, Odd One Out, Sequence Snap, and Perfect Tap. Players complete one run in each challenge, advance through the lineup, replay freely, and share the sprint without accounts or paid dependencies.",
+    "tags": ["html5", "minigames", "arcade", "brain", "reaction", "casual", "mobile", "challenge", "high-score", "browser"],
+    "mobile_friendly": true,
+    "fullscreen": true,
+    "itch_package": "GameFactoryLab_5_game_sprint_itch.zip",
+    "crazygames_basic_package": "GameFactoryLab_5_game_sprint_crazygames_basic.zip",
+    "games": ["ring-pins", "reaction-rush", "odd-one-out", "sequence-snap", "perfect-tap"],
+    "controls": "Touch, mouse, or the controls shown inside each mini-game.",
+    "signal_to_watch": ["sprint_start", "challenge_completion_depth", "five_of_five_completion_rate", "dropoff_step", "repeat_session", "share_attempt"]
+  }
+}
