@@ -1,0 +1,88 @@
+name: Build free distribution wave 6
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'games/merge-grid/**'
+      - 'games/mini-sudoku-rush/**'
+      - 'games/dot-compare/**'
+      - 'games/flood-grid/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave6.json'
+      - '.github/workflows/build-free-wave6.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'games/merge-grid/**'
+      - 'games/mini-sudoku-rush/**'
+      - 'games/dot-compare/**'
+      - 'games/flood-grid/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave6.json'
+      - '.github/workflows/build-free-wave6.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable distribution packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble QA-cleared browser wave
+        run: |
+          mkdir -p wave6/itch wave6/crazygames-basic wave6/metadata
+          cp dist/GameFactoryLab_merge_grid_itch.zip wave6/itch/
+          cp dist/GameFactoryLab_mini_sudoku_rush_itch.zip wave6/itch/
+          cp dist/GameFactoryLab_dot_compare_itch.zip wave6/itch/
+          cp dist/GameFactoryLab_flood_grid_itch.zip wave6/itch/
+          cp dist/crazygames-basic/GameFactoryLab_merge_grid_crazygames_basic.zip wave6/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_mini_sudoku_rush_crazygames_basic.zip wave6/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_dot_compare_crazygames_basic.zip wave6/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_flood_grid_crazygames_basic.zip wave6/crazygames-basic/
+          cp distribution/itch/wave6.json wave6/metadata/
+
+      - name: Validate upload-ready ZIP roots
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          from pathlib import Path
+
+          meta=json.loads(Path('wave6/metadata/wave6.json').read_text())
+          packages=list(Path('wave6').glob('*/*.zip'))
+          assert meta['cash_spend_eur']==0, meta
+          assert len(meta['games'])==4, meta
+          assert len(packages)==8, packages
+          expected={g['itch_package'] for g in meta['games']} | {g['crazygames_basic_package'] for g in meta['games']}
+          assert {p.name for p in packages}==expected, ({p.name for p in packages}, expected)
+          for p in packages:
+              with zipfile.ZipFile(p) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names, p
+                  assert 'core.css' in names, p
+                  assert 'core.js' in names, p
+          print('Validated 8 Wave 6 upload packages')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-free-wave6
+          path: wave6/
+          retention-days: 7
+          if-no-files-found: error
