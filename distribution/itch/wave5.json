@@ -1,0 +1,60 @@
+{
+  "wave": 5,
+  "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
+  "priority": "complete portal-ready coverage for the current public Labs puzzle set before creating more concepts",
+  "games": [
+    {
+      "slug": "sum-vault",
+      "source": "release-candidates",
+      "title": "Sum Vault",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Select number tiles to hit the exact target sum and chain correct rounds before time expires.",
+      "description": "Sum Vault is a 45-second exact-sum puzzle. Select number tiles that total the target, chain correct rounds for higher scores, gain time on successful unlocks and lose time on misses. It tests fast mental arithmetic and streak behavior in a compact repeatable session.",
+      "tags": ["html5", "puzzle", "numbers", "math", "brain", "high-score", "mobile", "casual", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_sum_vault_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_sum_vault_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "correct_sum_rate", "round_depth", "replay_click_per_finish", "result_share_click_per_finish"]
+    },
+    {
+      "slug": "pixel-logic",
+      "source": "release-candidates",
+      "title": "Pixel Logic",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Solve compact 5 by 5 picture logic grids from row and column clues across 12 levels.",
+      "description": "Pixel Logic is a compact nonogram-style logic game with twelve 5 by 5 puzzles. Read row and column clue runs, mark filled and empty cells, check the solution and progress level by level. It benchmarks deliberate puzzle retention against the portfolio's faster arcade loops.",
+      "tags": ["html5", "puzzle", "logic", "nonogram", "brain", "levels", "mobile", "casual", "singleplayer", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_pixel_logic_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_pixel_logic_crazygames_basic.zip",
+      "signal_to_watch": ["level_clear_depth", "wrong_check_rate", "checks_per_clear", "replay_click_per_clear", "result_share_click_per_clear"]
+    },
+    {
+      "slug": "route-once",
+      "source": "release-candidates",
+      "title": "Route Once",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Visit every tile exactly once and finish on the gold tile in a compact one-stroke logic challenge.",
+      "description": "Route Once is a one-stroke routing puzzle across sixteen levels. Start on the blue tile, visit every tile exactly once using adjacent moves, and finish on the gold tile. Board size increases with progression, giving a clear measure of level depth, retries and share behavior.",
+      "tags": ["html5", "puzzle", "logic", "path", "routing", "levels", "mobile", "casual", "strategy", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_route_once_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_route_once_crazygames_basic.zip",
+      "signal_to_watch": ["level_clear_depth", "repeat_block_rate", "undo_rate", "replay_click_per_clear", "result_share_click_per_clear"]
+    }
+  ]
+}
