@@ -20,6 +20,13 @@
   ],
   "shortcuts": [
     {
+      "name": "Daily Duel",
+      "short_name": "Daily Duel",
+      "description": "One shared winner-search challenge every day",
+      "url": "./daily/",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
       "name": "Ring Pins",
       "short_name": "Ring Pins",
       "description": "One-tap timing challenge",
