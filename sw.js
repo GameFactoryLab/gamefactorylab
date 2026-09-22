@@ -1,4 +1,4 @@
-const CACHE='gamefactory-v21';
+const CACHE='gamefactory-v22';
 const ASSETS=[
   './',
   './index.html',
@@ -6,10 +6,13 @@ const ASSETS=[
   './core.js',
   './manifest.webmanifest',
   './icon.svg',
+  './discover/',
+  './top5/',
+  './challenge/',
+  './daily/',
   './sprint/',
   './labs/',
   './labs/scoreboard.js',
-  './top5/',
   './games/odd-one-out/',
   './games/sequence-snap/',
   './games/perfect-tap/',
