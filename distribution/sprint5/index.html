@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Game Factory: 5 Game Sprint</title>
+<meta name="description" content="Five fast browser challenges in one compact session. Finish all five, then replay the weakest score or share the sprint.">
+<style>
+:root{color-scheme:dark;--bg:#07101d;--card:#0b1220;--line:rgba(255,255,255,.12);--text:#f8fafc;--muted:#94a3b8;--ok:#86efac;--accent:#38bdf8}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#111827,#07101d 45%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{width:min(100%,820px);margin:0 auto;padding:14px;display:grid;gap:12px}.card{background:rgba(11,18,32,.96);border:1px solid var(--line);border-radius:18px;padding:14px}.muted{color:var(--muted)}h1{margin:4px 0 8px;font-size:clamp(34px,8vw,58px);line-height:.95}.lead{font-size:16px;line-height:1.45}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{text-align:center}.metric strong{display:block;font-size:24px;margin-top:3px}.steps{display:grid;gap:7px}.step{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#0b1220}.num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);font-weight:900}.step.done .num{background:var(--ok);color:#111827}.step.current{outline:2px solid var(--accent)}.step strong{display:block}.status{font-size:12px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{min-height:46px;border:0;border-radius:13px;padding:10px 12px;font:inherit;font-weight:900;cursor:pointer;text-align:center;text-decoration:none}.primary{background:#f8fafc;color:#111827}.secondary{background:#172033;color:#f8fafc;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}.game-wrap{display:none}.game-wrap.show{display:block}.game-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.game-head strong{font-size:18px}.frame{width:100%;height:min(74vh,700px);border:1px solid var(--line);border-radius:15px;background:#07101d}.complete{display:none;text-align:center}.complete.show{display:block}.complete h2{margin:0 0 6px;font-size:28px}@media(max-width:560px){.summary{grid-template-columns:1fr 1fr 1fr}.controls{grid-template-columns:1fr}.step{grid-template-columns:34px 1fr}.status{grid-column:2}.frame{height:70vh}}
+</style>
+</head>
+<body>
+<main class="app">
+<section>
+<div class="muted" style="text-transform:uppercase;letter-spacing:.08em;font-size:12px">Game Factory · zero-install multi-game session</div>
+<h1>5 Game<br>Sprint.</h1>
+<p class="muted lead">Five compact games. One session. Finish each challenge once, then replay anything you want. Built from existing Game Factory mechanics with no paid services or external dependencies.</p>
+</section>
+<section class="card summary">
+<div class="metric"><span class="muted">Progress</span><strong id="progress">0/5</strong></div>
+<div class="metric"><span class="muted">Session</span><strong id="session">0</strong></div>
+<div class="metric"><span class="muted">Best</span><strong id="best">0</strong></div>
+</section>
+<section class="steps" id="steps"></section>
+<section class="controls" id="lobbyControls">
+<button class="btn primary" id="start">Start sprint →</button>
+<button class="btn secondary" id="share">Share sprint</button>
+</section>
+<section class="card game-wrap" id="gameWrap">
+<div class="game-head"><strong id="gameTitle">Challenge 1</strong><span class="muted" id="gameStatus">Finish one run to continue</span></div>
+<iframe id="frame" class="frame" title="Game Factory sprint challenge" allow="fullscreen; clipboard-write"></iframe>
+<div class="controls" style="margin-top:8px">
+<button class="btn secondary" id="back">Back to lineup</button>
+<button class="btn primary" id="next" disabled>Next challenge →</button>
+</div>
+</section>
+<section class="card complete" id="complete">
+<h2>Sprint complete ✓</h2>
+<p class="muted">All five challenges finished. Replay the sprint to compare your next session or share it with someone else.</p>
+<div class="controls"><button class="btn primary" id="replay">Run it again</button><button class="btn secondary" id="shareDone">Share sprint</button></div>
+</section>
+<p id="note" class="muted" style="text-align:center;font-size:12px">No account, install, subscription, or payment required.</p>
+</main>
+<script>
+(()=>{
+  const games=[
+    {id:'ring-pins',title:'Ring Pins'},
+    {id:'reaction-rush',title:'Reaction Rush'},
+    {id:'odd-one-out',title:'Odd One Out'},
+    {id:'sequence-snap',title:'Sequence Snap'},
+    {id:'perfect-tap',title:'Perfect Tap'}
+  ];
+  const KEY='gf_sprint5_bundle_v1';
+  const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
+  const write=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+  let state=read();
+  state.sessions=state.sessions||0;state.best=state.best||0;state.completed=Array.isArray(state.completed)?state.completed:[];
+  let current=-1,baseline=0,poller=0;
+  const steps=document.getElementById('steps'),progress=document.getElementById('progress'),session=document.getElementById('session'),best=document.getElementById('best');
+  const wrap=document.getElementById('gameWrap'),frame=document.getElementById('frame'),next=document.getElementById('next'),title=document.getElementById('gameTitle'),status=document.getElementById('gameStatus'),complete=document.getElementById('complete');
+  function gameStats(id){try{return JSON.parse(localStorage.getItem('gf_'+id)||'{}')}catch{return {}}}
+  function render(){
+    progress.textContent=`${state.completed.length}/5`;session.textContent=String(state.sessions);best.textContent=String(state.best);
+    steps.innerHTML='';games.forEach((g,i)=>{const done=state.completed.includes(g.id);const row=document.createElement('div');row.className='step'+(done?' done':'')+(i===current?' current':'');const n=document.createElement('div');n.className='num';n.textContent=done?'✓':String(i+1);const txt=document.createElement('div');const strong=document.createElement('strong');strong.textContent=g.title;const sub=document.createElement('span');sub.className='muted';sub.textContent=done?'Completed':i===state.completed.length?'Up next':'Finish earlier challenges first';txt.append(strong,sub);const st=document.createElement('span');st.className='status muted';st.textContent=`${i+1}/5`;row.append(n,txt,st);if(i<=state.completed.length)row.addEventListener('click',()=>openGame(i));steps.appendChild(row)});
+    if(state.completed.length===5){complete.classList.add('show')}else complete.classList.remove('show');
+  }
+  function beginSession(){state.sessions+=1;state.completed=[];current=-1;write(state);render();openGame(0)}
+  function openGame(i){
+    if(i<0||i>=games.length||i>state.completed.length)return;
+    clearInterval(poller);current=i;const g=games[i];baseline=Number(gameStats(g.id).plays||0);title.textContent=`Challenge ${i+1}/5 · ${g.title}`;status.textContent=state.completed.includes(g.id)?'Completed — replay or continue':'Finish one run to continue';next.disabled=!state.completed.includes(g.id);next.textContent=i===games.length-1?'Finish sprint ✓':'Next challenge →';frame.src=`games/${g.id}/index.html?from=sprint5`;wrap.classList.add('show');complete.classList.remove('show');render();wrap.scrollIntoView({behavior:'smooth',block:'start'});
+    poller=setInterval(()=>{const now=Number(gameStats(g.id).plays||0);if(now>baseline){markDone(g.id);baseline=now}},700);
+  }
+  function markDone(id){if(!state.completed.includes(id)){state.completed.push(id);state.best=Math.max(state.best,state.completed.length);write(state)}status.textContent='Run complete ✓';next.disabled=false;render()}
+  function closeGame(){clearInterval(poller);poller=0;frame.src='about:blank';wrap.classList.remove('show');current=-1;render();window.scrollTo({top:0,behavior:'smooth'})}
+  function advance(){if(current<0)return;if(current===games.length-1){if(state.completed.length===5){clearInterval(poller);wrap.classList.remove('show');complete.classList.add('show');write(state);render();complete.scrollIntoView({behavior:'smooth',block:'center'})}return}openGame(current+1)}
+  async function shareSprint(){const text='Can you finish the Game Factory 5 Game Sprint? Five quick browser challenges, one session.';const url=location.href.split('#')[0];if(navigator.share){try{await navigator.share({title:'Game Factory: 5 Game Sprint',text,url});document.getElementById('note').textContent='Sprint shared.';return}catch(e){if(e&&e.name==='AbortError')return}}if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text+' '+url);document.getElementById('note').textContent='Sprint link copied.';return}catch(e){}}document.getElementById('note').textContent=url}
+  document.getElementById('start').onclick=()=>state.completed.length?openGame(Math.min(state.completed.length,4)):beginSession();
+  document.getElementById('share').onclick=shareSprint;document.getElementById('shareDone').onclick=shareSprint;document.getElementById('back').onclick=closeGame;next.onclick=advance;document.getElementById('replay').onclick=beginSession;
+  render();
+})();
+</script>
+</body>
+</html>
