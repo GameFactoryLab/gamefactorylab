@@ -264,6 +264,10 @@ window.GameFactory=(()=>{
     play.className='btn primary gf-next-play';
     const daily=document.createElement('a');
     daily.className='btn secondary gf-next-daily';
+    const challenge=document.createElement('button');
+    challenge.className='btn secondary gf-next-share';
+    challenge.type='button';
+    challenge.textContent='Challenge a friend';
     if(sprint){
       label.textContent='5 Game Sprint';
       if(sprint.step===sprintSize-1){
@@ -289,7 +293,18 @@ window.GameFactory=(()=>{
     }
     play.addEventListener('click',()=>event(id,sprint?'sprint_next_click':'next_click'));
     daily.addEventListener('click',()=>event(id,sprint?'sprint_overview_click':'daily_click'));
-    actions.append(play,daily);
+    challenge.addEventListener('click',async()=>{
+      const s=stats(id);
+      const last=Number(s.last);
+      const game=portfolioGames.find(g=>g.id===id);
+      const gameTitle=game?game.title:'this game';
+      const scoreText=Number.isFinite(last)?`I scored ${displayScore(id,last)} in ${gameTitle}. Can you beat me?`:`Can you beat me in ${gameTitle}?`;
+      const result=await share(id,`Can you beat my ${gameTitle} score?`,scoreText,challengeUrl(id,last));
+      if(result==='shared')challenge.textContent='Challenge sent ✓';
+      else if(result==='copied')challenge.textContent='Challenge copied ✓';
+      else if(result==='manual')challenge.textContent='Challenge ready ✓';
+    });
+    actions.append(play,daily,challenge);
     wrap.append(label,title,actions);
     (document.querySelector('main.app')||document.body).appendChild(wrap);
   }
