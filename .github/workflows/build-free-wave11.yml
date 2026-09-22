@@ -1,0 +1,89 @@
+name: Build free distribution wave 11
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'release-candidates/balance-drop/**'
+      - 'release-candidates/catch-drop/**'
+      - 'release-candidates/cipher-sprint/**'
+      - 'release-candidates/orbit-align/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave11.json'
+      - '.github/workflows/build-free-wave11.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'release-candidates/balance-drop/**'
+      - 'release-candidates/catch-drop/**'
+      - 'release-candidates/cipher-sprint/**'
+      - 'release-candidates/orbit-align/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave11.json'
+      - '.github/workflows/build-free-wave11.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable distribution packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble release-candidate browser wave
+        run: |
+          mkdir -p wave11/itch wave11/crazygames-basic wave11/metadata
+          cp dist/GameFactoryLab_balance_drop_itch.zip wave11/itch/
+          cp dist/GameFactoryLab_catch_drop_itch.zip wave11/itch/
+          cp dist/GameFactoryLab_cipher_sprint_itch.zip wave11/itch/
+          cp dist/GameFactoryLab_orbit_align_itch.zip wave11/itch/
+          cp dist/crazygames-basic/GameFactoryLab_balance_drop_crazygames_basic.zip wave11/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_catch_drop_crazygames_basic.zip wave11/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_cipher_sprint_crazygames_basic.zip wave11/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_orbit_align_crazygames_basic.zip wave11/crazygames-basic/
+          cp distribution/itch/wave11.json wave11/metadata/
+
+      - name: Validate upload-ready ZIP roots
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          from pathlib import Path
+
+          meta=json.loads(Path('wave11/metadata/wave11.json').read_text())
+          packages=list(Path('wave11').glob('*/*.zip'))
+          assert meta['cash_spend_eur']==0, meta
+          assert meta['distribution_status']=='upload-ready', meta
+          assert len(meta['games'])==4, meta
+          assert len(packages)==8, packages
+          expected={g['itch_package'] for g in meta['games']} | {g['crazygames_basic_package'] for g in meta['games']}
+          assert {p.name for p in packages}==expected, ({p.name for p in packages}, expected)
+          for p in packages:
+              with zipfile.ZipFile(p) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names, p
+                  assert 'core.css' in names, p
+                  assert 'core.js' in names, p
+          print('Validated 8 Wave 11 upload packages')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-free-wave11
+          path: wave11/
+          retention-days: 7
+          if-no-files-found: error
