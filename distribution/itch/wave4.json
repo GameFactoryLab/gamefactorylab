@@ -1,0 +1,60 @@
+{
+  "wave": 4,
+  "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
+  "priority": "extend free external testing to three distinct existing mechanics; no new concept production before traffic data",
+  "games": [
+    {
+      "slug": "rule-shift",
+      "source": "release-candidates",
+      "title": "Rule Shift",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Judge shapes against a changing rule, build a streak, and react before the 60-second timer expires.",
+      "description": "Rule Shift is a fast cognitive-switching game built for short replayable sessions. Decide whether each shape matches the current color, form or size rule while the rule changes as your streak grows. The 60-second format creates clean score, accuracy, replay and share signals.",
+      "tags": ["html5", "casual", "reflex", "brain", "sorting", "one-button", "high-score", "mobile", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_rule_shift_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_rule_shift_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "correct_answer_rate", "rule_shift_depth", "replay_click_per_finish", "result_share_click_per_finish"]
+    },
+    {
+      "slug": "vector-drift",
+      "source": "release-candidates",
+      "title": "Vector Drift",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Nudge a drifting puck with directional impulses, collect targets, and avoid hazards for 45 seconds.",
+      "description": "Vector Drift is a momentum arcade game where every input changes velocity rather than position. Bend a drifting puck through cyan targets, preserve combos, and avoid red hazards during a 45-second run. It tests a distinct physics-control loop against the portfolio's tap, logic and timing games.",
+      "tags": ["html5", "arcade", "physics", "skill", "momentum", "high-score", "mobile", "casual", "quick", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_vector_drift_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_vector_drift_crazygames_basic.zip",
+      "signal_to_watch": ["run_finish", "target_collect_depth", "combo_5_rate", "hazard_hit_rate", "replay_click_per_finish", "result_share_click_per_finish"]
+    },
+    {
+      "slug": "orbit-align",
+      "source": "release-candidates",
+      "title": "Orbit Align",
+      "classification": "Game",
+      "kind": "HTML",
+      "release_status": "Released",
+      "pricing": "Free",
+      "short_description": "Rotate three orbital rings and align every cyan marker with its amber target across 20 levels.",
+      "description": "Orbit Align is a compact visual logic puzzle with twenty levels. Rotate outer, middle and inner rings until all three markers align with their targets, then continue through progressively varied starting positions. It provides a slower level-based puzzle benchmark for replay, progression and share behavior.",
+      "tags": ["html5", "puzzle", "logic", "rotation", "brain", "levels", "mobile", "casual", "singleplayer", "browser"],
+      "mobile_friendly": true,
+      "fullscreen": true,
+      "itch_package": "GameFactoryLab_orbit_align_itch.zip",
+      "crazygames_basic_package": "GameFactoryLab_orbit_align_crazygames_basic.zip",
+      "signal_to_watch": ["level_clear_depth", "wrong_check_rate", "hint_rate", "replay_click_per_clear", "result_share_click_per_clear"]
+    }
+  ]
+}
