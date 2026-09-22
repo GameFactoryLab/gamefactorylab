@@ -1,0 +1,97 @@
+name: Build free distribution wave 12
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'games/color-word-challenge/**'
+      - 'games/direction-switch/**'
+      - 'games/five-second-sense/**'
+      - 'games/number-hunt/**'
+      - 'games/pair-flip/**'
+      - 'games/parity-rush/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave12.json'
+      - '.github/workflows/build-free-wave12.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'games/color-word-challenge/**'
+      - 'games/direction-switch/**'
+      - 'games/five-second-sense/**'
+      - 'games/number-hunt/**'
+      - 'games/pair-flip/**'
+      - 'games/parity-rush/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave12.json'
+      - '.github/workflows/build-free-wave12.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable distribution packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble final production browser coverage wave
+        run: |
+          mkdir -p wave12/itch wave12/crazygames-basic wave12/metadata
+          cp dist/GameFactoryLab_color_word_challenge_itch.zip wave12/itch/
+          cp dist/GameFactoryLab_direction_switch_itch.zip wave12/itch/
+          cp dist/GameFactoryLab_five_second_sense_itch.zip wave12/itch/
+          cp dist/GameFactoryLab_number_hunt_itch.zip wave12/itch/
+          cp dist/GameFactoryLab_pair_flip_itch.zip wave12/itch/
+          cp dist/GameFactoryLab_parity_rush_itch.zip wave12/itch/
+          cp dist/crazygames-basic/GameFactoryLab_color_word_challenge_crazygames_basic.zip wave12/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_direction_switch_crazygames_basic.zip wave12/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_five_second_sense_crazygames_basic.zip wave12/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_number_hunt_crazygames_basic.zip wave12/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_pair_flip_crazygames_basic.zip wave12/crazygames-basic/
+          cp dist/crazygames-basic/GameFactoryLab_parity_rush_crazygames_basic.zip wave12/crazygames-basic/
+          cp distribution/itch/wave12.json wave12/metadata/
+
+      - name: Validate upload-ready ZIP roots
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          from pathlib import Path
+
+          meta=json.loads(Path('wave12/metadata/wave12.json').read_text())
+          packages=list(Path('wave12').glob('*/*.zip'))
+          assert meta['cash_spend_eur']==0, meta
+          assert meta['distribution_status']=='upload-ready', meta
+          assert len(meta['games'])==6, meta
+          assert len(packages)==12, packages
+          expected={g['itch_package'] for g in meta['games']} | {g['crazygames_basic_package'] for g in meta['games']}
+          assert {p.name for p in packages}==expected, ({p.name for p in packages}, expected)
+          for p in packages:
+              with zipfile.ZipFile(p) as z:
+                  names=set(z.namelist())
+                  assert 'index.html' in names, p
+                  assert 'core.css' in names, p
+                  assert 'core.js' in names, p
+          print('Validated 12 Wave 12 upload packages')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-free-wave12
+          path: wave12/
+          retention-days: 7
+          if-no-files-found: error
