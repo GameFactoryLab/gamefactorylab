@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>Catch Drop — Fast One-Finger Catch Game</title>
+<meta name="description" content="Drag the catcher, collect falling orbs, avoid spikes, and chase a higher score in this fast free browser game.">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#111827;color:#f8fafc;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}button,textarea{font:inherit}.app{width:min(100%,460px);margin:0 auto;display:grid;gap:7px;padding:10px 0 14px}h1{margin:0;font-size:clamp(30px,8vw,46px);line-height:1}.muted{color:#94a3b8}.intro p{margin:5px 0 0;font-size:13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.card{background:#172033;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:8px}.stat{text-align:center;padding:7px}.stat span{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8}.stat b{display:block;font-size:20px;margin-top:2px}.stage{padding:6px}.stage canvas{display:block;width:min(78vw,320px);height:auto;aspect-ratio:8/9;margin:0 auto;border-radius:14px;background:#0b1220;touch-action:none}.status{text-align:center;min-height:22px;font-weight:800;font-size:13px}.rule{text-align:center;font-size:11px;margin:0}.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}.btn{border:0;border-radius:12px;min-height:42px;padding:8px 10px;font-weight:800;cursor:pointer;touch-action:manipulation}.primary{background:#f8fafc;color:#111827}.secondary{background:#263247;color:#f8fafc}.btn:disabled{opacity:.45}.sharebox{display:none}.sharebox.show{display:block}.sharebox textarea{width:100%;min-height:78px;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px;background:#0b1220;color:#f8fafc;resize:none}.legend{display:flex;justify-content:center;gap:14px;font-size:11px;color:#94a3b8}.legend span{display:flex;align-items:center;gap:5px}.dot,.spike{display:inline-block;width:10px;height:10px}.dot{border-radius:50%;background:#bbf7d0}.gold{background:#fde68a}.spike{background:#fca5a5;clip-path:polygon(50% 0,100% 100%,0 100%)}
+@media(max-height:700px){.app{gap:5px;padding-top:6px}.stage canvas{width:min(67vw,270px)}.card{padding:6px}.intro p{font-size:12px}.btn{min-height:39px;padding:7px 8px}.rule,.legend{font-size:10px}}
+</style>
+</head>
+<body>
+<main class="app">
+<section class="intro"><h1>Catch Drop</h1><p class="muted">Drag the catcher. Collect orbs. Avoid spikes.</p></section>
+<section class="stats"><div class="card stat"><span>Score</span><b id="score">0</b></div><div class="card stat"><span>Best</span><b id="best">0</b></div><div class="card stat"><span>Speed</span><b id="speed">1.0×</b></div></section>
+<section class="card stage"><canvas id="game" width="320" height="360" aria-label="Catch Drop game area"></canvas></section>
+<div id="status" class="status muted">Tap Start</div>
+<div class="legend"><span><i class="dot"></i>+1</span><span><i class="dot gold"></i>+3</span><span><i class="spike"></i>avoid</span></div>
+<p class="muted rule">Move with one finger, mouse, or ← → keys. Missing an orb is safe; touching a spike ends the run.</p>
+<div class="actions"><button id="start" type="button" class="btn primary">Start</button><button id="share" type="button" class="btn secondary" disabled>Share score</button><button id="showText" type="button" class="btn secondary" disabled>Show share text</button></div>
+<section id="shareBox" class="card sharebox"><textarea id="shareText" readonly aria-label="Share text"></textarea></section>
+</main>
+<script>
+(()=>{
+const W=320,H=360,GROUND=330,PLAYER_W=68,PLAYER_H=14;
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const el={score:document.getElementById('score'),best:document.getElementById('best'),speed:document.getElementById('speed'),status:document.getElementById('status'),start:document.getElementById('start'),share:document.getElementById('share'),showText:document.getElementById('showText'),shareBox:document.getElementById('shareBox'),shareText:document.getElementById('shareText')};
+let playerX=(W-PLAYER_W)/2,items=[],score=0,running=false,last=0,spawnClock=0,raf=0,keyDir=0;
+const KEY='gfl_catch_drop_best';
+function getBest(){return Number(localStorage.getItem(KEY)||0)}
+function setBest(v){if(v>getBest())localStorage.setItem(KEY,String(v))}
+el.best.textContent=getBest();
+function speedFactor(){return 1+Math.min(1.6,score*.035)}
+function spawnInterval(){return Math.max(310,700-score*7)}
+function spawn(){const bad=Math.random()<Math.min(.31,.16+score*.0035);const gold=!bad&&Math.random()<.10;const r=bad?10:gold?9:8;items.push({x:r+Math.random()*(W-r*2),y:-14,r,bad,gold,vy:(bad?142:132)*speedFactor()})}
+function clampPlayer(){playerX=Math.max(4,Math.min(W-PLAYER_W-4,playerX))}
+function setPlayer(clientX){const rect=canvas.getBoundingClientRect();playerX=(clientX-rect.left)*(W/rect.width)-PLAYER_W/2;clampPlayer()}
+function hit(item){const px1=playerX,px2=playerX+PLAYER_W,py1=GROUND,py2=GROUND+PLAYER_H;return item.x+item.r>px1&&item.x-item.r<px2&&item.y+item.r>py1&&item.y-item.r<py2}
+function drawSpike(x,y,r){ctx.fillStyle='#fca5a5';ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y+r);ctx.lineTo(x-r,y+r);ctx.closePath();ctx.fill();ctx.strokeStyle='#7f1d1d';ctx.lineWidth=2;ctx.stroke()}
+function draw(){ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111827');g.addColorStop(1,'#07101d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;for(let y=55;y<GROUND;y+=55){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}for(const it of items){if(it.bad){drawSpike(it.x,it.y,it.r)}else{ctx.fillStyle=it.gold?'#fde68a':'#bbf7d0';ctx.beginPath();ctx.arc(it.x,it.y,it.r,0,Math.PI*2);ctx.fill();if(it.gold){ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.stroke()}}}ctx.fillStyle='#f8fafc';ctx.fillRect(playerX,GROUND,PLAYER_W,PLAYER_H);ctx.fillStyle='#64748b';ctx.fillRect(playerX+8,GROUND-5,PLAYER_W-16,5);ctx.fillStyle='rgba(248,250,252,.66)';ctx.font='12px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(running?'Catch green · avoid red':'Ready',W/2,22)}
+function finish(){if(!running)return;running=false;cancelAnimationFrame(raf);setBest(score);el.best.textContent=getBest();el.start.textContent='Play again';el.share.disabled=false;el.showText.disabled=false;el.status.textContent=`Spike hit · Score ${score} · Best ${getBest()}`;draw()}
+function collect(it){score+=it.gold?3:1;el.score.textContent=score;el.speed.textContent=speedFactor().toFixed(1)+'×';el.status.textContent=it.gold?'Gold +3!':'Nice catch'}
+function loop(ts){if(!running)return;const dt=Math.min(.035,(ts-last||0)/1000);last=ts;if(keyDir){playerX+=keyDir*245*dt;clampPlayer()}spawnClock+=dt*1000;if(spawnClock>=spawnInterval()){spawnClock=0;spawn()}for(let i=items.length-1;i>=0;i--){const it=items[i];it.y+=it.vy*dt;if(hit(it)){if(it.bad){finish();return}else{collect(it);items.splice(i,1);continue}}if(it.y-it.r>H)items.splice(i,1)}draw();raf=requestAnimationFrame(loop)}
+function begin(){cancelAnimationFrame(raf);items=[];score=0;spawnClock=300;playerX=(W-PLAYER_W)/2;running=true;last=0;keyDir=0;el.score.textContent='0';el.speed.textContent='1.0×';el.start.textContent='Restart';el.share.disabled=true;el.showText.disabled=true;el.shareBox.classList.remove('show');el.status.textContent='Drag to catch the first orb';draw();raf=requestAnimationFrame(loop)}
+function shareText(){return `I scored ${score} in Catch Drop. Can you beat me?`}
+async function share(){const text=shareText();if(navigator.share){try{await navigator.share({title:'Catch Drop',text});el.status.textContent='Shared!';return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(text);el.status.textContent='Score copied!'}catch(e){showText()}}
+function showText(){el.shareText.value=shareText();el.shareBox.classList.add('show');el.shareText.focus();el.shareText.select()}
+canvas.addEventListener('pointerdown',e=>{if(running){e.preventDefault();canvas.setPointerCapture?.(e.pointerId);setPlayer(e.clientX)}});canvas.addEventListener('pointermove',e=>{if(running&&e.buttons!==0){e.preventDefault();setPlayer(e.clientX)}});canvas.addEventListener('pointerup',e=>{if(running){e.preventDefault();setPlayer(e.clientX)}});
+window.addEventListener('keydown',e=>{if(!running)return;if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){keyDir=-1;e.preventDefault()}else if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){keyDir=1;e.preventDefault()}});window.addEventListener('keyup',e=>{if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))keyDir=0});
+el.start.addEventListener('click',begin);el.share.addEventListener('click',share);el.showText.addEventListener('click',showText);draw();
+})();
+</script>
+</body>
+</html>
