@@ -1,0 +1,79 @@
+name: Build zero-cash Top 5 submission kit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'release-candidates/gravity-flip/**'
+      - 'release-candidates/bridge-snap/**'
+      - 'release-candidates/cluster-collapse/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/build_submission_queue.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave*.json'
+      - '.github/workflows/build-top5-submission-kit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'release-candidates/gravity-flip/**'
+      - 'release-candidates/bridge-snap/**'
+      - 'release-candidates/cluster-collapse/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/build_submission_queue.py'
+      - 'scripts/zero_cash_guard.py'
+      - 'distribution/itch/wave*.json'
+      - '.github/workflows/build-top5-submission-kit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable portal packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble prioritized submission kit
+        run: python3 scripts/build_submission_queue.py
+
+      - name: Validate Top 5 handoff
+        run: |
+          python3 - <<'PY'
+          import csv, zipfile
+          from pathlib import Path
+
+          root=Path('handoff/top5-submission-kit')
+          rows=list(csv.DictReader((root/'submission-queue.csv').open(encoding='utf-8')))
+          assert len(rows)==14, len(rows)
+          assert [r['slug'] for r in rows[:5]]==['ring-pins','circuit-flow','gravity-flip','bridge-snap','cluster-collapse']
+          packages=list((root/'itch').glob('*.zip'))+list((root/'crazygames-basic').glob('*.zip'))
+          assert len(packages)==10, len(packages)
+          for p in packages:
+              with zipfile.ZipFile(p) as z:
+                  names=set(z.namelist())
+                  assert {'index.html','core.css','core.js'} <= names, p
+          print('Validated 10 upload-ready Top 5 packages plus 14-game queue')
+          PY
+
+      - name: Upload operator handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-top5-submission-kit
+          path: handoff/top5-submission-kit/
+          retention-days: 7
+          if-no-files-found: error
