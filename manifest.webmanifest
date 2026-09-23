@@ -27,6 +27,13 @@
       "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
     },
     {
+      "name": "Fresh 2-Game Duel",
+      "short_name": "Fresh Duel",
+      "description": "Fair head-to-head test of the newest two candidates",
+      "url": "./fresh/?duel=1",
+      "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
       "name": "Ring Pins",
       "short_name": "Ring Pins",
       "description": "One-tap timing challenge",
