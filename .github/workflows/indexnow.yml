@@ -9,7 +9,18 @@ on:
       - 'labs/**/index.html'
       - 'labs/index.html'
       - 'release-candidates/**/index.html'
+      - 'discover/**/index.html'
+      - 'discover/index.html'
+      - 'top5/**/index.html'
+      - 'top5/index.html'
+      - 'daily/**/index.html'
+      - 'daily/index.html'
+      - 'challenge/**/index.html'
+      - 'challenge/index.html'
+      - 'sprint/**/index.html'
+      - 'sprint/index.html'
       - 'sitemap.xml'
+      - 'sitemap-games.xml'
       - '.github/workflows/indexnow.yml'
   workflow_dispatch:
 
@@ -39,12 +50,24 @@ jobs:
           from pathlib import Path
 
           base = 'https://gamefactorylab.github.io/gamefactorylab/'
-          sitemap = Path('sitemap.xml')
+          sitemaps = [Path('sitemap.xml'), Path('sitemap-games.xml')]
 
           def all_urls():
-              root = ET.parse(sitemap).getroot()
+              urls = []
               ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-              return [n.text for n in root.findall('s:url/s:loc', ns) if n.text]
+              for sitemap in sitemaps:
+                  if not sitemap.exists():
+                      continue
+                  root = ET.parse(sitemap).getroot()
+                  urls.extend(n.text for n in root.findall('s:url/s:loc', ns) if n.text)
+              return sorted(set(urls))
+
+          def page_url(path):
+              if path == 'index.html':
+                  return base
+              if path.endswith('/index.html'):
+                  return base + path[:-10]
+              return None
 
           event = os.environ.get('EVENT_NAME', '')
           before = os.environ.get('BEFORE', '')
@@ -58,20 +81,18 @@ jobs:
                   changed = subprocess.check_output(['git','diff','--name-only',before,after], text=True).splitlines()
               except Exception:
                   changed = []
-              if 'sitemap.xml' in changed or '.github/workflows/indexnow.yml' in changed:
+              if any(p in changed for p in ('sitemap.xml', 'sitemap-games.xml', '.github/workflows/indexnow.yml')):
                   urls = all_urls()
               else:
+                  allowed = (
+                      'games/', 'labs/', 'release-candidates/', 'discover/',
+                      'top5/', 'daily/', 'challenge/', 'sprint/'
+                  )
                   for p in changed:
-                      if p == 'index.html':
-                          urls.append(base)
-                      elif p.startswith('games/') and p.endswith('/index.html'):
-                          urls.append(base + p[:-10])
-                      elif p == 'labs/index.html':
-                          urls.append(base + 'labs/')
-                      elif p.startswith('labs/') and p.endswith('/index.html'):
-                          urls.append(base + p[:-10])
-                      elif p.startswith('release-candidates/') and p.endswith('/index.html'):
-                          urls.append(base + p[:-10])
+                      if p == 'index.html' or (p.startswith(allowed) and p.endswith('/index.html')):
+                          url = page_url(p)
+                          if url:
+                              urls.append(url)
 
           urls = sorted(set(urls))
           Path('/tmp/indexnow-urls.json').write_text(json.dumps(urls))
