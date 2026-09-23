@@ -5,15 +5,47 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101f">
 <title>Fresh Test — GameFactoryLab</title>
-<meta name="description" content="Two new GameFactoryLab browser-game experiments in one fair head-to-head test. Complete both, replay the one that earns it, and help surface the stronger mechanic.">
+<meta name="description" content="Two new GameFactoryLab browser-game experiments in one fair head-to-head test. Complete both, then choose either candidate for an unbiased extra run.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/fresh/">
 <meta property="og:title" content="Fresh Test — Two New GameFactoryLab Experiments">
-<meta property="og:description" content="Try two fresh mechanics in one fair head-to-head test. Free browser play, no account or install.">
+<meta property="og:description" content="Complete both fresh mechanics, then replay whichever one earns it. Free browser play, no account or install.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/fresh/">
 <meta name="twitter:card" content="summary">
 <style>
-:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%)}a,button{font:inherit}.wrap{width:min(94vw,920px);margin:0 auto;padding:28px 0 40px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}.hero{padding:18px 0 8px}h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}.muted{color:#94a3b8}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.primary:disabled,.secondary:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:20px;padding:18px;min-height:220px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:12px}.card h2{font-size:32px;margin:10px 0 8px}.card strong{display:block;margin-top:18px}.note{margin-top:20px;background:#0f172a;border:1px solid #263247;border-radius:16px;padding:14px;font-size:13px}.mini{font-size:12px}.duel{margin-top:22px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:12px}.duel.hidden{display:none}.duelbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 2px 12px}.duelbar strong{font-size:15px}.duel iframe{width:100%;height:min(760px,82vh);border:0;border-radius:16px;background:#07101f}.duel-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.duel-actions button{flex:1;min-width:190px}.signal{margin-top:10px;border-radius:14px;padding:10px 12px;background:#111827;border:1px solid #263247}.signal strong{display:block;font-size:13px}.signal span{font-size:12px;color:#94a3b8}
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%)}
+a,button{font:inherit}
+.wrap{width:min(94vw,920px);margin:0 auto;padding:28px 0 40px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}
+.hero{padding:18px 0 8px}
+h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}
+.muted{color:#94a3b8}
+.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}
+.primary{background:#2563eb;color:#fff}
+.secondary{background:#1e293b;color:#fff}
+.primary:disabled,.secondary:disabled{opacity:.42;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}
+.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:20px;padding:18px;min-height:220px}
+.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:12px}
+.card h2{font-size:32px;margin:10px 0 8px}
+.card strong{display:block;margin-top:18px}
+.note{margin-top:20px;background:#0f172a;border:1px solid #263247;border-radius:16px;padding:14px;font-size:13px}
+.mini{font-size:12px}
+.duel{margin-top:22px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:12px}
+.duel.hidden,.hidden{display:none}
+.duelbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 2px 12px}
+.duelbar strong{font-size:15px}
+.duel iframe{width:100%;height:min(760px,82vh);border:0;border-radius:16px;background:#07101f}
+.duel-actions,.replay-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.duel-actions button,.replay-actions button{flex:1;min-width:190px}
+.signal{margin-top:10px;border-radius:14px;padding:10px 12px;background:#111827;border:1px solid #263247}
+.signal strong{display:block;font-size:13px}
+.signal span{font-size:12px;color:#94a3b8}
+.replay-box{margin-top:10px;border-radius:14px;padding:12px;background:#0b1220;border:1px solid #3b4b63}
+.replay-box strong{display:block}
 </style>
 </head>
 <body>
@@ -21,142 +53,311 @@
 <section class="hero">
 <div class="eyebrow">GameFactoryLab • fresh zero-cash test</div>
 <h1>Two fresh mechanics. One fair head-to-head.</h1>
-<p class="muted">Start with a persistent random first pick to reduce title bias. Complete one real run before switching, then complete the second candidate. Extra runs are the strongest signal.</p>
-<div class="actions"><button id="fairPick" class="primary" type="button">Start fair 2-game duel →</button><button id="share" class="secondary" type="button">Share this test</button><a class="secondary" href="../labs/">All experiments</a></div>
+<p class="muted">Start with a persistent random first pick to reduce title bias. Complete both candidates before the replay decision. Extra completed runs are the strongest signal.</p>
+<div class="actions">
+  <button id="fairPick" class="primary" type="button">Start fair 2-game duel →</button>
+  <button id="share" class="secondary" type="button">Share this test</button>
+  <a class="secondary" href="../labs/">All experiments</a>
+</div>
 <p id="status" class="muted mini">No account • no install • no paid runtime services</p>
 </section>
 
 <section id="duel" class="duel hidden" aria-live="polite">
-  <div class="duelbar"><strong id="duelLabel">Game 1 of 2</strong><span id="duelHint" class="muted mini">Complete one run to unlock the other candidate.</span></div>
+  <div class="duelbar">
+    <strong id="duelLabel">Game 1 of 2</strong>
+    <span id="duelHint" class="muted mini">Complete one run to unlock the other candidate.</span>
+  </div>
   <iframe id="gameFrame" title="Fresh candidate game" loading="eager"></iframe>
   <div id="signal" class="signal"><strong>Run signal</strong><span id="signalText">Waiting for a completed run.</span></div>
-  <div class="duel-actions"><button id="nextGame" class="primary" type="button" disabled>Complete a run first</button><button id="restartDuel" class="secondary" type="button">Restart fair order</button></div>
+  <div id="replayBox" class="replay-box hidden">
+    <strong>Which mechanic earned the extra run?</strong>
+    <span class="muted mini">Both candidates are now complete. Replay buttons are shown in randomized order to avoid position bias.</span>
+    <div id="replayActions" class="replay-actions"></div>
+  </div>
+  <div class="duel-actions">
+    <button id="nextGame" class="primary" type="button" disabled>Complete a run first</button>
+    <button id="restartDuel" class="secondary" type="button">Restart fair order</button>
+  </div>
 </section>
 
 <section class="grid" aria-label="Fresh candidates">
 <a class="card" data-game="lock-line" href="../release-candidates/lock-line/?from=fresh-card"><span class="pill">One-input precision</span><h2>Lock Line</h2><p class="muted">Tap when the moving line crosses the target. Center hits score double and the timing window tightens as you improve.</p><strong>Play Lock Line →</strong></a>
 <a class="card" data-game="catch-drop" href="../release-candidates/catch-drop/?from=fresh-card"><span class="pill">One-finger catch & avoid</span><h2>Catch Drop</h2><p class="muted">Move the catcher, collect falling orbs and avoid spikes while speed and pressure rise automatically.</p><strong>Play Catch Drop →</strong></a>
 </section>
+
 <section class="note"><strong>Test rule</strong><p class="muted">Do not rescue a weak concept with paid traffic. A mechanic must earn another development cycle through stronger replay, return play, sharing or portal session depth.</p></section>
 </main>
+
 <script>
 (()=>{
 'use strict';
-const KEY='gf_fresh_test_v2';
+
+const KEY='gf_fresh_test_v3';
 const games=['lock-line','catch-drop'];
 const names={'lock-line':'Lock Line','catch-drop':'Catch Drop'};
+
 const duel=document.getElementById('duel');
 const frame=document.getElementById('gameFrame');
 const duelLabel=document.getElementById('duelLabel');
 const duelHint=document.getElementById('duelHint');
 const nextGame=document.getElementById('nextGame');
+const restartDuel=document.getElementById('restartDuel');
 const status=document.getElementById('status');
 const signalText=document.getElementById('signalText');
+const replayBox=document.getElementById('replayBox');
+const replayActions=document.getElementById('replayActions');
+
 const pageParams=new URLSearchParams(location.search);
 const source=(pageParams.get('from')||'direct').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,48)||'direct';
+
 let order=[];
 let index=0;
 let completionCounts={};
 let watcher=null;
+let bothCompleted=false;
 
-function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
-function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
-function bump(name){const s=read(),m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
-function assignment(){const s=read();if(games.includes(s.variant))return s.variant;const variant=games[Math.floor(Math.random()*games.length)];write({variant});return variant}
-function sourceFor(i){return `${i===0?'fresh-duel-first':'fresh-duel-second'}-${source}`}
-function scoreFrom(doc,id){
-  if(id==='lock-line')return Number(doc.getElementById('score')?.textContent||0)||0;
+function read(){
+  try{return JSON.parse(localStorage.getItem(KEY)||'{}')}
+  catch{return{}}
+}
+
+function write(patch){
+  try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}
+  catch(e){}
+}
+
+function bump(name){
+  const s=read();
+  const metrics={...(s.metrics||{})};
+  metrics[name]=(metrics[name]||0)+1;
+  write({metrics,lastSeen:Date.now()});
+}
+
+function assignment(){
+  const s=read();
+  if(games.includes(s.variant))return s.variant;
+  const variant=games[Math.floor(Math.random()*games.length)];
+  write({variant});
+  return variant;
+}
+
+function sourceFor(id){
+  if(bothCompleted)return `fresh-duel-replay-${id}-${source}`;
+  return `${index===0?'fresh-duel-first':'fresh-duel-second'}-${source}`;
+}
+
+function scoreFrom(doc){
   return Number(doc.getElementById('score')?.textContent||0)||0;
 }
+
+function randomizedGames(){
+  const copy=[...games];
+  if(Math.random()<0.5)copy.reverse();
+  return copy;
+}
+
+function renderReplayChoices(){
+  replayActions.textContent='';
+  const replayOrder=randomizedGames();
+  replayOrder.forEach((id,position)=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.className=position===0?'primary':'secondary';
+    button.textContent=`Replay ${names[id]} →`;
+    button.addEventListener('click',()=>{
+      bump(`replay_choice_${id.replace(/-/g,'_')}`);
+      bump(`replay_choice_position_${position+1}`);
+      write({lastReplayChoice:id,lastReplayChoiceAt:Date.now()});
+      index=order.indexOf(id);
+      loadGame(true);
+    });
+    replayActions.appendChild(button);
+  });
+  replayBox.classList.remove('hidden');
+  nextGame.classList.add('hidden');
+}
+
 function markComplete(id,score){
   completionCounts[id]=(completionCounts[id]||0)+1;
-  const extra=completionCounts[id]>1;
   const safe=id.replace(/-/g,'_');
+  const extra=completionCounts[id]>1;
+
   bump(extra?`extra_run_${safe}`:`run_complete_${safe}`);
-  const s=read(),scores={...(s.lastScores||{})};scores[id]=score;
-  write({lastScores:scores,lastCompleted:id,lastCompletedAt:Date.now(),completionCounts:{...completionCounts}});
-  nextGame.disabled=false;
-  if(index===0){
-    duelHint.textContent=`Run complete • ${names[id]} score ${score}. Now test the other candidate.`;
-    nextGame.textContent='Play the other candidate →';
-    signalText.textContent=extra?`${names[id]} earned an extra run. Strong replay signal.`:`${names[id]} completed. Comparison is now unlocked.`;
-  }else{
-    duelHint.textContent=`Both candidates completed. Replay whichever one earned it.`;
-    nextGame.textContent='Replay first candidate →';
-    signalText.textContent=extra?`${names[id]} earned an extra run. Strong replay signal.`:`${names[id]} completed. Extra runs now matter more than raw score.`;
+
+  const s=read();
+  const scores={...(s.lastScores||{})};
+  scores[id]=score;
+  write({
+    lastScores:scores,
+    lastCompleted:id,
+    lastCompletedAt:Date.now(),
+    completionCounts:{...completionCounts}
+  });
+
+  if(bothCompleted){
+    duelHint.textContent=`Extra run complete • ${names[id]} score ${score}.`;
+    signalText.textContent=`${names[id]} earned a completed extra run — the strongest replay signal.`;
+    renderReplayChoices();
+    return;
   }
+
+  if(index===0){
+    nextGame.disabled=false;
+    nextGame.textContent='Play the other candidate →';
+    duelHint.textContent=`Run complete • ${names[id]} score ${score}. Now test the other candidate.`;
+    signalText.textContent=extra
+      ?`${names[id]} already earned an extra run before the switch. Strong replay signal.`
+      :`${names[id]} completed. Comparison is now unlocked.`;
+    return;
+  }
+
+  bothCompleted=true;
+  bump('both_candidates_completed');
+  write({bothCompletedAt:Date.now()});
+  duelHint.textContent='Both candidates completed. Choose either one for the optional extra run.';
+  signalText.textContent=`${names[id]} completed. The next completed replay decides the strongest same-session preference signal.`;
+  renderReplayChoices();
 }
+
 function watchCurrentRun(){
-  if(watcher){watcher.disconnect();watcher=null}
+  if(watcher){
+    watcher.disconnect();
+    watcher=null;
+  }
+
   const id=order[index];
   const doc=frame.contentDocument;
   if(!doc||!id)return;
+
   if(id==='lock-line'){
     const overlay=doc.getElementById('overlay');
     if(!overlay)return;
     let wasHidden=overlay.classList.contains('hidden');
     watcher=new MutationObserver(()=>{
       const hidden=overlay.classList.contains('hidden');
-      if(wasHidden&&!hidden)markComplete(id,scoreFrom(doc,id));
+      if(wasHidden&&!hidden)markComplete(id,scoreFrom(doc));
       wasHidden=hidden;
     });
     watcher.observe(overlay,{attributes:true,attributeFilter:['class']});
-  }else{
-    const share=doc.getElementById('share');
-    if(!share)return;
-    let wasDisabled=share.disabled;
-    watcher=new MutationObserver(()=>{
-      const disabled=share.disabled;
-      if(wasDisabled&&!disabled)markComplete(id,scoreFrom(doc,id));
-      wasDisabled=disabled;
-    });
-    watcher.observe(share,{attributes:true,attributeFilter:['disabled']});
+    return;
   }
+
+  const share=doc.getElementById('share');
+  if(!share)return;
+  let wasDisabled=share.disabled;
+  watcher=new MutationObserver(()=>{
+    const disabled=share.disabled;
+    if(wasDisabled&&!disabled)markComplete(id,scoreFrom(doc));
+    wasDisabled=disabled;
+  });
+  watcher.observe(share,{attributes:true,attributeFilter:['disabled']});
 }
-function loadGame(){
+
+function loadGame(replay=false){
   const id=order[index];
+
   duel.classList.remove('hidden');
-  nextGame.disabled=true;
-  nextGame.textContent='Complete a run first';
-  signalText.textContent='Waiting for a completed run.';
-  frame.src=`../release-candidates/${id}/?from=${encodeURIComponent(sourceFor(index))}`;
-  duelLabel.textContent=`Game ${index+1} of 2 • ${names[id]}`;
-  duelHint.textContent=index===0?'Complete one run to unlock the other candidate.':'Complete one run, then choose what deserves the extra play.';
-  write({duelFirst:order[0],duelSecond:order[1],duelIndex:index,lastGame:id,lastSource:source,lastSeen:Date.now()});
-  bump(index===0?'duel_first_open':'duel_second_open');
+  frame.src=`../release-candidates/${id}/?from=${encodeURIComponent(sourceFor(id))}`;
+
+  if(replay||bothCompleted){
+    duelLabel.textContent=`Replay • ${names[id]}`;
+    duelHint.textContent='Optional extra run. Complete it only if this mechanic genuinely earned another play.';
+    signalText.textContent=`Waiting for the ${names[id]} replay to complete.`;
+    replayBox.classList.add('hidden');
+    nextGame.classList.add('hidden');
+    bump(`duel_replay_open_${id.replace(/-/g,'_')}`);
+  }else{
+    replayBox.classList.add('hidden');
+    nextGame.classList.remove('hidden');
+    nextGame.disabled=true;
+    nextGame.textContent='Complete a run first';
+    signalText.textContent='Waiting for a completed run.';
+    duelLabel.textContent=`Game ${index+1} of 2 • ${names[id]}`;
+    duelHint.textContent=index===0
+      ?'Complete one run to unlock the other candidate.'
+      :'Complete one run, then choose which mechanic deserves the extra play.';
+    bump(index===0?'duel_first_open':'duel_second_open');
+  }
+
+  write({
+    duelFirst:order[0],
+    duelSecond:order[1],
+    duelIndex:index,
+    lastGame:id,
+    lastSource:source,
+    phase:(replay||bothCompleted)?'replay':index===0?'first':'second',
+    lastSeen:Date.now()
+  });
+
   duel.scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 function startDuel(forceNew=false){
   if(forceNew)write({variant:null});
   const first=assignment();
   order=[first,games.find(g=>g!==first)];
   index=0;
   completionCounts={};
+  bothCompleted=false;
+  replayBox.classList.add('hidden');
+  nextGame.classList.remove('hidden');
   bump('duel_start');
-  loadGame();
+  loadGame(false);
 }
+
 frame.addEventListener('load',()=>{
-  try{watchCurrentRun()}catch(e){signalText.textContent='Run tracking unavailable in this browser; both games remain playable.'}
+  try{watchCurrentRun()}
+  catch(e){signalText.textContent='Run tracking unavailable in this browser; both games remain playable.'}
 });
+
 document.getElementById('fairPick').addEventListener('click',()=>startDuel(false));
+
 nextGame.addEventListener('click',()=>{
-  if(nextGame.disabled)return;
-  index=index===0?1:0;
-  bump(index===1?'duel_switch_to_second':'duel_replay_first');
-  loadGame();
+  if(nextGame.disabled||bothCompleted)return;
+  index=1;
+  bump('duel_switch_to_second');
+  loadGame(false);
 });
-document.getElementById('restartDuel').addEventListener('click',()=>{bump('duel_restart');startDuel(true)});
-document.querySelectorAll('[data-game]').forEach(a=>a.addEventListener('click',()=>{bump('card_open');write({lastGame:a.dataset.game,lastSource:source})}));
+
+restartDuel.addEventListener('click',()=>{
+  bump('duel_restart');
+  startDuel(true);
+});
+
+document.querySelectorAll('[data-game]').forEach(a=>{
+  a.addEventListener('click',()=>{
+    bump('card_open');
+    write({lastGame:a.dataset.game,lastSource:source});
+  });
+});
+
 document.getElementById('share').addEventListener('click',async()=>{
   const url='https://gamefactorylab.github.io/gamefactorylab/fresh/?duel=1&from=shared-fresh';
-  const text='Two fresh GameFactoryLab browser-game experiments. Complete both and replay the one that earns it.';
+  const text='Two fresh GameFactoryLab browser-game experiments. Complete both, then replay whichever one earns it.';
   bump('share_click');
-  if(navigator.share){try{await navigator.share({title:'GameFactoryLab Fresh Test',text,url});status.textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}
-  try{await navigator.clipboard.writeText(url);status.textContent='Test link copied.'}catch(e){status.textContent=url}
+
+  if(navigator.share){
+    try{
+      await navigator.share({title:'GameFactoryLab Fresh Test',text,url});
+      status.textContent='Shared.';
+      return;
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+    }
+  }
+
+  try{
+    await navigator.clipboard.writeText(url);
+    status.textContent='Test link copied.';
+  }catch(e){
+    status.textContent=url;
+  }
 });
+
 bump('page_open');
 bump(`source_${source}`);
 write({lastSource:source,lastSeen:Date.now()});
+
 if(pageParams.get('duel')==='1')startDuel(false);
 })();
 </script>
