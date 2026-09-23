@@ -7,6 +7,7 @@ on:
     paths:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
+      - 'release-candidates/pattern-relay/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_submission_kit.py'
       - '.github/workflows/build-fresh-submission-kit.yml'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
+      - 'release-candidates/pattern-relay/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_submission_kit.py'
       - '.github/workflows/build-fresh-submission-kit.yml'
@@ -42,12 +44,12 @@ jobs:
 
           root = Path('handoff/fresh-submission-kit')
           rows = list(csv.DictReader((root / 'submission-metadata.csv').open(encoding='utf-8')))
-          assert [row['slug'] for row in rows] == ['lock-line', 'catch-drop'], rows
+          assert [row['slug'] for row in rows] == ['lock-line', 'catch-drop', 'pattern-relay'], rows
           assert all(row['status'] == 'READY' for row in rows)
           assert all(row['cash_spend_eur'] == '0' for row in rows)
 
           packages = list((root / 'itch').glob('*.zip')) + list((root / 'crazygames-basic').glob('*.zip'))
-          assert len(packages) == 4, packages
+          assert len(packages) == 6, packages
           for package in packages:
               with zipfile.ZipFile(package) as archive:
                   names = set(archive.namelist())
@@ -55,7 +57,7 @@ jobs:
                   html = archive.read('index.html').decode('utf-8')
                   assert 'http://' not in html and 'https://' not in html, package
                   assert '__GAME_ID__' not in html, package
-          print('Validated fresh submission kit: 2 candidates / 4 portal handoff packages')
+          print('Validated fresh submission kit: 3 candidates / 6 portal handoff packages')
           PY
 
       - name: Upload operator handoff bundle
