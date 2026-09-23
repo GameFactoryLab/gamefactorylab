@@ -19,6 +19,8 @@ on:
       - 'challenge/index.html'
       - 'sprint/**/index.html'
       - 'sprint/index.html'
+      - 'embed/**/index.html'
+      - 'embed/index.html'
       - 'sitemap.xml'
       - 'sitemap-games.xml'
       - '.github/workflows/indexnow.yml'
@@ -86,7 +88,7 @@ jobs:
               else:
                   allowed = (
                       'games/', 'labs/', 'release-candidates/', 'discover/',
-                      'top5/', 'daily/', 'challenge/', 'sprint/'
+                      'top5/', 'daily/', 'challenge/', 'sprint/', 'embed/'
                   )
                   for p in changed:
                       if p == 'index.html' or (p.startswith(allowed) and p.endswith('/index.html')):
