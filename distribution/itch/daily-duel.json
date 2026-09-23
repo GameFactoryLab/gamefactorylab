@@ -1,0 +1,25 @@
+{
+  "release": "daily-duel",
+  "cash_spend_eur": 0,
+  "distribution_status": "upload-ready",
+  "packaging": ["itch", "crazygames-basic"],
+  "priority": "concentrate repeat traffic on the existing winner-search lineup with one shared challenge per UTC day",
+  "product": {
+    "slug": "game-factory-daily-duel",
+    "title": "Game Factory: Daily Duel",
+    "classification": "Game",
+    "kind": "HTML",
+    "release_status": "Released",
+    "pricing": "Free",
+    "short_description": "One shared browser challenge every day, rotating through five Game Factory contenders with a local streak and instant sharing.",
+    "description": "Game Factory: Daily Duel is a zero-install HTML5 daily challenge built from the existing winner-search lineup: Ring Pins, Circuit Flow, Gravity Flip, Bridge Snap, and Cluster Collapse. Everyone receives the same contender on the same UTC day. Players protect a local streak, replay only if the mechanic earns another run, and share the same daily duel with a friend. The product adds no new standalone mechanic; it is designed to concentrate return traffic and reveal which existing game earns stronger replay and daily-return behavior.",
+    "tags": ["html5", "daily", "challenge", "minigames", "arcade", "puzzle", "casual", "mobile", "browser", "high-score"],
+    "mobile_friendly": true,
+    "fullscreen": true,
+    "itch_package": "GameFactoryLab_daily_duel_itch.zip",
+    "crazygames_basic_package": "GameFactoryLab_daily_duel_crazygames_basic.zip",
+    "games": ["ring-pins", "circuit-flow", "gravity-flip", "bridge-snap", "cluster-collapse"],
+    "controls": "Touch, mouse, or the controls shown inside the selected daily contender.",
+    "signal_to_watch": ["daily_open", "daily_play", "daily_replay", "streak_depth", "share_attempt", "return_day"]
+  }
+}
