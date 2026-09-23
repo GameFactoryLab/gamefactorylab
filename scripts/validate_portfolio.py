@@ -26,10 +26,26 @@ def main() -> None:
     sitemap = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     sw = (ROOT / "sw.js").read_text(encoding="utf-8")
 
-    home_ids = set(re.findall(r'href=["\']games/([^/]+)/index\.html["\']', index))
-    missing_home = expected - home_ids
-    if missing_home:
-        fail(f"homepage missing games: {sorted(missing_home)}")
+    # The homepage is intentionally a focused set of entry funnels instead of a
+    # catalogue of every game. Full game coverage is validated below through
+    # the sitemap, offline cache and core rotation.
+    required_home_funnels = {
+        "fresh/",
+        "top5/",
+        "daily/",
+        "challenge/",
+        "sprint/",
+        "discover/",
+        "labs/",
+    }
+    home_hrefs = set(re.findall(r'href=["\']([^"\']+)["\']', index))
+    missing_home_funnels = {
+        funnel
+        for funnel in required_home_funnels
+        if not any(href.split("?", 1)[0] == funnel for href in home_hrefs)
+    }
+    if missing_home_funnels:
+        fail(f"homepage missing funnels: {sorted(missing_home_funnels)}")
 
     missing_sitemap = {
         game_id
@@ -70,23 +86,30 @@ def main() -> None:
     if not schema_match:
         fail("homepage ItemList schema missing")
     schema = json.loads(schema_match.group(1))
-    if schema.get("numberOfItems") != len(expected):
+    schema_items = schema.get("itemListElement", [])
+    if schema.get("numberOfItems") != len(schema_items):
         fail(
-            f"schema numberOfItems={schema.get('numberOfItems')} but disk has {len(expected)} games"
+            f"homepage schema numberOfItems={schema.get('numberOfItems')} "
+            f"but contains {len(schema_items)} items"
         )
-
-    schema_ids = {
-        match.group(1)
-        for item in schema.get("itemListElement", [])
-        if (match := re.search(r"/games/([^/]+)/", item.get("url", "")))
-    }
-    if schema_ids != expected:
-        fail(
-            f"schema game set mismatch; missing={sorted(expected-schema_ids)}, extra={sorted(schema_ids-expected)}"
+    if not schema_items:
+        fail("homepage ItemList schema has no items")
+    schema_positions = [item.get("position") for item in schema_items]
+    if schema_positions != list(range(1, len(schema_items) + 1)):
+        fail("homepage ItemList schema positions are not sequential")
+    invalid_schema_urls = [
+        item.get("url", "")
+        for item in schema_items
+        if not item.get("url", "").startswith(
+            "https://gamefactorylab.github.io/gamefactorylab/"
         )
+    ]
+    if invalid_schema_urls:
+        fail(f"homepage ItemList schema has invalid URLs: {invalid_schema_urls}")
 
     print(
-        f"Validated {len(expected)} games across homepage, core rotation, sitemap, offline cache and schema"
+        f"Validated {len(expected)} games across core rotation, sitemap and offline cache; "
+        f"validated {len(required_home_funnels)} homepage funnels and schema"
     )
 
 
