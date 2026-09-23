@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#07101f">
 <title>Lock Line</title>
 <meta name="description" content="Tap when the moving line crosses the target. A one-input precision game.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/lock-line/">
+<meta property="og:title" content="Lock Line — GameFactoryLab">
+<meta property="og:description" content="Tap when the moving line crosses the target, chase a higher score, and send a score challenge to a friend.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/lock-line/">
+<meta name="twitter:card" content="summary">
 <style>
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}
 *{box-sizing:border-box}
@@ -74,7 +80,7 @@ h1{font-size:clamp(42px,12vw,64px);line-height:.95;margin:6px 0 8px}
     <h2 id="result">Score 0</h2>
     <p id="detail" class="muted"></p>
     <button id="replay" class="btn">Play again</button>
-    <button id="share" class="btn alt">Share result</button>
+    <button id="share" class="btn alt">Challenge a friend</button>
   </div>
 </section>
 
@@ -94,6 +100,9 @@ const statusEl=document.getElementById('status');
 const overlay=document.getElementById('overlay');
 const resultEl=document.getElementById('result');
 const detailEl=document.getElementById('detail');
+const params=new URLSearchParams(location.search);
+const parsedTarget=Number(params.get('score'));
+const challengeTarget=Number.isFinite(parsedTarget)&&parsedTarget>=0?Math.floor(parsedTarget):null;
 
 let running=false;
 let x=.10;
@@ -158,7 +167,7 @@ function startRun(){
   targetCenter=.68;
   targetWidth=.19;
   pulseEl.textContent='Lock it';
-  statusEl.textContent='Hit the gold zone.';
+  statusEl.textContent=challengeTarget!==null?`Beat ${challengeTarget} to win.`:'Hit the gold zone.';
   overlay.classList.add('hidden');
   signal('run_start');
   render();
@@ -195,23 +204,33 @@ function endRun(){
   save({best});
   bestEl.textContent=best;
   resultEl.textContent='Score '+score;
-  detailEl.textContent=score===0
+  const challengeLine=challengeTarget===null?'':score>challengeTarget?` You beat the ${challengeTarget}-point challenge.`:` Challenge target: ${challengeTarget}.`;
+  detailEl.textContent=(score===0
     ? 'Missed the first lock. Try one more run.'
-    : `${streak} lock${streak===1?'':'s'} in a row. Best: ${best}.`;
+    : `${streak} lock${streak===1?'':'s'} in a row. Best: ${best}.`)+challengeLine;
   pulseEl.textContent='Miss';
   statusEl.textContent='Outside the target.';
   setTimeout(()=>overlay.classList.remove('hidden'),180);
 }
-function share(){
+function shareUrl(){
+  const url=new URL(location.href);
+  url.hash='';
+  url.search='';
+  url.searchParams.set('from','result-share');
+  url.searchParams.set('score',String(score));
+  return url.toString();
+}
+async function share(){
   const text=`I scored ${score} in Lock Line. Can you beat it?`;
+  const url=shareUrl();
   signal('result_share_click');
   if(navigator.share){
-    navigator.share({title:'Lock Line',text}).catch(()=>{});
-  }else if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>{
-      detailEl.textContent='Result copied. Challenge a friend.';
-    }).catch(()=>{});
+    try{await navigator.share({title:'Lock Line',text,url});return}catch(e){if(e&&e.name==='AbortError')return}
   }
+  if(navigator.clipboard){
+    try{await navigator.clipboard.writeText(`${text} ${url}`);detailEl.textContent='Challenge link copied. Send it to a friend.';return}catch(e){}
+  }
+  detailEl.textContent=`${text} ${url}`;
 }
 playfield.addEventListener('pointerdown',e=>{e.preventDefault();tap()});
 playfield.addEventListener('keydown',e=>{
@@ -233,6 +252,7 @@ document.getElementById('share').addEventListener('click',e=>{
   share();
 });
 
+if(challengeTarget!==null){statusEl.textContent=`Friend challenge: beat ${challengeTarget}.`;signal('challenge_open')}
 render();
 cancelAnimationFrame(raf);
 raf=requestAnimationFrame(loop);
