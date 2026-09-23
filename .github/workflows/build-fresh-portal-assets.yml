@@ -22,7 +22,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,8 +35,13 @@ jobs:
       - name: Install free image tooling
         run: python -m pip install --disable-pip-version-check Pillow==11.3.0
 
-      - name: Verify free video tooling
-        run: ffmpeg -version | head -n 1
+      - name: Install free video tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version | head -n 1
 
       - name: Enforce zero-cash guard
         run: python scripts/zero_cash_guard.py
