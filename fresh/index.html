@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101f">
 <title>Fresh Test — GameFactoryLab</title>
-<meta name="description" content="Two new GameFactoryLab browser-game experiments in one fair head-to-head test. Play both, replay the one that earns it, and help surface the stronger mechanic.">
+<meta name="description" content="Two new GameFactoryLab browser-game experiments in one fair head-to-head test. Complete both, replay the one that earns it, and help surface the stronger mechanic.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/fresh/">
 <meta property="og:title" content="Fresh Test — Two New GameFactoryLab Experiments">
 <meta property="og:description" content="Try two fresh mechanics in one fair head-to-head test. Free browser play, no account or install.">
@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/fresh/">
 <meta name="twitter:card" content="summary">
 <style>
-:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%)}a,button{font:inherit}.wrap{width:min(94vw,920px);margin:0 auto;padding:28px 0 40px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}.hero{padding:18px 0 8px}h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}.muted{color:#94a3b8}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:20px;padding:18px;min-height:220px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:12px}.card h2{font-size:32px;margin:10px 0 8px}.card strong{display:block;margin-top:18px}.note{margin-top:20px;background:#0f172a;border:1px solid #263247;border-radius:16px;padding:14px;font-size:13px}.mini{font-size:12px}.duel{margin-top:22px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:12px}.duel.hidden{display:none}.duelbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 2px 12px}.duelbar strong{font-size:15px}.duel iframe{width:100%;height:min(760px,82vh);border:0;border-radius:16px;background:#07101f}.duel-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.duel-actions button{flex:1;min-width:190px}
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%)}a,button{font:inherit}.wrap{width:min(94vw,920px);margin:0 auto;padding:28px 0 40px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}.hero{padding:18px 0 8px}h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}.muted{color:#94a3b8}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.primary:disabled,.secondary:disabled{opacity:.42;cursor:not-allowed}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:20px;padding:18px;min-height:220px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:12px}.card h2{font-size:32px;margin:10px 0 8px}.card strong{display:block;margin-top:18px}.note{margin-top:20px;background:#0f172a;border:1px solid #263247;border-radius:16px;padding:14px;font-size:13px}.mini{font-size:12px}.duel{margin-top:22px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:12px}.duel.hidden{display:none}.duelbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 2px 12px}.duelbar strong{font-size:15px}.duel iframe{width:100%;height:min(760px,82vh);border:0;border-radius:16px;background:#07101f}.duel-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.duel-actions button{flex:1;min-width:190px}.signal{margin-top:10px;border-radius:14px;padding:10px 12px;background:#111827;border:1px solid #263247}.signal strong{display:block;font-size:13px}.signal span{font-size:12px;color:#94a3b8}
 </style>
 </head>
 <body>
@@ -21,15 +21,16 @@
 <section class="hero">
 <div class="eyebrow">GameFactoryLab • fresh zero-cash test</div>
 <h1>Two fresh mechanics. One fair head-to-head.</h1>
-<p class="muted">Start with a persistent random first pick to reduce title bias, then play the other candidate in the same session. We only invest further when replay, session depth or sharing earns it.</p>
+<p class="muted">Start with a persistent random first pick to reduce title bias. Complete one real run before switching, then complete the second candidate. Extra runs are the strongest signal.</p>
 <div class="actions"><button id="fairPick" class="primary" type="button">Start fair 2-game duel →</button><button id="share" class="secondary" type="button">Share this test</button><a class="secondary" href="../labs/">All experiments</a></div>
 <p id="status" class="muted mini">No account • no install • no paid runtime services</p>
 </section>
 
 <section id="duel" class="duel hidden" aria-live="polite">
-  <div class="duelbar"><strong id="duelLabel">Game 1 of 2</strong><span id="duelHint" class="muted mini">Finish a run, then switch.</span></div>
+  <div class="duelbar"><strong id="duelLabel">Game 1 of 2</strong><span id="duelHint" class="muted mini">Complete one run to unlock the other candidate.</span></div>
   <iframe id="gameFrame" title="Fresh candidate game" loading="eager"></iframe>
-  <div class="duel-actions"><button id="nextGame" class="primary" type="button">Play the other candidate →</button><button id="restartDuel" class="secondary" type="button">Restart fair order</button></div>
+  <div id="signal" class="signal"><strong>Run signal</strong><span id="signalText">Waiting for a completed run.</span></div>
+  <div class="duel-actions"><button id="nextGame" class="primary" type="button" disabled>Complete a run first</button><button id="restartDuel" class="secondary" type="button">Restart fair order</button></div>
 </section>
 
 <section class="grid" aria-label="Fresh candidates">
@@ -41,7 +42,7 @@
 <script>
 (()=>{
 'use strict';
-const KEY='gf_fresh_test_v1';
+const KEY='gf_fresh_test_v2';
 const games=['lock-line','catch-drop'];
 const names={'lock-line':'Lock Line','catch-drop':'Catch Drop'};
 const duel=document.getElementById('duel');
@@ -50,39 +51,113 @@ const duelLabel=document.getElementById('duelLabel');
 const duelHint=document.getElementById('duelHint');
 const nextGame=document.getElementById('nextGame');
 const status=document.getElementById('status');
+const signalText=document.getElementById('signalText');
+const pageParams=new URLSearchParams(location.search);
+const source=(pageParams.get('from')||'direct').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,48)||'direct';
 let order=[];
 let index=0;
+let completionCounts={};
+let watcher=null;
+
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
 function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
 function bump(name){const s=read(),m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
 function assignment(){const s=read();if(games.includes(s.variant))return s.variant;const variant=games[Math.floor(Math.random()*games.length)];write({variant});return variant}
-function sourceFor(i){return i===0?'fresh-duel-first':'fresh-duel-second'}
+function sourceFor(i){return `${i===0?'fresh-duel-first':'fresh-duel-second'}-${source}`}
+function scoreFrom(doc,id){
+  if(id==='lock-line')return Number(doc.getElementById('score')?.textContent||0)||0;
+  return Number(doc.getElementById('score')?.textContent||0)||0;
+}
+function markComplete(id,score){
+  completionCounts[id]=(completionCounts[id]||0)+1;
+  const extra=completionCounts[id]>1;
+  const safe=id.replace(/-/g,'_');
+  bump(extra?`extra_run_${safe}`:`run_complete_${safe}`);
+  const s=read(),scores={...(s.lastScores||{})};scores[id]=score;
+  write({lastScores:scores,lastCompleted:id,lastCompletedAt:Date.now(),completionCounts:{...completionCounts}});
+  nextGame.disabled=false;
+  if(index===0){
+    duelHint.textContent=`Run complete • ${names[id]} score ${score}. Now test the other candidate.`;
+    nextGame.textContent='Play the other candidate →';
+    signalText.textContent=extra?`${names[id]} earned an extra run. Strong replay signal.`:`${names[id]} completed. Comparison is now unlocked.`;
+  }else{
+    duelHint.textContent=`Both candidates completed. Replay whichever one earned it.`;
+    nextGame.textContent='Replay first candidate →';
+    signalText.textContent=extra?`${names[id]} earned an extra run. Strong replay signal.`:`${names[id]} completed. Extra runs now matter more than raw score.`;
+  }
+}
+function watchCurrentRun(){
+  if(watcher){watcher.disconnect();watcher=null}
+  const id=order[index];
+  const doc=frame.contentDocument;
+  if(!doc||!id)return;
+  if(id==='lock-line'){
+    const overlay=doc.getElementById('overlay');
+    if(!overlay)return;
+    let wasHidden=overlay.classList.contains('hidden');
+    watcher=new MutationObserver(()=>{
+      const hidden=overlay.classList.contains('hidden');
+      if(wasHidden&&!hidden)markComplete(id,scoreFrom(doc,id));
+      wasHidden=hidden;
+    });
+    watcher.observe(overlay,{attributes:true,attributeFilter:['class']});
+  }else{
+    const share=doc.getElementById('share');
+    if(!share)return;
+    let wasDisabled=share.disabled;
+    watcher=new MutationObserver(()=>{
+      const disabled=share.disabled;
+      if(wasDisabled&&!disabled)markComplete(id,scoreFrom(doc,id));
+      wasDisabled=disabled;
+    });
+    watcher.observe(share,{attributes:true,attributeFilter:['disabled']});
+  }
+}
 function loadGame(){
   const id=order[index];
   duel.classList.remove('hidden');
-  frame.src=`../release-candidates/${id}/?from=${sourceFor(index)}`;
+  nextGame.disabled=true;
+  nextGame.textContent='Complete a run first';
+  signalText.textContent='Waiting for a completed run.';
+  frame.src=`../release-candidates/${id}/?from=${encodeURIComponent(sourceFor(index))}`;
   duelLabel.textContent=`Game ${index+1} of 2 • ${names[id]}`;
-  duelHint.textContent=index===0?'Finish a run, then play the other candidate.':'Now compare which game earned another run.';
-  nextGame.textContent=index===0?'Play the other candidate →':'Replay first candidate →';
-  write({duelFirst:order[0],duelSecond:order[1],duelIndex:index,lastGame:id,lastSeen:Date.now()});
+  duelHint.textContent=index===0?'Complete one run to unlock the other candidate.':'Complete one run, then choose what deserves the extra play.';
+  write({duelFirst:order[0],duelSecond:order[1],duelIndex:index,lastGame:id,lastSource:source,lastSeen:Date.now()});
   bump(index===0?'duel_first_open':'duel_second_open');
   duel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function startDuel(forceNew=false){
-  if(forceNew){write({variant:null})}
+  if(forceNew)write({variant:null});
   const first=assignment();
   order=[first,games.find(g=>g!==first)];
   index=0;
+  completionCounts={};
   bump('duel_start');
   loadGame();
 }
+frame.addEventListener('load',()=>{
+  try{watchCurrentRun()}catch(e){signalText.textContent='Run tracking unavailable in this browser; both games remain playable.'}
+});
 document.getElementById('fairPick').addEventListener('click',()=>startDuel(false));
-nextGame.addEventListener('click',()=>{index=index===0?1:0;bump(index===1?'duel_switch_to_second':'duel_replay_first');loadGame()});
+nextGame.addEventListener('click',()=>{
+  if(nextGame.disabled)return;
+  index=index===0?1:0;
+  bump(index===1?'duel_switch_to_second':'duel_replay_first');
+  loadGame();
+});
 document.getElementById('restartDuel').addEventListener('click',()=>{bump('duel_restart');startDuel(true)});
-document.querySelectorAll('[data-game]').forEach(a=>a.addEventListener('click',()=>{bump('card_open');write({lastGame:a.dataset.game})}));
-document.getElementById('share').addEventListener('click',async()=>{const url='https://gamefactorylab.github.io/gamefactorylab/fresh/?duel=1';const text='Two fresh GameFactoryLab browser-game experiments. Play both and pick the one that earns a replay.';bump('share_click');if(navigator.share){try{await navigator.share({title:'GameFactoryLab Fresh Test',text,url});status.textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(url);status.textContent='Test link copied.'}catch(e){status.textContent=url}});
+document.querySelectorAll('[data-game]').forEach(a=>a.addEventListener('click',()=>{bump('card_open');write({lastGame:a.dataset.game,lastSource:source})}));
+document.getElementById('share').addEventListener('click',async()=>{
+  const url='https://gamefactorylab.github.io/gamefactorylab/fresh/?duel=1&from=shared-fresh';
+  const text='Two fresh GameFactoryLab browser-game experiments. Complete both and replay the one that earns it.';
+  bump('share_click');
+  if(navigator.share){try{await navigator.share({title:'GameFactoryLab Fresh Test',text,url});status.textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}
+  try{await navigator.clipboard.writeText(url);status.textContent='Test link copied.'}catch(e){status.textContent=url}
+});
 bump('page_open');
-if(new URLSearchParams(location.search).get('duel')==='1')startDuel(false);
+bump(`source_${source}`);
+write({lastSource:source,lastSeen:Date.now()});
+if(pageParams.get('duel')==='1')startDuel(false);
 })();
 </script>
 </body>
