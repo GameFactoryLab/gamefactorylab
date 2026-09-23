@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Embed GameFactoryLab — Daily Duel & Top 5 Showdown</title>
+<meta name="description" content="Add GameFactoryLab Daily Duel or Top 5 Showdown to a webpage with a lightweight iframe. Hosted by GameFactoryLab with no player account or install required.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/embed/">
+<meta property="og:title" content="Embed GameFactoryLab — Daily Duel & Top 5 Showdown">
+<meta property="og:description" content="Lightweight iframe embeds for GameFactoryLab Daily Duel and Top 5 Showdown. No player account or install required.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/embed/">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../core.css">
+<style>
+h1{font-size:clamp(34px,7vw,58px);margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}.preview{width:100%;height:620px;border:0;border-radius:18px;background:#0b1020}.code{display:block;width:100%;min-height:165px;resize:vertical;background:#0b1020;color:#e5e7eb;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;box-sizing:border-box}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.note{font-size:13px}.status{min-height:20px;font-size:13px;margin-top:8px}
+</style>
+</head>
+<body>
+<main class="app">
+<section>
+<div class="pill">GameFactoryLab • publisher kit</div>
+<h1>Put a playable challenge on your page.</h1>
+<p class="muted">Use one lightweight iframe to surface the current winner-search games without copying game files or adding an SDK. Players stay in the existing GameFactoryLab experience, with no account or install required.</p>
+<div class="hero-actions"><a class="btn primary" href="#daily-duel">Embed Daily Duel →</a><a class="btn secondary" href="#top5">Embed Top 5</a><a class="btn secondary" href="../">Play GameFactoryLab</a></div>
+<p class="muted note">Recommended test: run one widget at a time and watch which mechanic earns the most repeat play and shares before expanding placement.</p>
+</section>
+
+<section class="grid">
+<article class="card" id="daily-duel">
+<div class="pill">Daily retention loop</div>
+<h2>Daily Duel</h2>
+<p class="muted">A shared daily contender from the current Top 5 lineup. Best fit for sites that want one fresh, repeatable challenge in the same slot every day.</p>
+<iframe class="preview" src="../daily/?from=publisher-embed" title="GameFactoryLab Daily Duel" loading="lazy" allow="web-share; clipboard-write; fullscreen" allowfullscreen></iframe>
+<textarea class="code" id="daily-code" readonly>&lt;iframe src="https://gamefactorylab.github.io/gamefactorylab/daily/?from=publisher-embed" title="GameFactoryLab Daily Duel" loading="lazy" allow="web-share; clipboard-write; fullscreen" allowfullscreen style="width:100%;max-width:480px;height:720px;border:0;border-radius:18px;overflow:hidden"&gt;&lt;/iframe&gt;</textarea>
+<div class="actions"><button class="btn primary copy" data-target="daily-code" type="button">Copy Daily Duel embed</button><a class="btn secondary" href="../daily/?from=embed-kit">Open full page</a></div>
+<div class="status muted" id="daily-status" aria-live="polite"></div>
+</article>
+
+<article class="card" id="top5">
+<div class="pill">Winner-search funnel</div>
+<h2>Top 5 Showdown</h2>
+<p class="muted">Five current contenders in one comparison surface. Best fit when session depth and mechanic preference matter more than a single daily rotation.</p>
+<iframe class="preview" src="../top5/?from=publisher-embed" title="GameFactoryLab Top 5 Showdown" loading="lazy" allow="web-share; clipboard-write; fullscreen" allowfullscreen></iframe>
+<textarea class="code" id="top5-code" readonly>&lt;iframe src="https://gamefactorylab.github.io/gamefactorylab/top5/?from=publisher-embed" title="GameFactoryLab Top 5 Showdown" loading="lazy" allow="web-share; clipboard-write; fullscreen" allowfullscreen style="width:100%;max-width:480px;height:720px;border:0;border-radius:18px;overflow:hidden"&gt;&lt;/iframe&gt;</textarea>
+<div class="actions"><button class="btn primary copy" data-target="top5-code" type="button">Copy Top 5 embed</button><a class="btn secondary" href="../top5/?from=embed-kit">Open full page</a></div>
+<div class="status muted" id="top5-status" aria-live="polite"></div>
+</article>
+</section>
+
+<section class="card">
+<h2>Zero-cash distribution use</h2>
+<p class="muted">These embeds use the existing GitHub Pages hosting and current GameFactoryLab builds. No paid hosting, ad spend, external analytics, SDK, subscription, or additional asset is required. Keep each placement reversible and remove weak placements quickly if they do not create meaningful play or replay signals.</p>
+</section>
+</main>
+<script>
+(function(){
+  function setStatus(id,msg){var el=document.getElementById(id);if(el)el.textContent=msg;}
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click',async function(){
+      var target=document.getElementById(btn.dataset.target);
+      if(!target)return;
+      var statusId=btn.dataset.target.replace('-code','-status');
+      try{
+        await navigator.clipboard.writeText(target.value);
+        setStatus(statusId,'Embed code copied.');
+      }catch(err){
+        target.focus();target.select();
+        setStatus(statusId,'Copy blocked by the browser — the embed code is selected for manual copy.');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
