@@ -23,6 +23,7 @@ GOLD = (245, 188, 66)
 GREEN = (73, 209, 126)
 RED = (245, 88, 88)
 CYAN = (84, 190, 255)
+PURPLE = (167, 139, 250)
 
 ASSETS = [
     {
@@ -36,6 +37,12 @@ ASSETS = [
         "title": "CATCH DROP",
         "mechanic": "catch",
         "signal": "average playtime, replay rate, score-share rate",
+    },
+    {
+        "slug": "pattern-relay",
+        "title": "PATTERN RELAY",
+        "mechanic": "memory relay",
+        "signal": "completed rounds per run, replay rate, score-challenge share rate",
     },
 ]
 
@@ -110,8 +117,7 @@ def draw_lock_line(img: Image.Image, t: float, cover: bool = False) -> None:
 
     if not cover:
         score = max(0, int(t * 0.75))
-        score_text = str(score)
-        center_text(draw, (w / 2, h * 0.29), score_text, font(int(min(w, h) * 0.11), True), fill=WHITE)
+        center_text(draw, (w / 2, h * 0.29), str(score), font(int(min(w, h) * 0.11), True), fill=WHITE)
 
         pulse = abs(line_x - target_center) < target_w // 2
         if pulse:
@@ -175,12 +181,53 @@ def draw_catch_drop(img: Image.Image, t: float, cover: bool = False) -> None:
         center_text(draw, (w / 2, h * 0.20), str(score), font(int(min(w, h) * 0.09), True), fill=WHITE)
 
 
+def draw_pattern_relay(img: Image.Image, t: float, cover: bool = False) -> None:
+    w, h = img.size
+    draw = ImageDraw.Draw(img)
+    margin = int(min(w, h) * 0.07)
+    rounded_panel(draw, (margin, margin, w - margin, h - margin), int(min(w, h) * 0.04))
+
+    title_size = int(min(w, h) * (0.11 if h <= w else 0.085))
+    center_text(draw, (w / 2, margin * 1.9), "PATTERN RELAY", font(title_size, True))
+
+    grid_size = int(min(w * 0.58, h * 0.54))
+    gap = max(10, int(grid_size * 0.045))
+    cell = (grid_size - gap) // 2
+    left = int((w - grid_size) / 2)
+    top = int(h * (0.34 if h <= w else 0.32))
+    palette = [CYAN, PURPLE, GREEN, GOLD]
+    sequence = [0, 2, 1, 3, 0, 1, 2, 3]
+    active = 1 if cover else sequence[int(t * 2.4) % len(sequence)]
+
+    for i in range(4):
+        row, col = divmod(i, 2)
+        x0 = left + col * (cell + gap)
+        y0 = top + row * (cell + gap)
+        x1 = x0 + cell
+        y1 = y0 + cell
+        base = (44, 54, 72)
+        fill = palette[i] if i == active else base
+        draw.rounded_rectangle((x0, y0, x1, y1), radius=max(12, cell // 8), fill=fill)
+        if i == active:
+            inset = max(4, cell // 24)
+            draw.rounded_rectangle((x0 - inset, y0 - inset, x1 + inset, y1 + inset), radius=max(12, cell // 8), outline=WHITE, width=max(3, inset // 2))
+        center_text(draw, ((x0 + x1) / 2, (y0 + y1) / 2), str(i + 1), font(max(18, cell // 4), True), fill=BG if i == active else WHITE)
+
+    if not cover:
+        round_no = 1 + int(t / 2.4)
+        score = max(0, round_no * 12 + max(0, round_no - 2) * 3)
+        center_text(draw, (w / 2, h * 0.24), f"ROUND {round_no}  •  {score}", font(int(min(w, h) * 0.055), True), fill=WHITE)
+        center_text(draw, (w / 2, min(h * 0.92, top + grid_size + margin * 0.9)), "WATCH  •  REPEAT  •  EXTEND", font(int(min(w, h) * 0.035), True), fill=MUTED)
+
+
 def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) -> Image.Image:
     img = Image.new("RGB", size, BG)
     if slug == "lock-line":
         draw_lock_line(img, t, cover=cover)
     elif slug == "catch-drop":
         draw_catch_drop(img, t, cover=cover)
+    elif slug == "pattern-relay":
+        draw_pattern_relay(img, t, cover=cover)
     else:
         raise ValueError(slug)
     return img
@@ -275,7 +322,7 @@ def main() -> None:
     readme = [
         "# Fresh candidate CrazyGames asset kit",
         "",
-        "Zero-cash, original portal media generated from the mechanics and visual language of Lock Line and Catch Drop.",
+        "Zero-cash, original portal media generated from the mechanics and visual language of Lock Line, Catch Drop and Pattern Relay.",
         "",
         "Per candidate:",
         "- `cover-landscape.png` — 1920×1080",

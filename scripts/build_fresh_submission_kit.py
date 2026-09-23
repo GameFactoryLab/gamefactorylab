@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -9,6 +10,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
 OUT = ROOT / "handoff" / "fresh-submission-kit"
+
+REMOTE_RUNTIME_RE = re.compile(
+    r"<(?:script|img|iframe|audio|video|source)\b[^>]*\bsrc\s*=\s*[\"']https?://"
+    r"|<object\b[^>]*\bdata\s*=\s*[\"']https?://"
+    r"|<link\b(?=[^>]*\brel\s*=\s*[\"'][^\"']*stylesheet[^\"']*[\"'])[^>]*\bhref\s*=\s*[\"']https?://"
+    r"|url\(\s*[\"']?https?://",
+    re.I,
+)
+BANNED_MARKERS = (
+    "api.gamemonetize.com",
+    "googletagmanager.com",
+    "google-analytics.com",
+    "doubleclick.net",
+    "pagead2.googlesyndication.com",
+    "__GAME_ID__",
+    "__PLACEMENT_ID__",
+    "__AD_UNIT__",
+)
 
 CANDIDATES = [
     {
@@ -33,6 +52,17 @@ CANDIDATES = [
         "suggested_tags": "Arcade, Skill, Avoid, High Score, Mobile",
         "signal_to_watch": "average playtime, replay rate, score-share rate",
     },
+    {
+        "priority": 3,
+        "slug": "pattern-relay",
+        "title": "Pattern Relay",
+        "category": "Puzzle",
+        "short_description": "Watch the four-pad sequence, repeat it perfectly, and extend the relay as the pace gets faster.",
+        "controls": "Tap / click / 1-4 keys",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "suggested_tags": "Memory, Puzzle, Skill, High Score, Mobile",
+        "signal_to_watch": "completed rounds per run, replay rate, score-challenge share rate",
+    },
 ]
 
 
@@ -44,11 +74,12 @@ def validate_package(path: Path) -> None:
         if "index.html" not in names:
             raise RuntimeError(f"index.html missing from {path}")
         html = archive.read("index.html").decode("utf-8")
-        if "http://" in html or "https://" in html:
-            raise RuntimeError(f"Remote runtime URL found in {path}")
-        for marker in ("__GAME_ID__", "__PLACEMENT_ID__", "__AD_UNIT__"):
-            if marker in html:
-                raise RuntimeError(f"Unresolved placeholder {marker} in {path}")
+        if REMOTE_RUNTIME_RE.search(html):
+            raise RuntimeError(f"Remote runtime asset found in {path}")
+        lower = html.lower()
+        for marker in BANNED_MARKERS:
+            if marker.lower() in lower:
+                raise RuntimeError(f"Blocked runtime/placeholder marker {marker!r} found in {path}")
 
 
 def main() -> None:
@@ -83,9 +114,9 @@ def main() -> None:
     readme = [
         "# Game Factory fresh-candidate submission kit",
         "",
-        "Purpose: move the current fair-comparison pair into external distribution with minimum manual preparation and zero cash spend.",
+        "Purpose: move the strongest current fresh candidates into external distribution with minimum manual preparation and zero cash spend.",
         "",
-        "Both candidates are self-contained HTML5 builds with no paid runtime dependencies, remote assets, ads, analytics vendors or account backends.",
+        "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote runtime assets, ads, analytics vendors or account backends. Canonical/Open Graph metadata URLs are permitted because they do not load runtime assets.",
         "",
     ]
     for row in rows:
@@ -104,9 +135,9 @@ def main() -> None:
     readme += [
         "## Operator rule",
         "",
-        "Upload and test both candidates under comparable free traffic. Do not buy traffic or add paid services. Give one zero-cost tuning pass only to a candidate that shows stronger replay, average playtime, sharing or portal retention.",
+        "Upload and test candidates under comparable free traffic. Do not buy traffic or add paid services. Give one zero-cost tuning pass only to a candidate that shows stronger replay, average playtime, sharing or portal retention.",
         "",
-        "For CrazyGames, verify the portal's current cover/video requirements immediately before submission. The game ZIPs here intentionally contain no SDK or ads and are suitable for Basic-launch testing; monetization work remains gated on traction and platform approval.",
+        "For CrazyGames, use the separately generated fresh portal asset kit for the current required covers and preview videos. The game ZIPs here intentionally contain no SDK or ads and are suitable for Basic-launch testing; monetization work remains gated on traction and platform approval.",
     ]
     (OUT / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
 
