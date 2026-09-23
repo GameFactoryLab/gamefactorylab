@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Mirror Mark — GameFactoryLab candidate</title>
+<meta name="description" content="A fast spatial-transform challenge. Mirror, flip or rotate the marked cell in your head, then tap the transformed position before time runs out.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/mirror-mark/">
+<meta property="og:title" content="Mirror Mark — spatial transform challenge">
+<meta property="og:description" content="Mirror, flip or rotate the marked cell in your head. Thirty seconds. How many can you solve?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/mirror-mark/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1e293b 0,#0f172a 44%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}
+.wrap{width:min(94vw,620px);padding:24px 0 42px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#c4b5fd}
+h1{font-size:clamp(38px,10vw,64px);line-height:.95;margin:8px 0 10px}
+.muted{color:#94a3b8}
+.challenge{display:none;margin:14px 0 0;background:#2e1065;border:1px solid #7c3aed;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#ede9fe}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:24px}.stat span{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}
+.prompt{text-align:center;min-height:82px;padding:5px 4px 13px}.prompt strong{display:block;font-size:clamp(23px,6vw,34px);letter-spacing:.04em}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;aspect-ratio:1/1}
+.cell{border:0;border-radius:13px;background:#1e293b;color:#f8fafc;box-shadow:inset 0 0 0 1px #334155;cursor:pointer;touch-action:manipulation;position:relative;transition:transform .07s ease,background .09s ease,box-shadow .09s ease}
+.cell:active{transform:scale(.96)}
+.cell.source{background:#7c3aed;box-shadow:0 0 0 3px #c4b5fd}.cell.source::after{content:"MARK";font-size:clamp(8px,2.3vw,12px);font-weight:900;letter-spacing:.06em}
+.cell.correct{background:#16a34a;box-shadow:0 0 0 3px #86efac}.cell.wrong{background:#dc2626;box-shadow:0 0 0 3px #fca5a5}.cell.reveal{background:#2563eb;box-shadow:0 0 0 3px #93c5fd}
+.cell:disabled{cursor:default}
+.feedback{height:28px;text-align:center;padding-top:7px;font-weight:800;font-size:13px;color:#cbd5e1}
+.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#7c3aed;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Mirror Mark</h1>
+<p class="muted">Transform the marked cell in your head, then tap where it lands. Fast spatial reasoning, one answer at a time.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="time">30</b><span>Seconds</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="op">Ready?</strong><span id="hint">Tap Start. Then transform the purple MARK.</span></div>
+  <div id="board" class="board" aria-label="Five by five spatial transform grid"></div>
+  <div id="feedback" class="feedback">Mirror left/right, flip up/down or rotate 180°.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start 30s run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Spatial-transform sprint • no account • no external assets • local best score only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_mirror_mark_v1';
+const SIZE=5;
+const RUN_MS=30000;
+const board=document.getElementById('board');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const timeEl=document.getElementById('time');
+const opEl=document.getElementById('op');
+const hintEl=document.getElementById('hint');
+const feedback=document.getElementById('feedback');
+const startBtn=document.getElementById('start');
+const shareBtn=document.getElementById('share');
+const result=document.getElementById('result');
+const resultTitle=document.getElementById('resultTitle');
+const resultText=document.getElementById('resultText');
+const challenge=document.getElementById('challenge');
+
+const OPS=[
+  {id:'mirror',label:'MIRROR L/R',hint:'Same row • opposite column',map:(r,c)=>[r,SIZE-1-c]},
+  {id:'flip',label:'FLIP U/D',hint:'Opposite row • same column',map:(r,c)=>[SIZE-1-r,c]},
+  {id:'rotate',label:'ROTATE 180°',hint:'Opposite row • opposite column',map:(r,c)=>[SIZE-1-r,SIZE-1-c]}
+];
+
+const cells=[];
+for(let i=0;i<SIZE*SIZE;i++){
+  const btn=document.createElement('button');
+  btn.className='cell';
+  btn.type='button';
+  btn.setAttribute('aria-label',`Grid cell ${Math.floor(i/SIZE)+1}, ${i%SIZE+1}`);
+  btn.addEventListener('click',()=>choose(i));
+  board.appendChild(btn);
+  cells.push(btn);
+}
+
+let sourceIndex=-1;
+let targetIndex=-1;
+let currentOp=null;
+let score=0;
+let streak=0;
+let solved=0;
+let playing=false;
+let locked=false;
+let deadline=0;
+let timerId=null;
+let runStartedAt=0;
+
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read();const m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+function targetFromUrl(){const p=new URLSearchParams(location.search);const raw=p.get('score');if(raw===null)return null;const n=Number(raw);return Number.isFinite(n)&&n>=0?Math.floor(n):null}
+function remainingMs(){return Math.max(0,deadline-Date.now())}
+function render(){scoreEl.textContent=score;bestEl.textContent=best();timeEl.textContent=playing?Math.ceil(remainingMs()/1000):30}
+function clearCellStates(){cells.forEach(c=>c.className='cell')}
+function setCellsEnabled(enabled){cells.forEach(c=>c.disabled=!enabled)}
+
+function nextPuzzle(){
+  if(!playing)return;
+  locked=false;
+  clearCellStates();
+  currentOp=OPS[Math.floor(Math.random()*OPS.length)];
+  let r,c,tr,tc;
+  do{
+    r=Math.floor(Math.random()*SIZE);
+    c=Math.floor(Math.random()*SIZE);
+    [tr,tc]=currentOp.map(r,c);
+  }while(tr===r&&tc===c);
+  sourceIndex=r*SIZE+c;
+  targetIndex=tr*SIZE+tc;
+  cells[sourceIndex].classList.add('source');
+  opEl.textContent=currentOp.label;
+  hintEl.textContent=currentOp.hint;
+  feedback.textContent=streak>1?`${streak} correct in a row • keep moving`:'Tap the transformed cell.';
+  setCellsEnabled(true);
+}
+
+function choose(index){
+  if(!playing||locked)return;
+  locked=true;
+  setCellsEnabled(false);
+  if(index===targetIndex){
+    streak+=1;
+    solved+=1;
+    score+=10+Math.min(10,(streak-1)*2);
+    cells[index].classList.add('correct');
+    feedback.textContent=streak>=3?`Correct • ${streak} streak bonus`:'Correct';
+    bump('correct');
+    render();
+    setTimeout(nextPuzzle,150);
+    return;
+  }
+  streak=0;
+  cells[index].classList.add('wrong');
+  cells[targetIndex].classList.add('reveal');
+  deadline-=2000;
+  feedback.textContent='Miss • answer shown • 2s penalty';
+  bump('wrong');
+  render();
+  if(remainingMs()<=0){setTimeout(endRun,180);return}
+  setTimeout(nextPuzzle,340);
+}
+
+function tick(){
+  if(!playing)return;
+  const left=remainingMs();
+  timeEl.textContent=Math.ceil(left/1000);
+  if(left<=0)endRun();
+}
+
+function start(){
+  const replay=Number(read().metrics?.run_complete||0)>0;
+  bump(replay?'replay_start':'first_start');
+  clearInterval(timerId);
+  score=0;
+  streak=0;
+  solved=0;
+  playing=true;
+  locked=false;
+  runStartedAt=Date.now();
+  deadline=runStartedAt+RUN_MS;
+  result.classList.remove('show');
+  shareBtn.disabled=true;
+  startBtn.textContent='Restart 30s run';
+  render();
+  nextPuzzle();
+  timerId=setInterval(tick,100);
+}
+
+function endRun(){
+  if(!playing)return;
+  playing=false;
+  locked=true;
+  clearInterval(timerId);
+  setCellsEnabled(false);
+  timeEl.textContent='0';
+  const s=read();
+  const previousBest=Number(s.best||0);
+  const nextBest=Math.max(previousBest,score);
+  const duration=Math.max(0,Date.now()-runStartedAt);
+  write({best:nextBest,lastScore:score,lastSolved:solved,lastDurationMs:duration,lastPlayedAt:Date.now()});
+  bump('run_complete');
+  if(score>previousBest)bump('new_best');
+  bestEl.textContent=nextBest;
+  const target=targetFromUrl();
+  const beat=target!==null&&score>target;
+  opEl.textContent='Run complete';
+  hintEl.textContent=`${solved} correct answer${solved===1?'':'s'} • score ${score}`;
+  feedback.textContent=target===null?'Replay or send your score to a friend.':(beat?`Challenge beaten: ${score} > ${target}`:`Challenge target ${target} • you scored ${score}`);
+  result.classList.add('show');
+  resultTitle.textContent=score>previousBest?'New best score':'Thirty seconds done';
+  resultText.textContent=target===null?'The next run starts from zero. Streak bonuses reward clean spatial transforms.':(beat?'You beat the shared score. Send a harder target back.':'Replay and try to beat the shared target.');
+  startBtn.textContent='Replay 30s →';
+  shareBtn.disabled=false;
+}
+
+async function share(){
+  const url=new URL(location.href);
+  url.search='';
+  url.searchParams.set('score',String(score));
+  const text=`I scored ${score} in Mirror Mark. Beat my 30-second score.`;
+  bump('share_click');
+  if(navigator.share){
+    try{await navigator.share({title:'Mirror Mark score challenge',text,url:url.toString()});bump('share_success');return}catch(e){if(e&&e.name==='AbortError')return}
+  }
+  try{await navigator.clipboard.writeText(`${text} ${url}`);bump('share_success');feedback.textContent='Score challenge copied.'}
+  catch(e){feedback.textContent=`${text} ${url}`}
+}
+
+startBtn.addEventListener('click',start);
+shareBtn.addEventListener('click',share);
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&!playing){e.preventDefault();start()}
+});
+
+const params=new URLSearchParams(location.search);
+const source=params.get('from');
+if(source)write({lastSource:source.slice(0,80),lastSourceAt:Date.now()});
+const target=targetFromUrl();
+if(target!==null){challenge.classList.add('show');challenge.innerHTML=`Friend challenge: beat <b>${target}</b> in 30 seconds.`;bump('challenge_open')}
+bump('page_open');
+render();
+setCellsEnabled(false);
+})();
+</script>
+</body>
+</html>

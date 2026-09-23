@@ -1,4 +1,4 @@
-const CACHE='gamefactory-v29';
+const CACHE='gamefactory-v30';
 const ASSETS=[
   './',
   './index.html',
@@ -46,7 +46,9 @@ const ASSETS=[
   './release-candidates/bridge-snap/',
   './release-candidates/cluster-collapse/',
   './release-candidates/lock-line/',
-  './release-candidates/catch-drop/'
+  './release-candidates/catch-drop/',
+  './release-candidates/pattern-relay/',
+  './release-candidates/mirror-mark/'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
