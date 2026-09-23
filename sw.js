@@ -1,4 +1,4 @@
-const CACHE='gamefactory-v27';
+const CACHE='gamefactory-v28';
 const ASSETS=[
   './',
   './index.html',
