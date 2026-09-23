@@ -292,14 +292,17 @@ window.GameFactory=(()=>{
         daily.textContent='Sprint overview';
       }
     }else{
-      label.textContent='Keep the streak going';
-      title.textContent='Next challenge: '+next.title;
-      play.href=gameUrl(next.id)+`?from=${encodeURIComponent(id)}`;
-      play.textContent='Play next →';
+      label.textContent='Live winner search';
+      title.textContent='Two fresh games need a winner';
+      const fresh=new URL('fresh/',baseUrl());
+      fresh.searchParams.set('duel','1');
+      fresh.searchParams.set('from',`postgame-${id}`);
+      play.href=fresh.href;
+      play.textContent='Compare Lock Line vs Catch Drop →';
       daily.href=dailyUrl();
       daily.textContent='Daily challenge';
     }
-    play.addEventListener('click',()=>event(id,sprint?'sprint_next_click':'next_click'));
+    play.addEventListener('click',()=>event(id,sprint?'sprint_next_click':'fresh_duel_click'));
     daily.addEventListener('click',()=>event(id,sprint?'sprint_overview_click':'daily_click'));
     challenge.addEventListener('click',async()=>{
       const s=stats(id);
