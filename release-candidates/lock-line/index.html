@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07101f">
+<title>Lock Line</title>
+<meta name="description" content="Tap when the moving line crosses the target. A one-input precision game.">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%);display:grid;place-items:center;overscroll-behavior:none}
+button{font:inherit}
+.app{width:min(94vw,560px);padding:18px}
+.brand{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}
+h1{font-size:clamp(42px,12vw,64px);line-height:.95;margin:6px 0 8px}
+.muted{color:#94a3b8}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.stat,.card{background:#111827;border:1px solid #263247;border-radius:18px}
+.stat{flex:1;min-width:90px;text-align:center;padding:11px}
+.stat span{font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+.stat b{display:block;font-size:24px;margin-top:2px}
+.card{margin-top:12px;padding:15px}
+.trackWrap{position:relative;height:240px;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#0b1220,#111827);touch-action:manipulation;cursor:pointer;user-select:none}
+.track{position:absolute;left:8%;right:8%;top:50%;height:10px;transform:translateY(-50%);border-radius:999px;background:#1e293b;box-shadow:inset 0 0 0 1px #334155}
+.target{position:absolute;top:50%;height:64px;transform:translate(-50%,-50%);border:3px solid #fbbf24;border-radius:14px;background:#fbbf2415;box-shadow:0 0 28px #f59e0b22}
+.perfect{position:absolute;left:50%;top:50%;height:54px;transform:translate(-50%,-50%);border-left:2px solid #fef3c7;border-right:2px solid #fef3c7}
+.needle{position:absolute;top:50%;width:6px;height:98px;transform:translate(-50%,-50%);border-radius:999px;background:#f8fafc;box-shadow:0 0 22px #fff8}
+.pulse{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#bfdbfe}
+.tapHint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);font-weight:850;color:#cbd5e1}
+.status{text-align:center;min-height:28px;font-weight:800;padding:10px 4px 0}
+.btn{border:0;border-radius:13px;padding:13px 16px;font-weight:850;background:#2563eb;color:white;flex:1;cursor:pointer}
+.btn.alt{background:#1e293b}
+.small{font-size:12px}
+.overlay{position:fixed;inset:0;background:#020617e8;display:grid;place-items:center;padding:20px;z-index:5}
+.panel{width:min(92vw,430px);background:#0f172a;border:1px solid #334155;border-radius:22px;padding:22px}
+.panel h2{font-size:36px;margin:4px 0 8px}
+.panel .btn{width:100%;margin-top:9px}
+.hidden{display:none}
+.flashGood{animation:good .16s ease-out}
+.flashBad{animation:bad .18s ease-out}
+@keyframes good{50%{box-shadow:inset 0 0 0 999px #10b98122}}
+@keyframes bad{50%{box-shadow:inset 0 0 0 999px #ef444433}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="brand">GameFactoryLab • release candidate</div>
+  <h1>Lock Line</h1>
+  <p class="muted">Tap when the moving line crosses the gold target. Center hits score double.</p>
+  <div class="row">
+    <div class="stat"><span>Score</span><b id="score">0</b></div>
+    <div class="stat"><span>Best</span><b id="best">0</b></div>
+    <div class="stat"><span>Streak</span><b id="streak">0</b></div>
+  </div>
+
+  <section class="card">
+    <div id="playfield" class="trackWrap" aria-label="Lock Line play field" role="button" tabindex="0">
+      <div class="pulse" id="pulse">Tap to start</div>
+      <div class="track"></div>
+      <div id="target" class="target"><div class="perfect"></div></div>
+      <div id="needle" class="needle"></div>
+      <div class="tapHint">TAP • SPACE</div>
+    </div>
+    <div id="status" class="status muted">One input. No tutorial needed.</div>
+  </section>
+
+  <p class="muted small">No paid assets • no external services • progress and test signals stay on-device</p>
+</main>
+
+<section id="overlay" class="overlay hidden">
+  <div class="panel">
+    <div class="brand">Run complete</div>
+    <h2 id="result">Score 0</h2>
+    <p id="detail" class="muted"></p>
+    <button id="replay" class="btn">Play again</button>
+    <button id="share" class="btn alt">Share result</button>
+  </div>
+</section>
+
+<script>
+(()=>{
+'use strict';
+
+const KEY='gf_candidate_lock_line_v1';
+const playfield=document.getElementById('playfield');
+const needleEl=document.getElementById('needle');
+const targetEl=document.getElementById('target');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const streakEl=document.getElementById('streak');
+const pulseEl=document.getElementById('pulse');
+const statusEl=document.getElementById('status');
+const overlay=document.getElementById('overlay');
+const resultEl=document.getElementById('result');
+const detailEl=document.getElementById('detail');
+
+let running=false;
+let x=.10;
+let dir=1;
+let score=0;
+let streak=0;
+let targetCenter=.68;
+let targetWidth=.19;
+let last=performance.now();
+let raf=0;
+
+function load(){
+  try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}
+}
+function save(patch){
+  localStorage.setItem(KEY,JSON.stringify({...load(),...patch}));
+}
+function signal(name){
+  const s=load();
+  const metrics={...(s.metrics||{})};
+  metrics[name]=(metrics[name]||0)+1;
+  save({metrics});
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function speed(){return Math.min(.92,.42+score*.018)}
+function widthForScore(){return Math.max(.072,.19-score*.0045)}
+function newTarget(){
+  targetWidth=widthForScore();
+  const margin=targetWidth/2+.08;
+  let next=margin+Math.random()*(1-margin*2);
+  if(Math.abs(next-targetCenter)<.18){
+    next=next<.5?Math.min(1-margin,next+.28):Math.max(margin,next-.28);
+  }
+  targetCenter=clamp(next,margin,1-margin);
+  render();
+}
+function render(){
+  needleEl.style.left=(8+x*84)+'%';
+  targetEl.style.left=(8+targetCenter*84)+'%';
+  targetEl.style.width=(targetWidth*84)+'%';
+  scoreEl.textContent=score;
+  streakEl.textContent=streak;
+  bestEl.textContent=load().best||0;
+}
+function loop(now){
+  const dt=Math.min(.04,(now-last)/1000);
+  last=now;
+  if(running){
+    x+=dir*speed()*dt;
+    if(x>=1){x=1;dir=-1}
+    if(x<=0){x=0;dir=1}
+    render();
+  }
+  raf=requestAnimationFrame(loop);
+}
+function startRun(){
+  running=true;
+  score=0;
+  streak=0;
+  x=.10;
+  dir=1;
+  targetCenter=.68;
+  targetWidth=.19;
+  pulseEl.textContent='Lock it';
+  statusEl.textContent='Hit the gold zone.';
+  overlay.classList.add('hidden');
+  signal('run_start');
+  render();
+}
+function flash(className){
+  playfield.classList.remove('flashGood','flashBad');
+  void playfield.offsetWidth;
+  playfield.classList.add(className);
+}
+function tap(){
+  if(!running){startRun();return}
+  const distance=Math.abs(x-targetCenter);
+  if(distance<=targetWidth/2){
+    const perfect=distance<=targetWidth*.14;
+    const gained=perfect?2:1;
+    score+=gained;
+    streak+=1;
+    signal(perfect?'perfect_hit':'hit');
+    statusEl.textContent=perfect?'Perfect +2':'Locked +1';
+    pulseEl.textContent=perfect?'Perfect':'Locked';
+    flash('flashGood');
+    if(navigator.vibrate)navigator.vibrate(perfect?20:10);
+    newTarget();
+  }else{
+    endRun();
+  }
+}
+function endRun(){
+  running=false;
+  signal('run_end');
+  flash('flashBad');
+  const s=load();
+  const best=Math.max(s.best||0,score);
+  save({best});
+  bestEl.textContent=best;
+  resultEl.textContent='Score '+score;
+  detailEl.textContent=score===0
+    ? 'Missed the first lock. Try one more run.'
+    : `${streak} lock${streak===1?'':'s'} in a row. Best: ${best}.`;
+  pulseEl.textContent='Miss';
+  statusEl.textContent='Outside the target.';
+  setTimeout(()=>overlay.classList.remove('hidden'),180);
+}
+function share(){
+  const text=`I scored ${score} in Lock Line. Can you beat it?`;
+  signal('result_share_click');
+  if(navigator.share){
+    navigator.share({title:'Lock Line',text}).catch(()=>{});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>{
+      detailEl.textContent='Result copied. Challenge a friend.';
+    }).catch(()=>{});
+  }
+}
+playfield.addEventListener('pointerdown',e=>{e.preventDefault();tap()});
+playfield.addEventListener('keydown',e=>{
+  if(e.code==='Space'||e.code==='Enter'){e.preventDefault();tap()}
+});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&document.activeElement!==playfield){
+    e.preventDefault();
+    tap();
+  }
+});
+document.getElementById('replay').addEventListener('click',e=>{
+  e.stopPropagation();
+  signal('replay_click');
+  startRun();
+});
+document.getElementById('share').addEventListener('click',e=>{
+  e.stopPropagation();
+  share();
+});
+
+render();
+cancelAnimationFrame(raf);
+raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
