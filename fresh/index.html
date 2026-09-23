@@ -70,8 +70,8 @@ h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}
   <iframe id="gameFrame" title="Fresh candidate game" loading="eager"></iframe>
   <div id="signal" class="signal"><strong>Run signal</strong><span id="signalText">Waiting for a completed run.</span></div>
   <div id="replayBox" class="replay-box hidden">
-    <strong>Which mechanic earned the extra run?</strong>
-    <span class="muted mini">Both candidates are now complete. Replay buttons are shown in randomized order to avoid position bias.</span>
+    <strong id="replayTitle">Which mechanic earned the extra run?</strong>
+    <span id="replayHint" class="muted mini">Both candidates are now complete. Replay buttons are shown in randomized order to avoid position bias.</span>
     <div id="replayActions" class="replay-actions"></div>
   </div>
   <div class="duel-actions">
@@ -102,9 +102,12 @@ const duelLabel=document.getElementById('duelLabel');
 const duelHint=document.getElementById('duelHint');
 const nextGame=document.getElementById('nextGame');
 const restartDuel=document.getElementById('restartDuel');
+const shareButton=document.getElementById('share');
 const status=document.getElementById('status');
 const signalText=document.getElementById('signalText');
 const replayBox=document.getElementById('replayBox');
+const replayTitle=document.getElementById('replayTitle');
+const replayHint=document.getElementById('replayHint');
 const replayActions=document.getElementById('replayActions');
 
 const pageParams=new URLSearchParams(location.search);
@@ -115,6 +118,8 @@ let index=0;
 let completionCounts={};
 let watcher=null;
 let bothCompleted=false;
+let replayDecision=null;
+let replayCompleted=false;
 
 function read(){
   try{return JSON.parse(localStorage.getItem(KEY)||'{}')}
@@ -156,8 +161,43 @@ function randomizedGames(){
   return copy;
 }
 
+function sharePayload(kind='generic'){
+  const url='https://gamefactorylab.github.io/gamefactorylab/fresh/?duel=1&from='+(kind==='winner'?'winner-share':'shared-fresh');
+  const text=kind==='winner'
+    ?'I tried both GameFactoryLab fresh mechanics and picked a winner. Which one earns your extra run?'
+    :'Two fresh GameFactoryLab browser-game experiments. Complete both, then replay whichever one earns it.';
+  return {url,text};
+}
+
+async function shareDuel(kind='generic'){
+  const {url,text}=sharePayload(kind);
+  const winnerSafe=replayDecision?replayDecision.replace(/-/g,'_'):'unknown';
+  bump(kind==='winner'?`winner_share_click_${winnerSafe}`:'share_click');
+
+  if(navigator.share){
+    try{
+      await navigator.share({title:'GameFactoryLab Fresh Duel',text,url});
+      bump(kind==='winner'?`winner_share_success_${winnerSafe}`:'share_success');
+      status.textContent='Shared.';
+      return;
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+    }
+  }
+
+  try{
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    bump(kind==='winner'?`winner_share_success_${winnerSafe}`:'share_success');
+    status.textContent='Duel invitation copied.';
+  }catch(e){
+    status.textContent=`${text} ${url}`;
+  }
+}
+
 function renderReplayChoices(){
   replayActions.textContent='';
+  replayTitle.textContent='Which mechanic earned the extra run?';
+  replayHint.textContent='Both candidates are now complete. Replay buttons are shown in randomized order to avoid position bias.';
   const replayOrder=randomizedGames();
   replayOrder.forEach((id,position)=>{
     const button=document.createElement('button');
@@ -165,6 +205,8 @@ function renderReplayChoices(){
     button.className=position===0?'primary':'secondary';
     button.textContent=`Replay ${names[id]} →`;
     button.addEventListener('click',()=>{
+      if(replayDecision||replayCompleted)return;
+      replayDecision=id;
       bump(`replay_choice_${id.replace(/-/g,'_')}`);
       bump(`replay_choice_position_${position+1}`);
       write({lastReplayChoice:id,lastReplayChoiceAt:Date.now()});
@@ -175,6 +217,23 @@ function renderReplayChoices(){
   });
   replayBox.classList.remove('hidden');
   nextGame.classList.add('hidden');
+}
+
+function renderOutcome(id,score){
+  replayActions.textContent='';
+  replayTitle.textContent=`${names[id]} earned your extra run.`;
+  replayHint.textContent='Preference signal locked. Share a blind duel so the next player makes an independent choice.';
+
+  const share=document.createElement('button');
+  share.type='button';
+  share.className='primary';
+  share.textContent='Challenge a friend →';
+  share.addEventListener('click',()=>shareDuel('winner'));
+  replayActions.appendChild(share);
+
+  replayBox.classList.remove('hidden');
+  nextGame.classList.add('hidden');
+  write({sessionWinner:id,sessionWinnerScore:score,sessionWinnerAt:Date.now()});
 }
 
 function markComplete(id,score){
@@ -195,9 +254,13 @@ function markComplete(id,score){
   });
 
   if(bothCompleted){
-    duelHint.textContent=`Extra run complete • ${names[id]} score ${score}.`;
-    signalText.textContent=`${names[id]} earned a completed extra run — the strongest replay signal.`;
-    renderReplayChoices();
+    if(!replayCompleted&&replayDecision===id){
+      replayCompleted=true;
+      bump(`winner_extra_complete_${safe}`);
+      duelHint.textContent=`Preference locked • ${names[id]} extra run complete with score ${score}.`;
+      signalText.textContent=`${names[id]} earned the first voluntary completed replay — the cleanest same-session preference signal.`;
+      renderOutcome(id,score);
+    }
     return;
   }
 
@@ -212,6 +275,8 @@ function markComplete(id,score){
   }
 
   bothCompleted=true;
+  replayDecision=null;
+  replayCompleted=false;
   bump('both_candidates_completed');
   write({bothCompletedAt:Date.now()});
   duelHint.textContent='Both candidates completed. Choose either one for the optional extra run.';
@@ -299,6 +364,8 @@ function startDuel(forceNew=false){
   index=0;
   completionCounts={};
   bothCompleted=false;
+  replayDecision=null;
+  replayCompleted=false;
   replayBox.classList.add('hidden');
   nextGame.classList.remove('hidden');
   bump('duel_start');
@@ -331,28 +398,7 @@ document.querySelectorAll('[data-game]').forEach(a=>{
   });
 });
 
-document.getElementById('share').addEventListener('click',async()=>{
-  const url='https://gamefactorylab.github.io/gamefactorylab/fresh/?duel=1&from=shared-fresh';
-  const text='Two fresh GameFactoryLab browser-game experiments. Complete both, then replay whichever one earns it.';
-  bump('share_click');
-
-  if(navigator.share){
-    try{
-      await navigator.share({title:'GameFactoryLab Fresh Test',text,url});
-      status.textContent='Shared.';
-      return;
-    }catch(e){
-      if(e&&e.name==='AbortError')return;
-    }
-  }
-
-  try{
-    await navigator.clipboard.writeText(url);
-    status.textContent='Test link copied.';
-  }catch(e){
-    status.textContent=url;
-  }
-});
+shareButton.addEventListener('click',()=>shareDuel('generic'));
 
 bump('page_open');
 bump(`source_${source}`);
