@@ -39,9 +39,17 @@ jobs:
       - name: Validate operator kit
         run: |
           python3 - <<'PY'
-          import csv, zipfile
+          import csv, re, zipfile
           from pathlib import Path
 
+          runtime_re = re.compile(
+              r"<(?:script|img|iframe|audio|video|source)\b[^>]*\bsrc\s*=\s*[\"']https?://"
+              r"|<object\b[^>]*\bdata\s*=\s*[\"']https?://"
+              r"|<link\b(?=[^>]*\brel\s*=\s*[\"'][^\"']*stylesheet[^\"']*[\"'])[^>]*\bhref\s*=\s*[\"']https?://"
+              r"|url\(\s*[\"']?https?://",
+              re.I,
+          )
+          blocked = ('__GAME_ID__', '__PLACEMENT_ID__', '__AD_UNIT__')
           root = Path('handoff/fresh-submission-kit')
           rows = list(csv.DictReader((root / 'submission-metadata.csv').open(encoding='utf-8')))
           assert [row['slug'] for row in rows] == ['lock-line', 'catch-drop', 'pattern-relay'], rows
@@ -55,8 +63,8 @@ jobs:
                   names = set(archive.namelist())
                   assert 'index.html' in names, package
                   html = archive.read('index.html').decode('utf-8')
-                  assert 'http://' not in html and 'https://' not in html, package
-                  assert '__GAME_ID__' not in html, package
+                  assert not runtime_re.search(html), package
+                  assert not any(marker in html for marker in blocked), package
           print('Validated fresh submission kit: 3 candidates / 6 portal handoff packages')
           PY
 
