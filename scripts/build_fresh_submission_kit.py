@@ -33,6 +33,17 @@ CANDIDATES = [
         "suggested_tags": "Arcade, Skill, Avoid, High Score, Mobile",
         "signal_to_watch": "average playtime, replay rate, score-share rate",
     },
+    {
+        "priority": 3,
+        "slug": "pattern-relay",
+        "title": "Pattern Relay",
+        "category": "Puzzle",
+        "short_description": "Watch the four-pad sequence, repeat it perfectly, and extend the relay as the pace gets faster.",
+        "controls": "Tap / click / 1-4 keys",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "suggested_tags": "Memory, Puzzle, Skill, High Score, Mobile",
+        "signal_to_watch": "completed rounds per run, replay rate, score-challenge share rate",
+    },
 ]
 
 
@@ -83,9 +94,9 @@ def main() -> None:
     readme = [
         "# Game Factory fresh-candidate submission kit",
         "",
-        "Purpose: move the current fair-comparison pair into external distribution with minimum manual preparation and zero cash spend.",
+        "Purpose: move the strongest current fresh candidates into external distribution with minimum manual preparation and zero cash spend.",
         "",
-        "Both candidates are self-contained HTML5 builds with no paid runtime dependencies, remote assets, ads, analytics vendors or account backends.",
+        "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote assets, ads, analytics vendors or account backends.",
         "",
     ]
     for row in rows:
@@ -104,9 +115,9 @@ def main() -> None:
     readme += [
         "## Operator rule",
         "",
-        "Upload and test both candidates under comparable free traffic. Do not buy traffic or add paid services. Give one zero-cost tuning pass only to a candidate that shows stronger replay, average playtime, sharing or portal retention.",
+        "Upload and test candidates under comparable free traffic. Do not buy traffic or add paid services. Give one zero-cost tuning pass only to a candidate that shows stronger replay, average playtime, sharing or portal retention.",
         "",
-        "For CrazyGames, verify the portal's current cover/video requirements immediately before submission. The game ZIPs here intentionally contain no SDK or ads and are suitable for Basic-launch testing; monetization work remains gated on traction and platform approval.",
+        "For CrazyGames, use the separately generated fresh portal asset kit for the current required covers and preview videos. The game ZIPs here intentionally contain no SDK or ads and are suitable for Basic-launch testing; monetization work remains gated on traction and platform approval.",
     ]
     (OUT / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
 
