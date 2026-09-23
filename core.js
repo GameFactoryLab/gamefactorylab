@@ -36,6 +36,7 @@ window.GameFactory=(()=>{
     {id:'lane-dodge',title:'Lane Dodge'},
     {id:'ring-pins',title:'Ring Pins'}
   ];
+  const brandedChallengeIds=new Set(['ring-pins','circuit-flow','gravity-flip','bridge-snap','cluster-collapse','merge-grid','lane-dodge','stack-drop','tile-shift','grid-toggle','flood-grid','mini-sudoku-rush','dot-compare']);
   const sprintSize=5;
 
   function stats(id){try{return JSON.parse(localStorage.getItem(p+id)||'{}')}catch{return {}}}
@@ -121,10 +122,17 @@ window.GameFactory=(()=>{
     return String(Math.round(n*100)/100);
   }
   function challengeUrl(id,target){
+    const value=target===undefined?stats(id).last:target;
+    if(brandedChallengeIds.has(id)){
+      const u=new URL('challenge/',baseUrl());
+      u.searchParams.set('game',id);
+      if(Number.isFinite(value))u.searchParams.set('target',String(Math.round(value*1000)/1000));
+      u.searchParams.set('from','result-share');
+      return u.href;
+    }
     const u=new URL(gameUrl(id));
     const day=dailyContext(id);
     if(day)u.searchParams.set('daily',day);
-    const value=target===undefined?stats(id).last:target;
     if(Number.isFinite(value))u.searchParams.set('target',String(Math.round(value*1000)/1000));
     u.searchParams.set('challenge','1');
     u.searchParams.set('from','share');
