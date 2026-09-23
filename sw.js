@@ -1,4 +1,4 @@
-const CACHE='gamefactory-v30';
+const CACHE='gamefactory-v31';
 const ASSETS=[
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS=[
   './manifest.webmanifest',
   './icon.svg',
   './discover/',
+  './discover/duel/',
   './top5/',
   './challenge/',
   './daily/',
