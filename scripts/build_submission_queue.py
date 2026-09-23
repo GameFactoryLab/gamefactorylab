@@ -10,8 +10,17 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 OUT = ROOT / "handoff" / "top5-submission-kit"
 WAVE_DIR = ROOT / "distribution" / "itch"
+FRESH_KIT = ROOT / "handoff" / "fresh-submission-kit"
+FRESH_META = FRESH_KIT / "submission-metadata.csv"
 
-PRIORITY = [
+FRESH_PRIORITY = [
+    "lock-line",
+    "catch-drop",
+    "pattern-relay",
+    "mirror-mark",
+]
+
+LEGACY_PRIORITY = [
     "ring-pins",
     "circuit-flow",
     "gravity-flip",
@@ -29,7 +38,7 @@ PRIORITY = [
 ]
 
 
-def load_games() -> list[dict]:
+def load_legacy_games() -> list[dict]:
     games: dict[str, dict] = {}
     for path in sorted(WAVE_DIR.glob("wave*.json")):
         meta = json.loads(path.read_text(encoding="utf-8"))
@@ -39,16 +48,55 @@ def load_games() -> list[dict]:
         for game in meta.get("games", []):
             row = dict(game)
             row["wave"] = wave
+            row["source"] = "legacy"
             games[row["slug"]] = row
 
-    missing = [slug for slug in PRIORITY if slug not in games]
+    missing = [slug for slug in LEGACY_PRIORITY if slug not in games]
     if missing:
-        raise RuntimeError(f"Missing queue metadata for: {missing}")
-    return [games[slug] for slug in PRIORITY]
+        raise RuntimeError(f"Missing legacy queue metadata for: {missing}")
+    return [games[slug] for slug in LEGACY_PRIORITY]
+
+
+def load_fresh_games() -> list[dict]:
+    if not FRESH_META.exists():
+        raise RuntimeError(
+            "Fresh submission metadata is missing. Run scripts/build_release_candidates.py "
+            "and scripts/build_fresh_submission_kit.py before building the consolidated queue."
+        )
+
+    with FRESH_META.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+
+    games: dict[str, dict] = {}
+    for row in rows:
+        if float(row.get("cash_spend_eur", "-1")) != 0:
+            raise RuntimeError(f"Non-zero cash spend in fresh candidate {row.get('slug')}")
+        row = dict(row)
+        row["wave"] = "fresh"
+        row["source"] = "fresh"
+        row["tags"] = row.get("suggested_tags", "")
+        games[row["slug"]] = row
+
+    missing = [slug for slug in FRESH_PRIORITY if slug not in games]
+    if missing:
+        raise RuntimeError(f"Missing fresh queue metadata for: {missing}")
+    return [games[slug] for slug in FRESH_PRIORITY]
+
+
+def package_sources(game: dict) -> tuple[Path, Path]:
+    if game["source"] == "fresh":
+        return (
+            FRESH_KIT / "itch" / game["itch_package"],
+            FRESH_KIT / "crazygames-basic" / game["crazygames_basic_package"],
+        )
+    return (
+        DIST / game["itch_package"],
+        DIST / "crazygames-basic" / game["crazygames_basic_package"],
+    )
 
 
 def main() -> None:
-    games = load_games()
+    games = load_fresh_games() + load_legacy_games()
     if OUT.exists():
         shutil.rmtree(OUT)
     (OUT / "itch").mkdir(parents=True)
@@ -56,18 +104,25 @@ def main() -> None:
 
     rows = []
     for rank, game in enumerate(games, start=1):
+        tags = game.get("tags", "")
+        if isinstance(tags, list):
+            tags = ", ".join(tags)
+        signal = game.get("signal_to_watch", "")
+        if isinstance(signal, list):
+            signal = ", ".join(signal)
         rows.append(
             {
                 "priority": rank,
                 "wave": game["wave"],
+                "source": game["source"],
                 "slug": game["slug"],
                 "title": game["title"],
                 "status": "READY",
                 "itch_package": game["itch_package"],
                 "crazygames_basic_package": game["crazygames_basic_package"],
                 "short_description": game.get("short_description", ""),
-                "tags": ", ".join(game.get("tags", [])),
-                "signal_to_watch": ", ".join(game.get("signal_to_watch", [])),
+                "tags": tags,
+                "signal_to_watch": signal,
             }
         )
 
@@ -82,12 +137,15 @@ def main() -> None:
         "",
         "Purpose: minimize owner upload friction and get comparable external traffic before more development.",
         "",
+        "The four active fresh candidates are intentionally first. The strongest previously packaged mechanic, Ring Pins, remains slot five as a control/reference release. Older candidates stay queued behind them until current tests earn or lose distribution capacity.",
+        "",
         "## Immediate Top 5",
         "",
     ]
     for row in rows[:5]:
         md += [
             f"### {row['priority']}. {row['title']}",
+            f"- Source: `{row['source']}`",
             f"- itch.io ZIP: `{row['itch_package']}`",
             f"- CrazyGames Basic-safe ZIP: `{row['crazygames_basic_package']}`",
             f"- Short description: {row['short_description']}",
@@ -102,19 +160,18 @@ def main() -> None:
         "",
         "No paid SDK, paid hosting, paid ads, paid license, paid asset, subscription or contractor is required by this kit.",
         "",
-        "`submission-queue.csv` contains all 14 currently packaged candidates in priority order.",
+        f"`submission-queue.csv` contains all {len(rows)} currently packaged candidates in current commercial priority order.",
     ]
     (OUT / "README.md").write_text("\n".join(md) + "\n", encoding="utf-8")
 
     for game in games[:5]:
-        itch_src = DIST / game["itch_package"]
-        cg_src = DIST / "crazygames-basic" / game["crazygames_basic_package"]
+        itch_src, cg_src = package_sources(game)
         if not itch_src.exists() or not cg_src.exists():
             raise RuntimeError(f"Missing built package for {game['slug']}")
         shutil.copy2(itch_src, OUT / "itch" / itch_src.name)
         shutil.copy2(cg_src, OUT / "crazygames-basic" / cg_src.name)
 
-    print(f"Built Top 5 submission kit and {len(rows)}-game queue at {OUT}")
+    print(f"Built current Top 5 submission kit and {len(rows)}-game queue at {OUT}")
 
 
 if __name__ == "__main__":
