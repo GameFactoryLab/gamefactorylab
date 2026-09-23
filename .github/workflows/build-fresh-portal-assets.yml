@@ -2,6 +2,12 @@ name: Build fresh portal assets
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'scripts/build_fresh_portal_assets.py'
+      - '.github/workflows/build-fresh-portal-assets.yml'
   push:
     branches: [main]
     paths:
