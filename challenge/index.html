@@ -8,26 +8,39 @@
 <meta name="description" content="Pick from thirteen free Game Factory browser games, set an optional score to beat, and send a challenge link to a friend. No install, account, or payment required.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/challenge/">
 <meta property="og:title" content="Challenge a Friend — Game Factory">
-<meta property="og:description" content="Pick a game, set a score to beat, and send a free browser-game challenge. No install required.">
+<meta property="og:description" content="Set a score, send one link, and see if a friend can beat it. Free in the browser with no install or account.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/challenge/">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://gamefactorylab.github.io/gamefactorylab/social/challenge-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Game Factory Challenge a Friend — set a score, send one link, beat it">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gamefactorylab.github.io/gamefactorylab/social/challenge-og.png">
 <link rel="stylesheet" href="../core.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Challenge a Friend — Game Factory","url":"https://gamefactorylab.github.io/gamefactorylab/challenge/","description":"Create and share free browser-game challenges with friends."}</script>
 <style>
-.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.game-choice{position:relative}.game-choice input{position:absolute;opacity:0;pointer-events:none}.game-choice label{display:block;height:100%;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220;cursor:pointer;font-weight:800}.game-choice small{display:block;margin-top:5px;font-weight:500;color:#94a3b8}.game-choice .candidate{color:#bbf7d0;font-weight:800}.game-choice input:checked+label{outline:2px solid #38bdf8;background:#111c31}.field{display:grid;gap:6px;margin:12px 0}.field label{font-weight:800}.field input{width:100%;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0b1220;color:#f8fafc;padding:10px 12px;font:inherit}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{grid-column:1/-1}.share-output{display:none;margin-top:10px}.share-output.show{display:block}.share-output textarea{width:100%;min-height:98px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:#f8fafc;padding:10px;font:inherit;resize:none}.steps{margin:0;padding-left:20px;color:#cbd5e1}.steps li+li{margin-top:6px}.signal{margin-top:8px;font-size:12px;color:#94a3b8}@media(max-width:520px){.challenge-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions .primary{grid-column:auto}}
+.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.game-choice{position:relative}.game-choice input{position:absolute;opacity:0;pointer-events:none}.game-choice label{display:block;height:100%;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220;cursor:pointer;font-weight:800}.game-choice small{display:block;margin-top:5px;font-weight:500;color:#94a3b8}.game-choice .candidate{color:#bbf7d0;font-weight:800}.game-choice input:checked+label{outline:2px solid #38bdf8;background:#111c31}.field{display:grid;gap:6px;margin:12px 0}.field label{font-weight:800}.field input{width:100%;min-height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0b1220;color:#f8fafc;padding:10px 12px;font:inherit}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions .primary{grid-column:1/-1}.share-output{display:none;margin-top:10px}.share-output.show{display:block}.share-output textarea{width:100%;min-height:98px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:#f8fafc;padding:10px;font:inherit;resize:none}.steps{margin:0;padding-left:20px;color:#cbd5e1}.steps li+li{margin-top:6px}.signal{margin-top:8px;font-size:12px;color:#94a3b8}.incoming{display:none}.incoming.show{display:block;border-color:rgba(187,247,208,.28);background:rgba(187,247,208,.05)}.incoming strong{font-size:22px}.incoming-target{font-size:34px;font-weight:900;margin:6px 0}@media(max-width:520px){.challenge-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.actions .primary{grid-column:auto}}
 </style>
 </head>
 <body>
 <main class="app">
 <section class="card">
-<div class="muted">Game Factory · zero-install challenge</div>
-<h1>Challenge a friend</h1>
-<p>Choose a game, optionally add a score to beat, then share one link. Your friend opens it directly in the browser—no account or download.</p>
+<div class="muted" id="eyebrow">Game Factory · zero-install challenge</div>
+<h1 id="heroTitle">Challenge a friend</h1>
+<p id="heroCopy">Choose a game, optionally add a score to beat, then share one link. Your friend opens it in the browser—no account or download.</p>
 <p class="signal" id="signal">Top 5 candidates are included so every friend challenge can also help surface the mechanic worth building bigger.</p>
 </section>
 
-<section class="card">
+<section class="card incoming" id="incoming">
+<div class="muted">Friend challenge received</div>
+<strong id="incomingGame">Game</strong>
+<div class="incoming-target" id="incomingTarget">Open challenge</div>
+<p class="muted">One tap opens the game with the target attached. Finish a run, then send your own result back.</p>
+<a class="btn primary" id="accept" href="#">Accept challenge →</a>
+</section>
+
+<section class="card" id="creator">
 <h2>1. Pick the duel</h2>
 <div class="challenge-grid" id="games">
 <div class="game-choice"><input type="radio" name="game" id="g-ring" value="ring-pins" checked><label for="g-ring">Ring Pins<small class="candidate">Top 5 candidate · one-tap timing</small></label></div>
@@ -62,7 +75,7 @@
 
 <section class="card">
 <h2>How it works</h2>
-<ol class="steps"><li>Pick one of the lightweight HTML5 games.</li><li>Add your visible score if you want a specific target.</li><li>Send the generated link. The recipient lands directly in the selected game.</li><li>After their run, they can replay or send a challenge back.</li></ol>
+<ol class="steps"><li>Pick one of the lightweight HTML5 games.</li><li>Add your visible score if you want a specific target.</li><li>Send the branded challenge link. The recipient sees the duel before opening the game.</li><li>After their run, they can replay or send a challenge back.</li></ol>
 </section>
 
 <section class="card"><p class="muted">All games run free in the browser. No account, install, subscription, or purchase is required.</p><a class="btn secondary" href="../discover/">Browse more Game Factory experiments</a></section>
@@ -85,24 +98,39 @@
     'dot-compare':'../games/dot-compare/'
   };
   const names={'ring-pins':'Ring Pins','circuit-flow':'Circuit Flow','gravity-flip':'Gravity Flip','bridge-snap':'Bridge Snap','cluster-collapse':'Cluster Collapse','merge-grid':'Merge Grid','lane-dodge':'Lane Dodge','stack-drop':'Stack Drop','tile-shift':'Tile Shift','grid-toggle':'Grid Toggle','flood-grid':'Flood Grid','mini-sudoku-rush':'Mini Sudoku Rush','dot-compare':'Dot Compare'};
-  const SIGNAL_KEY='gf_challenge_hub_v2';
+  const SIGNAL_KEY='gf_challenge_hub_v3';
+  const q=new URLSearchParams(location.search);
   const selected=()=>document.querySelector('input[name="game"]:checked').value;
   const play=document.getElementById('play');
+  const accept=document.getElementById('accept');
   const target=document.getElementById('target');
   const output=document.getElementById('output');
   const copytext=document.getElementById('copytext');
   const signal=document.getElementById('signal');
+  const incoming=document.getElementById('incoming');
+  const validIncoming=names[q.get('game')]?q.get('game'):null;
+  const incomingTarget=(()=>{const raw=q.get('target');if(raw===null||raw==='')return null;const n=Number(raw);return Number.isFinite(n)&&n>=0&&n<=1000000?Math.round(n*1000)/1000:null})();
   function load(){try{return JSON.parse(localStorage.getItem(SIGNAL_KEY)||'{}')}catch{return {}}}
   function mark(kind,id){const s=load();s[kind]=(s[kind]||0)+1;s.games=s.games||{};s.games[id]=(s.games[id]||0)+1;s.last=id;s.lastSeen=Date.now();try{localStorage.setItem(SIGNAL_KEY,JSON.stringify(s))}catch(e){};return s}
-  function gameUrl(challenge=false){
-    const id=selected();
+  function gameUrl(challenge=false,id=selected(),score=null){
     const u=new URL(routes[id],location.href);
     u.searchParams.set('from','challenge-hub');
     if(challenge){
       u.searchParams.set('challenge','1');
-      const n=Number(target.value);
-      if(target.value!==''&&Number.isFinite(n)&&n>=0&&n<=1000000)u.searchParams.set('target',String(Math.round(n*1000)/1000));
+      const raw=score===null?target.value:score;
+      const n=Number(raw);
+      if(raw!==''&&Number.isFinite(n)&&n>=0&&n<=1000000)u.searchParams.set('target',String(Math.round(n*1000)/1000));
     }
+    return u.href;
+  }
+  function landingUrl(){
+    const id=selected();
+    const u=new URL('./',location.href);
+    u.search='';u.hash='';
+    u.searchParams.set('game',id);
+    const n=Number(target.value);
+    if(target.value!==''&&Number.isFinite(n)&&n>=0&&n<=1000000)u.searchParams.set('target',String(Math.round(n*1000)/1000));
+    u.searchParams.set('from','friend-share');
     return u.href;
   }
   function sync(){play.href=gameUrl(false)}
@@ -110,16 +138,31 @@
   play.addEventListener('click',()=>mark('plays',selected()));
   document.getElementById('share').addEventListener('click',async()=>{
     const id=selected();
-    const url=gameUrl(true);
+    const url=landingUrl();
     const n=target.value.trim();
     const text=n?`I scored ${n} in ${names[id]}. Can you beat me?`:`I challenge you to ${names[id]}. Can you beat my run?`;
     mark('created',id);
-    if(navigator.share){try{await navigator.share({title:`${names[id]} challenge`,text,url});signal.textContent=`Challenge sent for ${names[id]}. Replay and share-back are the signal to watch.`;return}catch(e){if(e&&e.name==='AbortError')return}}
+    if(navigator.share){try{await navigator.share({title:`${names[id]} challenge`,text,url});mark('shared',id);signal.textContent=`Challenge sent for ${names[id]}. Friend opens and share-back are the signal to watch.`;return}catch(e){if(e&&e.name==='AbortError')return}}
     const payload=text+' '+url;
-    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(payload);copytext.value=payload;output.classList.add('show');signal.textContent=`Challenge copied for ${names[id]}.`;return}catch(e){}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(payload);mark('copied',id);copytext.value=payload;output.classList.add('show');signal.textContent=`Challenge copied for ${names[id]}.`;return}catch(e){}}
     copytext.value=payload;output.classList.add('show');copytext.focus();copytext.select();
   });
-  document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(copytext.value)}catch(e){copytext.focus();copytext.select()}});
+  document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(copytext.value);mark('copied',selected())}catch(e){copytext.focus();copytext.select()}});
+  if(validIncoming){
+    const radio=document.querySelector(`input[name="game"][value="${validIncoming}"]`);
+    if(radio)radio.checked=true;
+    if(incomingTarget!==null)target.value=String(incomingTarget);
+    incoming.classList.add('show');
+    document.getElementById('eyebrow').textContent='Game Factory · friend challenge';
+    document.getElementById('heroTitle').textContent='You were challenged';
+    document.getElementById('heroCopy').textContent=`${names[validIncoming]} is waiting. Open the duel, finish a run, then send your own result back.`;
+    document.getElementById('incomingGame').textContent=names[validIncoming];
+    document.getElementById('incomingTarget').textContent=incomingTarget===null?'Open challenge':`Beat ${incomingTarget}`;
+    signal.textContent='This challenge arrived through the zero-install friend loop. Accept, replay, and share-back are the signals to watch.';
+    accept.href=gameUrl(true,validIncoming,incomingTarget===null?'':incomingTarget);
+    accept.addEventListener('click',()=>mark('accepted',validIncoming));
+    mark('opens',validIncoming);
+  }
   sync();
 })();
 </script>
