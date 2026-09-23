@@ -1,4 +1,4 @@
-const CACHE='gamefactory-v23';
+const CACHE='gamefactory-v24';
 const ASSETS=[
   './',
   './index.html',
@@ -12,6 +12,7 @@ const ASSETS=[
   './daily/',
   './sprint/',
   './labs/',
+  './fresh/',
   './labs/scoreboard.js',
   './games/odd-one-out/',
   './games/sequence-snap/',
@@ -43,7 +44,9 @@ const ASSETS=[
   './release-candidates/circuit-flow/',
   './release-candidates/gravity-flip/',
   './release-candidates/bridge-snap/',
-  './release-candidates/cluster-collapse/'
+  './release-candidates/cluster-collapse/',
+  './release-candidates/lock-line/',
+  './release-candidates/catch-drop/'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
