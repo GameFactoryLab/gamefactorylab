@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -9,6 +10,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
 OUT = ROOT / "handoff" / "fresh-submission-kit"
+
+REMOTE_RUNTIME_RE = re.compile(
+    r"<(?:script|img|iframe|audio|video|source)\b[^>]*\bsrc\s*=\s*[\"']https?://"
+    r"|<object\b[^>]*\bdata\s*=\s*[\"']https?://"
+    r"|<link\b(?=[^>]*\brel\s*=\s*[\"'][^\"']*stylesheet[^\"']*[\"'])[^>]*\bhref\s*=\s*[\"']https?://"
+    r"|url\(\s*[\"']?https?://",
+    re.I,
+)
+BANNED_MARKERS = (
+    "api.gamemonetize.com",
+    "googletagmanager.com",
+    "google-analytics.com",
+    "doubleclick.net",
+    "pagead2.googlesyndication.com",
+    "__GAME_ID__",
+    "__PLACEMENT_ID__",
+    "__AD_UNIT__",
+)
 
 CANDIDATES = [
     {
@@ -55,11 +74,12 @@ def validate_package(path: Path) -> None:
         if "index.html" not in names:
             raise RuntimeError(f"index.html missing from {path}")
         html = archive.read("index.html").decode("utf-8")
-        if "http://" in html or "https://" in html:
-            raise RuntimeError(f"Remote runtime URL found in {path}")
-        for marker in ("__GAME_ID__", "__PLACEMENT_ID__", "__AD_UNIT__"):
-            if marker in html:
-                raise RuntimeError(f"Unresolved placeholder {marker} in {path}")
+        if REMOTE_RUNTIME_RE.search(html):
+            raise RuntimeError(f"Remote runtime asset found in {path}")
+        lower = html.lower()
+        for marker in BANNED_MARKERS:
+            if marker.lower() in lower:
+                raise RuntimeError(f"Blocked runtime/placeholder marker {marker!r} found in {path}")
 
 
 def main() -> None:
@@ -96,7 +116,7 @@ def main() -> None:
         "",
         "Purpose: move the strongest current fresh candidates into external distribution with minimum manual preparation and zero cash spend.",
         "",
-        "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote assets, ads, analytics vendors or account backends.",
+        "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote runtime assets, ads, analytics vendors or account backends. Canonical/Open Graph metadata URLs are permitted because they do not load runtime assets.",
         "",
     ]
     for row in rows:
