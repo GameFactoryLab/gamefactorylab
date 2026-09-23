@@ -63,6 +63,17 @@ CANDIDATES = [
         "suggested_tags": "Memory, Puzzle, Skill, High Score, Mobile",
         "signal_to_watch": "completed rounds per run, replay rate, score-challenge share rate",
     },
+    {
+        "priority": 4,
+        "slug": "mirror-mark",
+        "title": "Mirror Mark",
+        "category": "Puzzle",
+        "short_description": "Mirror, flip or rotate the marked cell in your head, then tap the transformed position before time runs out.",
+        "controls": "Tap / click",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "suggested_tags": "Puzzle, Spatial, Brain, Skill, High Score, Mobile",
+        "signal_to_watch": "completed 30-second runs, immediate replay rate, score-challenge share rate",
+    },
 ]
 
 
