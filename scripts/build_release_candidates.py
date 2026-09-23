@@ -12,7 +12,16 @@ ROOT = Path(__file__).resolve().parents[1]
 CANDIDATES = ROOT / "release-candidates"
 OUT = ROOT / "dist-candidates"
 
-REMOTE_ASSET_RE = re.compile(r"(?:src|href)\s*=\s*[\"']https?://", re.I)
+# Remote canonical / Open Graph metadata is allowed because it does not create a
+# runtime dependency. Runtime-loaded scripts, media, frames, stylesheets and CSS
+# url() assets remain blocked so every candidate package stays self-contained.
+REMOTE_RUNTIME_RE = re.compile(
+    r"<(?:script|img|iframe|audio|video|source)\b[^>]*\bsrc\s*=\s*[\"']https?://"
+    r"|<object\b[^>]*\bdata\s*=\s*[\"']https?://"
+    r"|<link\b(?=[^>]*\brel\s*=\s*[\"'][^\"']*stylesheet[^\"']*[\"'])[^>]*\bhref\s*=\s*[\"']https?://"
+    r"|url\(\s*[\"']?https?://",
+    re.I,
+)
 BANNED_MARKERS = (
     "api.gamemonetize.com",
     "googletagmanager.com",
@@ -31,7 +40,7 @@ def fail(message: str) -> None:
 
 def validate_html(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
-    if REMOTE_ASSET_RE.search(text):
+    if REMOTE_RUNTIME_RE.search(text):
         fail(f"remote runtime asset found in {path.relative_to(ROOT)}")
     lower = text.lower()
     for marker in BANNED_MARKERS:
