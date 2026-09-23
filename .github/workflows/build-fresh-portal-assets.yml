@@ -1,0 +1,76 @@
+name: Build fresh portal assets
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'scripts/build_fresh_portal_assets.py'
+      - '.github/workflows/build-fresh-portal-assets.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'scripts/build_fresh_portal_assets.py'
+      - '.github/workflows/build-fresh-portal-assets.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install free image tooling
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0
+
+      - name: Install free video tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version | head -n 1
+
+      - name: Enforce zero-cash guard
+        run: python scripts/zero_cash_guard.py
+
+      - name: Build Lock Line and Catch Drop portal assets
+        run: python scripts/build_fresh_portal_assets.py
+
+      - name: Validate required output set
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='handoff/fresh-portal-assets'
+          for game in lock-line catch-drop; do
+            for file in \
+              cover-landscape.png \
+              cover-portrait.png \
+              cover-square.png \
+              preview-landscape.mp4 \
+              preview-portrait.mp4; do
+              test -s "$root/$game/$file"
+            done
+          done
+          test -s "$root/asset-manifest.csv"
+          test -s "$root/README.md"
+
+      - name: Upload zero-cash portal asset kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-fresh-portal-assets
+          path: handoff/fresh-portal-assets
+          if-no-files-found: error
+          retention-days: 14
