@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import csv
+import shutil
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DIST = ROOT / "dist-candidates"
+OUT = ROOT / "handoff" / "fresh-submission-kit"
+
+CANDIDATES = [
+    {
+        "priority": 1,
+        "slug": "lock-line",
+        "title": "Lock Line",
+        "category": "Arcade",
+        "short_description": "Tap when the moving line crosses the target. Center hits score double as timing gets tighter.",
+        "controls": "Tap / click / Space",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "suggested_tags": "Arcade, Skill, Precision, High Score, Mobile",
+        "signal_to_watch": "average playtime, first-session replay rate, result-share rate",
+    },
+    {
+        "priority": 2,
+        "slug": "catch-drop",
+        "title": "Catch Drop",
+        "category": "Arcade",
+        "short_description": "Move the catcher, collect falling orbs, grab gold bonuses, and avoid spikes as the pace rises.",
+        "controls": "Drag / mouse / Left-Right arrows",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "suggested_tags": "Arcade, Skill, Avoid, High Score, Mobile",
+        "signal_to_watch": "average playtime, replay rate, score-share rate",
+    },
+]
+
+
+def validate_package(path: Path) -> None:
+    if not path.exists():
+        raise RuntimeError(f"Missing candidate package: {path}")
+    with zipfile.ZipFile(path) as archive:
+        names = set(archive.namelist())
+        if "index.html" not in names:
+            raise RuntimeError(f"index.html missing from {path}")
+        html = archive.read("index.html").decode("utf-8")
+        if "http://" in html or "https://" in html:
+            raise RuntimeError(f"Remote runtime URL found in {path}")
+        for marker in ("__GAME_ID__", "__PLACEMENT_ID__", "__AD_UNIT__"):
+            if marker in html:
+                raise RuntimeError(f"Unresolved placeholder {marker} in {path}")
+
+
+def main() -> None:
+    if OUT.exists():
+        shutil.rmtree(OUT)
+    (OUT / "itch").mkdir(parents=True)
+    (OUT / "crazygames-basic").mkdir(parents=True)
+
+    rows = []
+    for item in CANDIDATES:
+        src = DIST / f"{item['slug']}.zip"
+        validate_package(src)
+        itch_name = f"{item['slug']}.zip"
+        cg_name = f"{item['slug']}.zip"
+        shutil.copy2(src, OUT / "itch" / itch_name)
+        shutil.copy2(src, OUT / "crazygames-basic" / cg_name)
+        rows.append(
+            {
+                **item,
+                "status": "READY",
+                "itch_package": itch_name,
+                "crazygames_basic_package": cg_name,
+                "cash_spend_eur": 0,
+            }
+        )
+
+    with (OUT / "submission-metadata.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    readme = [
+        "# Game Factory fresh-candidate submission kit",
+        "",
+        "Purpose: move the current fair-comparison pair into external distribution with minimum manual preparation and zero cash spend.",
+        "",
+        "Both candidates are self-contained HTML5 builds with no paid runtime dependencies, remote assets, ads, analytics vendors or account backends.",
+        "",
+    ]
+    for row in rows:
+        readme += [
+            f"## {row['priority']}. {row['title']}",
+            f"- itch.io upload ZIP: `itch/{row['itch_package']}`",
+            f"- CrazyGames Basic-safe ZIP: `crazygames-basic/{row['crazygames_basic_package']}`",
+            f"- Category: {row['category']}",
+            f"- Short description: {row['short_description']}",
+            f"- Controls: {row['controls']}",
+            f"- Progress save answer: {row['progress_save']}",
+            f"- Suggested tags: {row['suggested_tags']}",
+            f"- Signal to watch: {row['signal_to_watch']}",
+            "",
+        ]
+    readme += [
+        "## Operator rule",
+        "",
+        "Upload and test both candidates under comparable free traffic. Do not buy traffic or add paid services. Give one zero-cost tuning pass only to a candidate that shows stronger replay, average playtime, sharing or portal retention.",
+        "",
+        "For CrazyGames, verify the portal's current cover/video requirements immediately before submission. The game ZIPs here intentionally contain no SDK or ads and are suitable for Basic-launch testing; monetization work remains gated on traction and platform approval.",
+    ]
+    (OUT / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
+
+    print(f"Built zero-cash fresh submission kit with {len(rows)} candidates at {OUT}")
+
+
+if __name__ == "__main__":
+    main()
