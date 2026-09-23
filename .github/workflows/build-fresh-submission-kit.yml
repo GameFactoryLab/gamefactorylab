@@ -1,0 +1,67 @@
+name: Build zero-cash fresh submission kit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'scripts/build_release_candidates.py'
+      - 'scripts/build_fresh_submission_kit.py'
+      - '.github/workflows/build-fresh-submission-kit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'scripts/build_release_candidates.py'
+      - 'scripts/build_fresh_submission_kit.py'
+      - '.github/workflows/build-fresh-submission-kit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and validate release candidates
+        run: python3 scripts/build_release_candidates.py
+
+      - name: Assemble fresh-candidate handoff
+        run: python3 scripts/build_fresh_submission_kit.py
+
+      - name: Validate operator kit
+        run: |
+          python3 - <<'PY'
+          import csv, zipfile
+          from pathlib import Path
+
+          root = Path('handoff/fresh-submission-kit')
+          rows = list(csv.DictReader((root / 'submission-metadata.csv').open(encoding='utf-8')))
+          assert [row['slug'] for row in rows] == ['lock-line', 'catch-drop'], rows
+          assert all(row['status'] == 'READY' for row in rows)
+          assert all(row['cash_spend_eur'] == '0' for row in rows)
+
+          packages = list((root / 'itch').glob('*.zip')) + list((root / 'crazygames-basic').glob('*.zip'))
+          assert len(packages) == 4, packages
+          for package in packages:
+              with zipfile.ZipFile(package) as archive:
+                  names = set(archive.namelist())
+                  assert 'index.html' in names, package
+                  html = archive.read('index.html').decode('utf-8')
+                  assert 'http://' not in html and 'https://' not in html, package
+                  assert '__GAME_ID__' not in html, package
+          print('Validated fresh submission kit: 2 candidates / 4 portal handoff packages')
+          PY
+
+      - name: Upload operator handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-fresh-submission-kit
+          path: handoff/fresh-submission-kit/
+          retention-days: 7
+          if-no-files-found: error
