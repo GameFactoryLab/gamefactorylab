@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Pattern Relay — GameFactoryLab candidate</title>
+<meta name="description" content="A fast one-finger memory relay. Watch the pad sequence, repeat it, and see how long you can keep the chain alive.">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1e293b 0,#0f172a 45%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}
+.wrap{width:min(94vw,620px);padding:24px 0 42px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}
+h1{font-size:clamp(38px,10vw,64px);line-height:.95;margin:8px 0 10px}
+.muted{color:#94a3b8}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:24px}.stat span{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}
+.status{text-align:center;min-height:54px;padding:6px 4px 12px}.status strong{display:block;font-size:20px}.status span{font-size:13px;color:#94a3b8}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;aspect-ratio:1/1}
+.pad{border:0;border-radius:22px;background:#1e293b;color:#e2e8f0;font-weight:900;font-size:clamp(32px,12vw,64px);box-shadow:inset 0 0 0 2px #334155;transition:transform .08s ease,background .08s ease,box-shadow .08s ease;touch-action:manipulation}
+.pad:active{transform:scale(.97)}
+.pad.active{background:#dbeafe;color:#0f172a;box-shadow:0 0 0 4px #60a5fa,0 0 34px #60a5fa}
+.pad.wrong{background:#fecaca;color:#7f1d1d;box-shadow:0 0 0 4px #f87171}
+.pad:disabled{cursor:default}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+.challenge{display:none;margin:0 0 12px;background:#172554;border:1px solid #3b82f6;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#dbeafe}
+.result{display:none;margin-top:12px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Pattern Relay</h1>
+<p class="muted">Watch the sequence. Repeat it. Every clean round adds one more step and speeds the relay up.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="round">0</b><span>Round</span></div>
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+</div>
+<section class="panel">
+  <div class="status"><strong id="statusTitle">Ready?</strong><span id="statusText">Tap Start. Keyboard: 1–4.</span></div>
+  <div class="grid" aria-label="Pattern pads">
+    <button class="pad" data-pad="0" aria-label="Pad 1">1</button>
+    <button class="pad" data-pad="1" aria-label="Pad 2">2</button>
+    <button class="pad" data-pad="2" aria-label="Pad 3">3</button>
+    <button class="pad" data-pad="3" aria-label="Pad 4">4</button>
+  </div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">One-input memory loop • no account • no external assets • local best score only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_pattern_relay_v1';
+const pads=[...document.querySelectorAll('.pad')];
+const roundEl=document.getElementById('round');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const statusTitle=document.getElementById('statusTitle');
+const statusText=document.getElementById('statusText');
+const startBtn=document.getElementById('start');
+const shareBtn=document.getElementById('share');
+const result=document.getElementById('result');
+const resultTitle=document.getElementById('resultTitle');
+const resultText=document.getElementById('resultText');
+const challenge=document.getElementById('challenge');
+
+let sequence=[];
+let inputIndex=0;
+let round=0;
+let score=0;
+let playing=false;
+let showing=false;
+let runStartedAt=0;
+
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read();const m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function best(){return Number(read().best||0)}
+function render(){roundEl.textContent=round;scoreEl.textContent=score;bestEl.textContent=best()}
+function setPadsEnabled(enabled){pads.forEach(p=>p.disabled=!enabled)}
+
+async function flash(index,ms){
+  pads[index].classList.add('active');
+  await wait(ms);
+  pads[index].classList.remove('active');
+  await wait(Math.max(70,Math.round(ms*.32)));
+}
+
+async function showSequence(){
+  showing=true;
+  setPadsEnabled(false);
+  statusTitle.textContent='Watch';
+  statusText.textContent=`${sequence.length} step${sequence.length===1?'':'s'} • repeat after the flash`;
+  const pace=Math.max(220,520-round*18);
+  await wait(350);
+  for(const n of sequence)await flash(n,pace);
+  inputIndex=0;
+  showing=false;
+  setPadsEnabled(true);
+  statusTitle.textContent='Your turn';
+  statusText.textContent=`Repeat all ${sequence.length} steps in order.`;
+}
+
+function addStep(){sequence.push(Math.floor(Math.random()*4))}
+
+async function nextRound(){
+  if(!playing)return;
+  round+=1;
+  addStep();
+  render();
+  await showSequence();
+}
+
+function scoreForRound(){return Math.max(10,sequence.length*12 + Math.max(0,round-2)*3)}
+
+async function correctRound(){
+  setPadsEnabled(false);
+  score+=scoreForRound();
+  statusTitle.textContent='Clean relay';
+  statusText.textContent='One more step added.';
+  render();
+  await wait(420);
+  nextRound();
+}
+
+function targetFromUrl(){
+  const p=new URLSearchParams(location.search);
+  const raw=p.get('score');
+  if(raw===null)return null;
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>=0?Math.floor(n):null;
+}
+
+function endRun(missedPad){
+  playing=false;
+  showing=false;
+  setPadsEnabled(false);
+  if(Number.isInteger(missedPad)){
+    pads[missedPad].classList.add('wrong');
+    setTimeout(()=>pads[missedPad].classList.remove('wrong'),420);
+  }
+  const s=read();
+  const previousBest=Number(s.best||0);
+  const nextBest=Math.max(previousBest,score);
+  const duration=Math.max(0,Date.now()-runStartedAt);
+  write({best:nextBest,lastScore:score,lastRound:round,lastDurationMs:duration,lastPlayedAt:Date.now()});
+  bump('run_complete');
+  if(score>previousBest)bump('new_best');
+  render();
+  statusTitle.textContent='Run complete';
+  const target=targetFromUrl();
+  const beat=target!==null&&score>target;
+  statusText.textContent=target===null?`Score ${score} • round ${round}`:(beat?`Challenge beaten: ${score} > ${target}`:`Challenge target: ${target} • you scored ${score}`);
+  result.classList.add('show');
+  resultTitle.textContent=score===nextBest&&score>previousBest?'New best score':'Relay ended';
+  resultText.textContent=target===null?'Replay immediately or send this score to a friend.':(beat?'You beat the shared score. Send a harder target back.':'Replay to beat the shared target.');
+  startBtn.textContent='Replay →';
+  shareBtn.disabled=false;
+}
+
+function pressPad(index){
+  if(!playing||showing)return;
+  const expected=sequence[inputIndex];
+  pads[index].classList.add('active');
+  setTimeout(()=>pads[index].classList.remove('active'),110);
+  if(index!==expected){
+    bump('miss');
+    endRun(index);
+    return;
+  }
+  inputIndex+=1;
+  if(inputIndex===sequence.length){
+    bump('round_clear');
+    correctRound();
+  }
+}
+
+function start(){
+  const replay=Number(read().metrics?.run_complete||0)>0;
+  bump(replay?'replay_start':'first_start');
+  sequence=[];
+  inputIndex=0;
+  round=0;
+  score=0;
+  playing=true;
+  showing=false;
+  runStartedAt=Date.now();
+  result.classList.remove('show');
+  shareBtn.disabled=true;
+  startBtn.textContent='Restart run';
+  render();
+  nextRound();
+}
+
+async function share(){
+  const url=new URL(location.href);
+  url.search='';
+  url.searchParams.set('score',String(score));
+  const text=`I scored ${score} in Pattern Relay. Beat my score.`;
+  bump('share_click');
+  if(navigator.share){
+    try{await navigator.share({title:'Pattern Relay score challenge',text,url:url.toString()});bump('share_success');return}catch(e){if(e&&e.name==='AbortError')return}
+  }
+  try{await navigator.clipboard.writeText(`${text} ${url}`);bump('share_success');statusText.textContent='Score challenge copied.'}
+  catch(e){statusText.textContent=`${text} ${url}`}
+}
+
+pads.forEach((pad,i)=>pad.addEventListener('click',()=>pressPad(i)));
+document.addEventListener('keydown',e=>{
+  if(['1','2','3','4'].includes(e.key))pressPad(Number(e.key)-1);
+  if((e.key==='Enter'||e.key===' ')&&!playing){e.preventDefault();start()}
+});
+startBtn.addEventListener('click',start);
+shareBtn.addEventListener('click',share);
+
+const target=targetFromUrl();
+if(target!==null){challenge.classList.add('show');challenge.innerHTML=`Friend challenge: beat <b>${target}</b>. The target stays visible until your run ends.`;bump('challenge_open')}
+bump('page_open');
+render();
+setPadsEnabled(false);
+})();
+</script>
+</body>
+</html>
