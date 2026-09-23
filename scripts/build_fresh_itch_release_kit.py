@@ -64,6 +64,16 @@ CANDIDATES = [
         "tags": "Memory, Puzzle, Skill, High Score",
         "signal": "completed rounds per run, replay rate, score-challenge share rate",
     },
+    {
+        "priority": 4,
+        "slug": "mirror-mark",
+        "title": "Mirror Mark",
+        "short_description": "Mirror, flip or rotate the marked cell in your head, then tap the transformed position before time runs out.",
+        "description": "A fast spatial-reasoning sprint built for short browser sessions. Read the transform, mentally mirror, flip or rotate the marked position on a 5x5 grid, and tap the answer before the 30-second run expires. Chase a local best or send a score challenge to a friend.",
+        "controls": "Tap / click",
+        "tags": "Puzzle, Spatial, Brain, Skill, High Score",
+        "signal": "completed 30-second runs, immediate replay rate, score-challenge share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
@@ -169,7 +179,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line, Catch Drop and Pattern Relay. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay and Mirror Mark. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
         "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
@@ -179,6 +189,7 @@ def main() -> None:
         "1. Lock Line",
         "2. Catch Drop",
         "3. Pattern Relay",
+        "4. Mirror Mark",
         "",
         "Cash spend: EUR 0",
     ]
