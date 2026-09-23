@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07101f">
+<title>Fresh Test — GameFactoryLab</title>
+<meta name="description" content="Two new GameFactoryLab browser-game experiments. Get a fair first pick, then replay the one that earns it. No account, no install, no paywall.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/fresh/">
+<meta property="og:title" content="Fresh Test — Two New GameFactoryLab Experiments">
+<meta property="og:description" content="Try one fresh mechanic, then decide if it earned a replay. Free browser play, no account or install.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/fresh/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07101f}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#07101f 100%)}a,button{font:inherit}.wrap{width:min(94vw,820px);margin:0 auto;padding:28px 0 40px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}.hero{padding:18px 0 8px}h1{font-size:clamp(42px,10vw,72px);line-height:.95;margin:8px 0 12px}.muted{color:#94a3b8}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:20px;padding:18px;min-height:220px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:12px}.card h2{font-size:32px;margin:10px 0 8px}.card strong{display:block;margin-top:18px}.note{margin-top:20px;background:#0f172a;border:1px solid #263247;border-radius:16px;padding:14px;font-size:13px}.mini{font-size:12px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<div class="eyebrow">GameFactoryLab • fresh zero-cash test</div>
+<h1>Two fresh mechanics. One fair first pick.</h1>
+<p class="muted">Use the fair-pick button first so traffic is not driven only by the title you prefer. Then play both if you want. We only invest further when replay, session depth or sharing earns it.</p>
+<div class="actions"><button id="fairPick" class="primary" type="button">Give me a fair pick →</button><button id="share" class="secondary" type="button">Share this test</button><a class="secondary" href="../labs/">All experiments</a></div>
+<p id="status" class="muted mini">No account • no install • no paid runtime services</p>
+</section>
+<section class="grid" aria-label="Fresh candidates">
+<a class="card" data-game="lock-line" href="../release-candidates/lock-line/?from=fresh-card"><span class="pill">One-input precision</span><h2>Lock Line</h2><p class="muted">Tap when the moving line crosses the target. Center hits score double and the timing window tightens as you improve.</p><strong>Play Lock Line →</strong></a>
+<a class="card" data-game="catch-drop" href="../release-candidates/catch-drop/?from=fresh-card"><span class="pill">One-finger catch & avoid</span><h2>Catch Drop</h2><p class="muted">Move the catcher, collect falling orbs and avoid spikes while speed and pressure rise automatically.</p><strong>Play Catch Drop →</strong></a>
+</section>
+<section class="note"><strong>Test rule</strong><p class="muted">Do not rescue a weak concept with paid traffic. A mechanic must earn another development cycle through stronger replay, return play, sharing or portal session depth.</p></section>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_fresh_test_v1';
+const games=['lock-line','catch-drop'];
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read(),m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function assignment(){const s=read();if(games.includes(s.variant))return s.variant;const variant=games[Math.floor(Math.random()*games.length)];write({variant});return variant}
+function openGame(id,source){bump('fair_pick_open');location.href=`../release-candidates/${id}/?from=${encodeURIComponent(source)}`}
+document.getElementById('fairPick').addEventListener('click',()=>openGame(assignment(),'fresh-fair-pick'));
+document.querySelectorAll('[data-game]').forEach(a=>a.addEventListener('click',()=>{bump('card_open');write({lastGame:a.dataset.game})}));
+document.getElementById('share').addEventListener('click',async()=>{const url='https://gamefactorylab.github.io/gamefactorylab/fresh/';const text='Two fresh GameFactoryLab browser-game experiments. Which one earns a replay?';bump('share_click');if(navigator.share){try{await navigator.share({title:'GameFactoryLab Fresh Test',text,url});document.getElementById('status').textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(url);document.getElementById('status').textContent='Test link copied.'}catch(e){document.getElementById('status').textContent=url}});
+bump('page_open');
+})();
+</script>
+</body>
+</html>
