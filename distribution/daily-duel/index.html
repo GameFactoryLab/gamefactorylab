@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Game Factory: Daily Duel</title>
+<meta name="description" content="One shared Game Factory challenge every UTC day. Protect a local streak, replay today's mechanic, and send the same duel to a friend.">
+<style>
+:root{color-scheme:dark;--bg:#07101d;--card:#0b1220;--line:rgba(255,255,255,.12);--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--ok:#86efac}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#111827,#07101d 46%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{width:min(100%,900px);margin:0 auto;padding:14px;display:grid;gap:12px}.card{background:rgba(11,18,32,.96);border:1px solid var(--line);border-radius:18px;padding:14px}h1{margin:5px 0 8px;font-size:clamp(38px,9vw,64px);line-height:.93}.muted{color:var(--muted)}.lead{font-size:16px;line-height:1.45}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:rgba(56,189,248,.13);font-size:12px;font-weight:900}.date{text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:#cbd5e1;margin-top:8px}.game{font-size:clamp(28px,7vw,46px);margin:6px 0}.mechanic{font-size:17px;color:#cbd5e1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{text-align:center;padding:10px;border-radius:14px;background:#09111f;border:1px solid var(--line)}.stat strong{display:block;font-size:24px;margin-top:3px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{min-height:46px;border:0;border-radius:13px;padding:10px 12px;font:inherit;font-weight:900;cursor:pointer;text-align:center}.primary{grid-column:1/-1;background:#f8fafc;color:#111827}.secondary{background:#172033;color:#f8fafc;border:1px solid var(--line)}.frame-wrap{display:none}.frame-wrap.show{display:block}.frame-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.frame{width:100%;height:min(74vh,720px);border:1px solid var(--line);border-radius:15px;background:#07101d}.signal{padding:10px 12px;border-radius:12px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);color:#bae6fd}.roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.roster div{padding:9px;border-radius:12px;background:#09111f;border:1px solid var(--line);font-size:13px}.today{border-color:rgba(134,239,172,.65)!important;color:#bbf7d0}@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.primary{grid-column:auto}.frame{height:69vh}}
+</style>
+</head>
+<body>
+<main class="app">
+<section>
+<div class="pill">Daily Duel · one shared challenge</div>
+<h1>One game.<br>Same day.</h1>
+<p class="muted lead">A single existing Game Factory contender is selected for everyone each UTC day. Play it, protect your streak, replay if it earns another run, and share the same duel with a friend.</p>
+</section>
+<section class="card">
+<div class="date" id="date">Today</div>
+<h2 class="game" id="name">Loading challenge…</h2>
+<p class="mechanic" id="mechanic"></p>
+<div class="actions">
+<button class="btn primary" id="play">Play today’s duel →</button>
+<button class="btn secondary" id="share">Share today’s duel</button>
+<button class="btn secondary" id="replay">Replay today</button>
+</div>
+<p class="signal" id="signal">Daily return, replay, and share behavior are the signals that decide where deeper development goes.</p>
+</section>
+<section class="card stats">
+<div class="stat"><span class="muted">Streak</span><strong id="streak">0</strong></div>
+<div class="stat"><span class="muted">Days</span><strong id="days">0</strong></div>
+<div class="stat"><span class="muted">Plays</span><strong id="plays">0</strong></div>
+<div class="stat"><span class="muted">Shares</span><strong id="shares">0</strong></div>
+</section>
+<section class="card frame-wrap" id="frameWrap"><div class="frame-head"><strong id="gameTitle">Daily Duel</strong><button class="btn secondary" id="close">Back to duel</button></div><iframe id="frame" class="frame" title="Game Factory Daily Duel" allow="fullscreen; clipboard-write"></iframe></section>
+<section class="card">
+<h2>Five-game daily pool</h2>
+<p class="muted">No new mechanic is added here. Daily Duel rotates only through the current winner-search lineup so repeated exposure can reveal stronger replay and return behavior.</p>
+<div class="roster" id="roster"></div>
+</section>
+<p class="muted" style="text-align:center;font-size:12px">Free browser play · local-only streak signals · zero paid dependencies · cash spend €0</p>
+</main>
+<script>
+(()=>{
+const games=[
+{id:'ring-pins',name:'Ring Pins',mechanic:'One-tap timing under rising pressure',url:'games/ring-pins/index.html'},
+{id:'circuit-flow',name:'Circuit Flow',mechanic:'Fast logic progression',url:'games/circuit-flow/index.html'},
+{id:'gravity-flip',name:'Gravity Flip',mechanic:'One-tap survival and recovery',url:'games/gravity-flip/index.html'},
+{id:'bridge-snap',name:'Bridge Snap',mechanic:'Hold-release precision',url:'games/bridge-snap/index.html'},
+{id:'cluster-collapse',name:'Cluster Collapse',mechanic:'60-second puzzle pressure',url:'games/cluster-collapse/index.html'}
+];
+const KEY='gf_daily_duel_bundle_v1';
+const day=()=>new Date().toISOString().slice(0,10);
+const dayNo=d=>Math.floor(Date.parse(d+'T00:00:00Z')/86400000);
+function pick(d){let h=2166136261;for(const c of `${d}:gf-daily-duel-bundle`){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return games[(h>>>0)%games.length]}
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
+const save=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+const today=day(),game=pick(today);let state=load();
+if(state.lastOpen!==today){const prior=state.lastOpen?dayNo(state.lastOpen):null;const now=dayNo(today);state.streak=prior!==null&&now-prior===1?(state.streak||0)+1:1;state.days=(state.days||0)+1;state.lastOpen=today;state.dailyGames=state.dailyGames||{};state.dailyGames[game.id]=(state.dailyGames[game.id]||0)+1;save(state)}
+const frame=document.getElementById('frame'),wrap=document.getElementById('frameWrap');
+document.getElementById('date').textContent=new Date(today+'T00:00:00Z').toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'});
+document.getElementById('name').textContent=game.name;document.getElementById('mechanic').textContent=game.mechanic;document.getElementById('gameTitle').textContent=game.name;
+function render(){state=load();document.getElementById('streak').textContent=state.streak||1;document.getElementById('days').textContent=state.days||1;document.getElementById('plays').textContent=state.plays||0;document.getElementById('shares').textContent=state.shares||0}
+function openGame(replay=false){state=load();state.plays=(state.plays||0)+1;if(replay)state.replays=(state.replays||0)+1;state.lastGame=game.id;state.lastPlay=Date.now();save(state);frame.src=game.url+'?from=daily-duel-bundle&daily='+encodeURIComponent(today);wrap.classList.add('show');document.getElementById('signal').textContent=replay?'Replay recorded locally. Repeat play is the strongest signal to watch now.':'Today’s duel opened. Finish the run, then replay only if the mechanic earns it.';render();wrap.scrollIntoView({behavior:'smooth',block:'start'})}
+async function share(){state=load();state.shareAttempts=(state.shareAttempts||0)+1;save(state);const text=`Today’s Game Factory Daily Duel is ${game.name}. Same challenge for everyone — try it.`;const url=location.href.split('#')[0];if(navigator.share){try{await navigator.share({title:'Game Factory: Daily Duel',text,url});state=load();state.shares=(state.shares||0)+1;save(state);document.getElementById('signal').textContent='Daily Duel shared. Friend opens and return play are the next signals to watch.';render();return}catch(e){if(e&&e.name==='AbortError')return}}if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(text+' '+url);state=load();state.shares=(state.shares||0)+1;save(state);document.getElementById('signal').textContent='Daily Duel link copied. Send it to a friend and compare the same daily challenge.';render();return}catch(e){}}document.getElementById('signal').textContent=url}
+document.getElementById('play').onclick=()=>openGame(false);document.getElementById('replay').onclick=()=>openGame(true);document.getElementById('share').onclick=share;document.getElementById('close').onclick=()=>{frame.src='about:blank';wrap.classList.remove('show');window.scrollTo({top:0,behavior:'smooth'})};
+const roster=document.getElementById('roster');games.forEach(g=>{const d=document.createElement('div');d.textContent=g.name+(g.id===game.id?' · TODAY':'');if(g.id===game.id)d.className='today';roster.appendChild(d)});render();
+})();
+</script>
+</body>
+</html>
