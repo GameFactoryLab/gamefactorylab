@@ -7,6 +7,7 @@ on:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'scripts/build_fresh_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
   push:
@@ -15,6 +16,7 @@ on:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'scripts/build_fresh_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
 
@@ -56,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           root='handoff/fresh-portal-assets'
-          for game in lock-line catch-drop pattern-relay; do
+          for game in lock-line catch-drop pattern-relay mirror-mark; do
             for file in \
               cover-landscape.png \
               cover-portrait.png \

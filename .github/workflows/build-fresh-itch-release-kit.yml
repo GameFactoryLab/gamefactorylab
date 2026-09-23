@@ -8,6 +8,7 @@ on:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_fresh_itch_release_kit.py'
@@ -18,6 +19,7 @@ on:
       - 'release-candidates/lock-line/**'
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_fresh_itch_release_kit.py'
@@ -58,7 +60,7 @@ jobs:
           root='handoff/fresh-itch-release-kit'
           test -s "$root/manifest.csv"
           test -s "$root/README.md"
-          for game in lock-line catch-drop pattern-relay; do
+          for game in lock-line catch-drop pattern-relay mirror-mark; do
             test -s "$root/$game/game.zip"
             test -s "$root/$game/cover.png"
             test -s "$root/$game/listing.txt"
@@ -73,14 +75,14 @@ jobs:
 
           root = Path('handoff/fresh-itch-release-kit')
           rows = list(csv.DictReader((root / 'manifest.csv').open(encoding='utf-8')))
-          assert [r['slug'] for r in rows] == ['lock-line', 'catch-drop', 'pattern-relay'], rows
+          assert [r['slug'] for r in rows] == ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark'], rows
           assert all(r['status'] == 'READY' for r in rows)
           assert all(r['cash_spend_eur'] == '0' for r in rows)
-          for slug in ('lock-line', 'catch-drop', 'pattern-relay'):
+          for slug in ('lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark'):
               assert Image.open(root / slug / 'cover.png').size == (630, 500)
               for i in range(1, 5):
                   assert Image.open(root / slug / f'screenshot-{i:02d}.png').size == (1280, 720)
-          print('Validated itch.io kit: 3 games / 3 covers / 12 screenshots / 3 HTML5 ZIPs')
+          print('Validated itch.io kit: 4 games / 4 covers / 16 screenshots / 4 HTML5 ZIPs')
           PY
 
       - name: Upload zero-cash itch.io release kit
