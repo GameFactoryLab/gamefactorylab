@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -13,6 +14,24 @@ from build_fresh_portal_assets import draw_scene
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
 OUT = ROOT / "handoff" / "fresh-itch-release-kit"
+
+REMOTE_RUNTIME_RE = re.compile(
+    r"<(?:script|img|iframe|audio|video|source)\b[^>]*\bsrc\s*=\s*[\"']https?://"
+    r"|<object\b[^>]*\bdata\s*=\s*[\"']https?://"
+    r"|<link\b(?=[^>]*\brel\s*=\s*[\"'][^\"']*stylesheet[^\"']*[\"'])[^>]*\bhref\s*=\s*[\"']https?://"
+    r"|url\(\s*[\"']?https?://",
+    re.I,
+)
+BANNED_MARKERS = (
+    "api.gamemonetize.com",
+    "googletagmanager.com",
+    "google-analytics.com",
+    "doubleclick.net",
+    "pagead2.googlesyndication.com",
+    "__GAME_ID__",
+    "__PLACEMENT_ID__",
+    "__AD_UNIT__",
+)
 
 CANDIDATES = [
     {
@@ -35,6 +54,16 @@ CANDIDATES = [
         "tags": "Arcade, Skill, High Score",
         "signal": "average playtime, replay rate, score-share rate",
     },
+    {
+        "priority": 3,
+        "slug": "pattern-relay",
+        "title": "Pattern Relay",
+        "short_description": "Watch the four-pad sequence, repeat it perfectly, and extend the relay as the pace gets faster.",
+        "description": "A fast memory relay for short browser sessions. Watch the four-pad sequence, repeat every step in order, and keep extending the chain while the pace accelerates. Chase a local best or send a score challenge to a friend.",
+        "controls": "Tap / click / 1-4 keys",
+        "tags": "Memory, Puzzle, Skill, High Score",
+        "signal": "completed rounds per run, replay rate, score-challenge share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
@@ -50,8 +79,12 @@ def validate_zip(path: Path) -> None:
         if "index.html" not in names:
             raise RuntimeError(f"index.html missing from {path}")
         html = archive.read("index.html").decode("utf-8")
-        if "http://" in html or "https://" in html:
-            raise RuntimeError(f"Remote runtime URL found in {path}")
+        if REMOTE_RUNTIME_RE.search(html):
+            raise RuntimeError(f"Remote runtime asset found in {path}")
+        lower = html.lower()
+        for marker in BANNED_MARKERS:
+            if marker.lower() in lower:
+                raise RuntimeError(f"Blocked runtime/placeholder marker {marker!r} found in {path}")
         if len(names) > 1000:
             raise RuntimeError(f"itch.io file-count limit exceeded in {path}")
         for name in names:
@@ -136,15 +169,16 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line and Catch Drop. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop and Pattern Relay. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
-        "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime URLs.",
+        "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
         "Use the candidates under comparable free traffic. Do not buy traffic. Give additional development time only to a candidate that separates on replay, playtime, sharing, or retention.",
         "",
         "## Handoff order",
         "1. Lock Line",
         "2. Catch Drop",
+        "3. Pattern Relay",
         "",
         "Cash spend: EUR 0",
     ]
