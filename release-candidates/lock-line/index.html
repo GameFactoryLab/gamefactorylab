@@ -101,7 +101,8 @@ const overlay=document.getElementById('overlay');
 const resultEl=document.getElementById('result');
 const detailEl=document.getElementById('detail');
 const params=new URLSearchParams(location.search);
-const parsedTarget=Number(params.get('score'));
+const scoreParam=params.get('score');
+const parsedTarget=scoreParam===null?NaN:Number(scoreParam);
 const challengeTarget=Number.isFinite(parsedTarget)&&parsedTarget>=0?Math.floor(parsedTarget):null;
 
 let running=false;
