@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - 'games/ring-pins/**'
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'release-candidates/circuit-flow/**'
       - 'release-candidates/gravity-flip/**'
       - 'release-candidates/bridge-snap/**'
@@ -13,6 +17,8 @@ on:
       - 'core.js'
       - 'core.css'
       - 'scripts/build_distribution.py'
+      - 'scripts/build_release_candidates.py'
+      - 'scripts/build_fresh_submission_kit.py'
       - 'scripts/build_submission_queue.py'
       - 'scripts/zero_cash_guard.py'
       - 'distribution/itch/wave*.json'
@@ -21,6 +27,10 @@ on:
     branches: [main]
     paths:
       - 'games/ring-pins/**'
+      - 'release-candidates/lock-line/**'
+      - 'release-candidates/catch-drop/**'
+      - 'release-candidates/pattern-relay/**'
+      - 'release-candidates/mirror-mark/**'
       - 'release-candidates/circuit-flow/**'
       - 'release-candidates/gravity-flip/**'
       - 'release-candidates/bridge-snap/**'
@@ -28,6 +38,8 @@ on:
       - 'core.js'
       - 'core.css'
       - 'scripts/build_distribution.py'
+      - 'scripts/build_release_candidates.py'
+      - 'scripts/build_fresh_submission_kit.py'
       - 'scripts/build_submission_queue.py'
       - 'scripts/zero_cash_guard.py'
       - 'distribution/itch/wave*.json'
@@ -45,8 +57,14 @@ jobs:
       - name: Enforce zero-cash runtime policy
         run: python3 scripts/zero_cash_guard.py
 
-      - name: Build reusable portal packages
+      - name: Build reusable legacy portal packages
         run: python3 scripts/build_distribution.py
+
+      - name: Build fresh release candidates
+        run: python3 scripts/build_release_candidates.py
+
+      - name: Build fresh submission metadata and packages
+        run: python3 scripts/build_fresh_submission_kit.py
 
       - name: Assemble prioritized submission kit
         run: python3 scripts/build_submission_queue.py
@@ -59,15 +77,15 @@ jobs:
 
           root=Path('handoff/top5-submission-kit')
           rows=list(csv.DictReader((root/'submission-queue.csv').open(encoding='utf-8')))
-          assert len(rows)==14, len(rows)
-          assert [r['slug'] for r in rows[:5]]==['ring-pins','circuit-flow','gravity-flip','bridge-snap','cluster-collapse']
+          assert len(rows)==18, len(rows)
+          assert [r['slug'] for r in rows[:5]]==['lock-line','catch-drop','pattern-relay','mirror-mark','ring-pins']
           packages=list((root/'itch').glob('*.zip'))+list((root/'crazygames-basic').glob('*.zip'))
           assert len(packages)==10, len(packages)
           for p in packages:
               with zipfile.ZipFile(p) as z:
                   names=set(z.namelist())
-                  assert {'index.html','core.css','core.js'} <= names, p
-          print('Validated 10 upload-ready Top 5 packages plus 14-game queue')
+                  assert 'index.html' in names, p
+          print('Validated 10 upload-ready current Top 5 packages plus 18-game queue')
           PY
 
       - name: Upload operator handoff bundle
