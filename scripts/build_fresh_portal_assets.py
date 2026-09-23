@@ -44,6 +44,12 @@ ASSETS = [
         "mechanic": "memory relay",
         "signal": "completed rounds per run, replay rate, score-challenge share rate",
     },
+    {
+        "slug": "mirror-mark",
+        "title": "MIRROR MARK",
+        "mechanic": "spatial transform",
+        "signal": "completed 30-second runs, immediate replay rate, score-challenge share rate",
+    },
 ]
 
 COVER_SIZES = {
@@ -220,6 +226,63 @@ def draw_pattern_relay(img: Image.Image, t: float, cover: bool = False) -> None:
         center_text(draw, (w / 2, min(h * 0.92, top + grid_size + margin * 0.9)), "WATCH  •  REPEAT  •  EXTEND", font(int(min(w, h) * 0.035), True), fill=MUTED)
 
 
+def draw_mirror_mark(img: Image.Image, t: float, cover: bool = False) -> None:
+    w, h = img.size
+    draw = ImageDraw.Draw(img)
+    margin = int(min(w, h) * 0.07)
+    rounded_panel(draw, (margin, margin, w - margin, h - margin), int(min(w, h) * 0.04))
+
+    title_size = int(min(w, h) * (0.11 if h <= w else 0.085))
+    center_text(draw, (w / 2, margin * 1.9), "MIRROR MARK", font(title_size, True))
+
+    grid_size = int(min(w * 0.60, h * 0.56))
+    gap = max(4, int(grid_size * 0.022))
+    cell = int((grid_size - gap * 4) / 5)
+    left = int((w - (cell * 5 + gap * 4)) / 2)
+    top = int(h * (0.33 if h <= w else 0.31))
+    phase = int(t * 1.35) % 3
+    labels = ("MIRROR L/R", "FLIP U/D", "ROTATE 180°")
+    sources = ((1, 0), (0, 3), (3, 1))
+    source_r, source_c = sources[phase]
+    if phase == 0:
+        target_r, target_c = source_r, 4 - source_c
+    elif phase == 1:
+        target_r, target_c = 4 - source_r, source_c
+    else:
+        target_r, target_c = 4 - source_r, 4 - source_c
+
+    if cover:
+        source_r, source_c = 1, 0
+        target_r, target_c = 1, 4
+        label = "MIRROR L/R"
+    else:
+        label = labels[phase]
+
+    center_text(draw, (w / 2, h * 0.25), label, font(int(min(w, h) * 0.052), True), fill=PURPLE)
+    for r in range(5):
+        for c in range(5):
+            x0 = left + c * (cell + gap)
+            y0 = top + r * (cell + gap)
+            x1 = x0 + cell
+            y1 = y0 + cell
+            fill = (44, 54, 72)
+            outline = (75, 86, 105)
+            if (r, c) == (source_r, source_c):
+                fill = PURPLE
+                outline = WHITE
+            elif not cover and (r, c) == (target_r, target_c) and (int(t * 3.0) % 2 == 1):
+                fill = GREEN
+                outline = WHITE
+            draw.rounded_rectangle((x0, y0, x1, y1), radius=max(5, cell // 7), fill=fill, outline=outline, width=max(1, cell // 24))
+            if (r, c) == (source_r, source_c):
+                center_text(draw, ((x0 + x1) / 2, (y0 + y1) / 2), "MARK", font(max(10, cell // 5), True), fill=WHITE)
+
+    if not cover:
+        score = max(0, int(t * 22))
+        seconds = max(0, 30 - int(t))
+        center_text(draw, (w / 2, min(h * 0.92, top + grid_size + margin * 0.75)), f"{score} POINTS  •  {seconds}s", font(int(min(w, h) * 0.035), True), fill=MUTED)
+
+
 def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) -> Image.Image:
     img = Image.new("RGB", size, BG)
     if slug == "lock-line":
@@ -228,6 +291,8 @@ def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) 
         draw_catch_drop(img, t, cover=cover)
     elif slug == "pattern-relay":
         draw_pattern_relay(img, t, cover=cover)
+    elif slug == "mirror-mark":
+        draw_mirror_mark(img, t, cover=cover)
     else:
         raise ValueError(slug)
     return img
@@ -322,7 +387,7 @@ def main() -> None:
     readme = [
         "# Fresh candidate CrazyGames asset kit",
         "",
-        "Zero-cash, original portal media generated from the mechanics and visual language of Lock Line, Catch Drop and Pattern Relay.",
+        "Zero-cash, original portal media generated from the mechanics and visual language of Lock Line, Catch Drop, Pattern Relay and Mirror Mark.",
         "",
         "Per candidate:",
         "- `cover-landscape.png` — 1920×1080",
