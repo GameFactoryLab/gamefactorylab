@@ -1,0 +1,118 @@
+name: Build zero-cash Daily Duel
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'distribution/daily-duel/**'
+      - 'distribution/itch/daily-duel.json'
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'release-candidates/gravity-flip/**'
+      - 'release-candidates/bridge-snap/**'
+      - 'release-candidates/cluster-collapse/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - '.github/workflows/build-free-daily-duel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'distribution/daily-duel/**'
+      - 'distribution/itch/daily-duel.json'
+      - 'games/ring-pins/**'
+      - 'release-candidates/circuit-flow/**'
+      - 'release-candidates/gravity-flip/**'
+      - 'release-candidates/bridge-snap/**'
+      - 'release-candidates/cluster-collapse/**'
+      - 'core.js'
+      - 'core.css'
+      - 'scripts/build_distribution.py'
+      - 'scripts/zero_cash_guard.py'
+      - '.github/workflows/build-free-daily-duel.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce zero-cash runtime policy
+        run: python3 scripts/zero_cash_guard.py
+
+      - name: Build reusable portal-safe packages
+        run: python3 scripts/build_distribution.py
+
+      - name: Assemble self-contained Daily Duel packages
+        run: |
+          python3 - <<'PY'
+          import json
+          import shutil
+          import zipfile
+          from pathlib import Path
+
+          root=Path('.')
+          out=root/'daily-duel'
+          if out.exists(): shutil.rmtree(out)
+          (out/'itch').mkdir(parents=True)
+          (out/'crazygames-basic').mkdir(parents=True)
+          (out/'metadata').mkdir(parents=True)
+          meta=json.loads((root/'distribution/itch/daily-duel.json').read_text())
+          assert meta['cash_spend_eur']==0
+          assert meta['distribution_status']=='upload-ready'
+          product=meta['product']
+          games=product['games']
+          assert games==['ring-pins','circuit-flow','gravity-flip','bridge-snap','cluster-collapse']
+
+          def package(target_zip: Path):
+              staging=out/('_stage_'+target_zip.stem)
+              staging.mkdir(parents=True)
+              shutil.copy2(root/'distribution/daily-duel/index.html', staging/'index.html')
+
+              ring_zip=root/'dist/crazygames-basic/GameFactoryLab_ring_pins_crazygames_basic.zip'
+              assert ring_zip.exists(), ring_zip
+              ring_dir=staging/'games/ring-pins'
+              ring_dir.mkdir(parents=True)
+              with zipfile.ZipFile(ring_zip) as z:
+                  z.extractall(ring_dir)
+              for required in ('index.html','core.css','core.js'):
+                  assert (ring_dir/required).exists(), required
+
+              for game in games[1:]:
+                  source=root/'release-candidates'/game
+                  assert (source/'index.html').exists(), source
+                  game_dir=staging/'games'/game
+                  shutil.copytree(source, game_dir, ignore=shutil.ignore_patterns('submission.md'))
+
+              with zipfile.ZipFile(target_zip,'w',zipfile.ZIP_DEFLATED) as z:
+                  for p in sorted(staging.rglob('*')):
+                      if p.is_file(): z.write(p,p.relative_to(staging).as_posix())
+              shutil.rmtree(staging)
+
+          package(out/'itch'/product['itch_package'])
+          package(out/'crazygames-basic'/product['crazygames_basic_package'])
+          shutil.copy2(root/'distribution/itch/daily-duel.json', out/'metadata/daily-duel.json')
+
+          for folder in ('itch','crazygames-basic'):
+              for zip_path in (out/folder).glob('*.zip'):
+                  with zipfile.ZipFile(zip_path) as z:
+                      names=set(z.namelist())
+                      assert 'index.html' in names
+                      for game in games:
+                          assert f'games/{game}/index.html' in names
+                      assert not any(name.startswith('../') or name.startswith('/') for name in names)
+          print('Validated 2 upload-ready Daily Duel packages with 5 embedded contenders each')
+          PY
+
+      - name: Upload compact handoff bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamefactory-daily-duel
+          path: daily-duel/
+          retention-days: 7
+          if-no-files-found: error
