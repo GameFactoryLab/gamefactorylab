@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Race Call — GameFactoryLab candidate</title>
+<meta name="description" content="Two racers have different head starts and speeds. Predict which reaches the finish first before the reveal.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/race-call/">
+<meta property="og:title" content="Race Call — speed vs head-start prediction">
+<meta property="og:description" content="Two racers. Different starts. Different speeds. Call the winner before the finish.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/race-call/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#164e63 0,#0f172a 46%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}.wrap{width:min(94vw,760px);padding:24px 0 42px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9}
+h1{font-size:clamp(42px,11vw,72px);line-height:.94;margin:8px 0 10px}.muted{color:#94a3b8}.challenge{display:none;margin:14px 0 0;background:#0c4a6e;border:1px solid #0891b2;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#cffafe}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:23px}.stat span{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}.prompt{text-align:center;min-height:70px;padding:5px 4px 10px}.prompt strong{display:block;font-size:clamp(22px,6vw,34px)}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}
+.board{position:relative;border-radius:18px;overflow:hidden;border:1px solid #263247;background:#08111f}canvas{display:block;width:100%;height:auto;aspect-ratio:1.65/1}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.choice{border:1px solid #374151;border-radius:14px;padding:14px 10px;background:#1e293b;color:#fff;font-size:18px;font-weight:900;cursor:pointer}.choice:disabled{opacity:.38;cursor:not-allowed}.feedback{min-height:28px;text-align:center;padding-top:9px;font-size:13px;font-weight:800;color:#cbd5e1}
+.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#0891b2;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}@media(max-width:440px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Race Call</h1>
+<p class="muted">One racer gets the head start. The other may be faster. Call who reaches the finish first before the reveal.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="time">30</b><span>Seconds</span></div>
+  <div class="stat"><b id="streak">0</b><span>Streak</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="prompt">Speed or head start?</strong><span id="hint">Tap Start, then choose Top or Bottom before the decision window closes.</span></div>
+  <div class="board"><canvas id="board" width="990" height="600" aria-label="Two-racer prediction board"></canvas></div>
+  <div class="choices">
+    <button id="topChoice" class="choice" type="button" disabled>▲ TOP WINS</button>
+    <button id="bottomChoice" class="choice" type="button" disabled>▼ BOTTOM WINS</button>
+  </div>
+  <div id="feedback" class="feedback">No timer until you start.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start 30s run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Rate-time prediction • no account • no external runtime assets • local best only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_race_call_v1',RUN_MS=30000;
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),timeEl=document.getElementById('time'),streakEl=document.getElementById('streak');
+const promptEl=document.getElementById('prompt'),hintEl=document.getElementById('hint'),feedback=document.getElementById('feedback'),startBtn=document.getElementById('start'),shareBtn=document.getElementById('share');
+const result=document.getElementById('result'),resultTitle=document.getElementById('resultTitle'),resultText=document.getElementById('resultText'),challenge=document.getElementById('challenge');
+const topBtn=document.getElementById('topChoice'),bottomBtn=document.getElementById('bottomChoice'),choices=[topBtn,bottomBtn];
+let running=false,phase='idle',score=0,streak=0,rounds=0,correct=0,runStart=0,roundStart=0,decisionDeadline=0,round=null,chosen=null,raf=0,timer=0;
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name,amount=1){const s=read(),metrics={...(s.metrics||{})};metrics[name]=(metrics[name]||0)+amount;write({metrics,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+bestEl.textContent=best();
+const params=new URLSearchParams(location.search),target=Math.max(0,parseInt(params.get('score')||'0',10)||0);
+if(target){challenge.classList.add('show');challenge.innerHTML=`Friend score: <b>${target}</b>. Beat it in one 30-second run.`}
+function rand(a,b){return a+Math.random()*(b-a)}
+function newRace(){
+  const level=Math.min(12,Math.floor(rounds/2));
+  let a,b,guard=0;
+  do{
+    const startA=rand(.10,.43),startB=rand(.10,.43);
+    const speedA=rand(.19,.34)+level*.0028,speedB=rand(.19,.34)+level*.0028;
+    const etaA=(.90-startA)/speedA,etaB=(.90-startB)/speedB;
+    a={start:startA,speed:speedA,eta:etaA};b={start:startB,speed:speedB,eta:etaB};guard++;
+  }while((Math.abs(a.eta-b.eta)>.70-level*.035||Math.abs(a.eta-b.eta)<.075)&&guard<120);
+  return {a,b,winner:a.eta<b.eta?'top':'bottom',duration:Math.max(a.eta,b.eta)+.22};
+}
+function draw(progress=0){
+  const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,0,w,h);bg.addColorStop(0,'#0f172a');bg.addColorStop(1,'#082f49');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+  const left=w*.08,right=w*.90,finish=right,laneY=[h*.36,h*.68];
+  ctx.strokeStyle='#334155';ctx.lineWidth=3;for(const y of laneY){ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke()}
+  ctx.setLineDash([12,10]);ctx.strokeStyle='#e2e8f0';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(finish,h*.16);ctx.lineTo(finish,h*.84);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='700 24px system-ui';ctx.fillStyle='#94a3b8';ctx.fillText('FINISH',finish-86,h*.12);
+  if(!round){ctx.font='800 34px system-ui';ctx.fillStyle='#cbd5e1';ctx.textAlign='center';ctx.fillText('TOP or BOTTOM?',w/2,h/2);ctx.textAlign='start';return}
+  [['a',0,'#67e8f9'],['b',1,'#fbbf24']].forEach(([key,i,color])=>{
+    const r=round[key],elapsed=Math.min(progress,r.eta),frac=Math.min(.90,r.start+r.speed*elapsed);
+    const x=left+(finish-left)*(frac-.08)/(.90-.08),y=laneY[i];
+    ctx.strokeStyle=color;ctx.globalAlpha=.28;ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(Math.max(left,x-90),y);ctx.lineTo(x,y);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f8fafc';ctx.font='800 22px system-ui';ctx.fillText(i===0?'TOP':'BOTTOM',left,y-38);
+    const speedPct=Math.round(r.speed*300);ctx.fillStyle='#94a3b8';ctx.font='700 18px system-ui';ctx.fillText(`speed ${speedPct}`,left+92,y-38);
+  });
+}
+function updateStats(){scoreEl.textContent=score;streakEl.textContent=streak;bestEl.textContent=Math.max(best(),score)}
+function setChoices(enabled){choices.forEach(b=>b.disabled=!enabled)}
+function startRound(){
+  if(!running)return;
+  round=newRace();chosen=null;phase='choice';roundStart=performance.now();
+  const level=Math.min(10,Math.floor(rounds/2));decisionDeadline=roundStart+Math.max(650,1050-level*35);
+  promptEl.textContent='Who reaches the finish first?';hintEl.textContent='Choose before the call window closes. Then watch the result.';feedback.textContent='Call it now.';setChoices(true);draw(0);
+}
+function choose(which){if(!running||phase!=='choice')return;chosen=which;phase='reveal';setChoices(false);feedback.textContent=`Locked: ${which==='top'?'TOP':'BOTTOM'}. Watch the finish.`}
+function settle(){
+  if(!running||phase==='settled')return;
+  phase='settled';setChoices(false);const hit=chosen===round.winner;rounds++;
+  if(hit){correct++;streak++;const points=100+streak*15;score+=points;feedback.textContent=`Correct — ${round.winner.toUpperCase()} wins. +${points}`}
+  else{streak=0;feedback.textContent=chosen?`Miss — ${round.winner.toUpperCase()} got there first.`:`No call — ${round.winner.toUpperCase()} wins.`}
+  updateStats();setTimeout(()=>{if(running)startRound()},430);
+}
+function frame(now){
+  if(!running)return;
+  const remaining=Math.max(0,RUN_MS-(now-runStart));timeEl.textContent=Math.ceil(remaining/1000);
+  if(remaining<=0){endRun();return}
+  if(round){const elapsed=(now-roundStart)/1000;draw(elapsed);if(phase==='choice'&&now>=decisionDeadline){phase='reveal';chosen=null;setChoices(false);feedback.textContent='Call window closed. Watch the finish.'}if((phase==='choice'||phase==='reveal')&&elapsed>=round.duration)settle()}
+  raf=requestAnimationFrame(frame);
+}
+function startRun(){
+  if(running)return;
+  const previous=read();if((previous.metrics||{}).completedRuns>0)bump('replays');
+  running=true;phase='running';score=0;streak=0;rounds=0;correct=0;runStart=performance.now();result.classList.remove('show');shareBtn.disabled=true;startBtn.disabled=true;
+  bump('runs');updateStats();timeEl.textContent='30';startRound();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
+}
+function endRun(){
+  if(!running)return;running=false;phase='ended';cancelAnimationFrame(raf);clearTimeout(timer);setChoices(false);timeEl.textContent='0';
+  const oldBest=best(),newBest=Math.max(oldBest,score);write({best:newBest,lastScore:score});bump('completedRuns');bump('rounds',rounds);bump('correct',correct);
+  bestEl.textContent=newBest;result.classList.add('show');resultTitle.textContent=score>oldBest?'New best score!':'Run complete';
+  const accuracy=rounds?Math.round(correct/rounds*100):0;resultText.textContent=`${score} points • ${correct}/${rounds} correct (${accuracy}%). ${target?(score>target?'Friend score beaten.':'Friend score still stands.'):'Replay or send the score to a friend.'}`;
+  promptEl.textContent='Run complete.';hintEl.textContent='The best predictor is the one you want to replay.';feedback.textContent='';startBtn.disabled=false;startBtn.textContent='Replay 30s →';shareBtn.disabled=false;round=null;draw(0);
+}
+async function share(){
+  const url=new URL(location.href);url.search='';url.searchParams.set('score',String(score));const text=`I scored ${score} in Race Call. Can you beat it?`;
+  try{if(navigator.share){await navigator.share({title:'Race Call',text,url:url.toString()});bump('shares');return}await navigator.clipboard.writeText(`${text} ${url}`);shareBtn.textContent='Challenge copied ✓';bump('shares')}
+  catch(e){try{await navigator.clipboard.writeText(url.toString());shareBtn.textContent='Link copied ✓';bump('shares')}catch(_){}}
+}
+topBtn.addEventListener('click',()=>choose('top'));bottomBtn.addEventListener('click',()=>choose('bottom'));startBtn.addEventListener('click',startRun);shareBtn.addEventListener('click',share);
+addEventListener('keydown',e=>{if(e.key==='1'||e.key==='ArrowUp'){e.preventDefault();choose('top')}if(e.key==='2'||e.key==='ArrowDown'){e.preventDefault();choose('bottom')}if(e.code==='Space'&&!running){e.preventDefault();startRun()}});
+draw(0);
+})();
+</script>
+</body>
+</html>
