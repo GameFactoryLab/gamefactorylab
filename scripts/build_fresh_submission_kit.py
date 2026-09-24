@@ -29,6 +29,26 @@ BANNED_MARKERS = (
     "__AD_UNIT__",
 )
 
+# Conservative CrazyGames tag vocabulary confirmed against the public CrazyGames
+# tags directory on 2026-09-24. Keep this small and explicit so handoff metadata
+# fails closed instead of suggesting invented/nonexistent portal tags.
+CRAZYGAMES_TAG_REFERENCE_DATE = "2026-09-24"
+CRAZYGAMES_PUBLIC_TAGS = {
+    "1 Player",
+    "2D",
+    "Avoid",
+    "Brain",
+    "Casual",
+    "Collect",
+    "Logic",
+    "Mobile",
+    "Mouse",
+    "One Button",
+    "Skill",
+    "Speed",
+    "Train your brain",
+}
+
 CANDIDATES = [
     {
         "priority": 1,
@@ -38,7 +58,8 @@ CANDIDATES = [
         "short_description": "Tap when the moving line crosses the target. Center hits score double as timing gets tighter.",
         "controls": "Tap / click / Space",
         "progress_save": "No cross-device progress required; local best score only.",
-        "suggested_tags": "Arcade, Skill, Precision, High Score, Mobile",
+        "itch_tags": "Arcade, Skill, Precision, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Casual, One Button, Skill, Speed, Mobile, Mouse",
         "signal_to_watch": "average playtime, first-session replay rate, result-share rate",
     },
     {
@@ -49,7 +70,8 @@ CANDIDATES = [
         "short_description": "Move the catcher, collect falling orbs, grab gold bonuses, and avoid spikes as the pace rises.",
         "controls": "Drag / mouse / Left-Right arrows",
         "progress_save": "No cross-device progress required; local best score only.",
-        "suggested_tags": "Arcade, Skill, Avoid, High Score, Mobile",
+        "itch_tags": "Arcade, Skill, Avoid, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Avoid, Casual, Collect, Skill, Mobile, Mouse",
         "signal_to_watch": "average playtime, replay rate, score-share rate",
     },
     {
@@ -60,7 +82,8 @@ CANDIDATES = [
         "short_description": "Watch the four-pad sequence, repeat it perfectly, and extend the relay as the pace gets faster.",
         "controls": "Tap / click / 1-4 keys",
         "progress_save": "No cross-device progress required; local best score only.",
-        "suggested_tags": "Memory, Puzzle, Skill, High Score, Mobile",
+        "itch_tags": "Memory, Puzzle, Skill, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Brain, Casual, Skill, Mobile, Mouse, Train your brain",
         "signal_to_watch": "completed rounds per run, replay rate, score-challenge share rate",
     },
     {
@@ -71,10 +94,27 @@ CANDIDATES = [
         "short_description": "Mirror, flip or rotate the marked cell in your head, then tap the transformed position before time runs out.",
         "controls": "Tap / click",
         "progress_save": "No cross-device progress required; local best score only.",
-        "suggested_tags": "Puzzle, Spatial, Brain, Skill, High Score, Mobile",
+        "itch_tags": "Puzzle, Spatial, Brain, Skill, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Brain, Casual, Logic, Skill, Mobile, Mouse, Train your brain",
         "signal_to_watch": "completed 30-second runs, immediate replay rate, score-challenge share rate",
     },
 ]
+
+
+def split_tags(value: str) -> list[str]:
+    return [tag.strip() for tag in value.split(",") if tag.strip()]
+
+
+def validate_crazygames_tags(item: dict) -> None:
+    tags = split_tags(item["crazygames_tags"])
+    if not tags:
+        raise RuntimeError(f"No CrazyGames tags configured for {item['slug']}")
+    invalid = [tag for tag in tags if tag not in CRAZYGAMES_PUBLIC_TAGS]
+    if invalid:
+        raise RuntimeError(
+            f"Unverified CrazyGames tag(s) for {item['slug']}: {invalid}. "
+            f"Use only the public tag allowlist checked {CRAZYGAMES_TAG_REFERENCE_DATE}."
+        )
 
 
 def validate_package(path: Path) -> None:
@@ -101,6 +141,7 @@ def main() -> None:
 
     rows = []
     for item in CANDIDATES:
+        validate_crazygames_tags(item)
         src = DIST / f"{item['slug']}.zip"
         validate_package(src)
         itch_name = f"{item['slug']}.zip"
@@ -110,6 +151,9 @@ def main() -> None:
         rows.append(
             {
                 **item,
+                # Backward-compatible generic field for older consumers.
+                "suggested_tags": item["itch_tags"],
+                "crazygames_tag_reference_date": CRAZYGAMES_TAG_REFERENCE_DATE,
                 "status": "READY",
                 "itch_package": itch_name,
                 "crazygames_basic_package": cg_name,
@@ -129,6 +173,8 @@ def main() -> None:
         "",
         "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote runtime assets, ads, analytics vendors or account backends. Canonical/Open Graph metadata URLs are permitted because they do not load runtime assets.",
         "",
+        f"CrazyGames tag fallback lists were checked against the public CrazyGames tags directory on {CRAZYGAMES_TAG_REFERENCE_DATE}. They are intentionally conservative. If the live submission UI omits a listed tag, skip it instead of inventing a replacement.",
+        "",
     ]
     for row in rows:
         readme += [
@@ -139,7 +185,9 @@ def main() -> None:
             f"- Short description: {row['short_description']}",
             f"- Controls: {row['controls']}",
             f"- Progress save answer: {row['progress_save']}",
-            f"- Suggested tags: {row['suggested_tags']}",
+            f"- itch.io tags: {row['itch_tags']}",
+            f"- CrazyGames tags: {row['crazygames_tags']}",
+            f"- CrazyGames tag check: {row['crazygames_tag_reference_date']}",
             f"- Signal to watch: {row['signal_to_watch']}",
             "",
         ]

@@ -37,6 +37,11 @@ LEGACY_PRIORITY = [
     "route-once",
 ]
 
+CRAZYGAMES_TAG_REFERENCE_DATE = "2026-09-24"
+LEGACY_CRAZYGAMES_TAG_OVERRIDES = {
+    "ring-pins": "1 Player, 2D, Casual, One Button, Skill, Mobile, Mouse",
+}
+
 
 def load_legacy_games() -> list[dict]:
     games: dict[str, dict] = {}
@@ -49,6 +54,14 @@ def load_legacy_games() -> list[dict]:
             row = dict(game)
             row["wave"] = wave
             row["source"] = "legacy"
+            tags = row.get("tags", "")
+            if isinstance(tags, list):
+                tags = ", ".join(tags)
+            row["itch_tags"] = tags
+            row["crazygames_tags"] = LEGACY_CRAZYGAMES_TAG_OVERRIDES.get(row["slug"], "")
+            row["crazygames_tag_reference_date"] = (
+                CRAZYGAMES_TAG_REFERENCE_DATE if row["crazygames_tags"] else ""
+            )
             games[row["slug"]] = row
 
     missing = [slug for slug in LEGACY_PRIORITY if slug not in games]
@@ -74,7 +87,8 @@ def load_fresh_games() -> list[dict]:
         row = dict(row)
         row["wave"] = "fresh"
         row["source"] = "fresh"
-        row["tags"] = row.get("suggested_tags", "")
+        row["itch_tags"] = row.get("itch_tags") or row.get("suggested_tags", "")
+        row["tags"] = row["itch_tags"]
         games[row["slug"]] = row
 
     missing = [slug for slug in FRESH_PRIORITY if slug not in games]
@@ -104,9 +118,12 @@ def main() -> None:
 
     rows = []
     for rank, game in enumerate(games, start=1):
-        tags = game.get("tags", "")
-        if isinstance(tags, list):
-            tags = ", ".join(tags)
+        itch_tags = game.get("itch_tags", game.get("tags", ""))
+        if isinstance(itch_tags, list):
+            itch_tags = ", ".join(itch_tags)
+        crazygames_tags = game.get("crazygames_tags", "")
+        if isinstance(crazygames_tags, list):
+            crazygames_tags = ", ".join(crazygames_tags)
         signal = game.get("signal_to_watch", "")
         if isinstance(signal, list):
             signal = ", ".join(signal)
@@ -121,7 +138,11 @@ def main() -> None:
                 "itch_package": game["itch_package"],
                 "crazygames_basic_package": game["crazygames_basic_package"],
                 "short_description": game.get("short_description", ""),
-                "tags": tags,
+                "itch_tags": itch_tags,
+                "crazygames_tags": crazygames_tags,
+                "crazygames_tag_reference_date": game.get("crazygames_tag_reference_date", ""),
+                # Backward-compatible generic field for older consumers.
+                "tags": itch_tags,
                 "signal_to_watch": signal,
             }
         )
@@ -139,6 +160,8 @@ def main() -> None:
         "",
         "The four active fresh candidates are intentionally first. The strongest previously packaged mechanic, Ring Pins, remains slot five as a control/reference release. Older candidates stay queued behind them until current tests earn or lose distribution capacity.",
         "",
+        f"CrazyGames tag fallback lists for the immediate Top 5 were checked against the public CrazyGames tag directory on {CRAZYGAMES_TAG_REFERENCE_DATE}. If the live portal omits a listed tag, skip it rather than inventing a replacement.",
+        "",
         "## Immediate Top 5",
         "",
     ]
@@ -149,7 +172,9 @@ def main() -> None:
             f"- itch.io ZIP: `{row['itch_package']}`",
             f"- CrazyGames Basic-safe ZIP: `{row['crazygames_basic_package']}`",
             f"- Short description: {row['short_description']}",
-            f"- Tags: {row['tags']}",
+            f"- itch.io tags: {row['itch_tags']}",
+            f"- CrazyGames tags: {row['crazygames_tags']}",
+            f"- CrazyGames tag check: {row['crazygames_tag_reference_date']}",
             f"- Signal to watch: {row['signal_to_watch']}",
             "",
         ]
@@ -160,7 +185,7 @@ def main() -> None:
         "",
         "No paid SDK, paid hosting, paid ads, paid license, paid asset, subscription or contractor is required by this kit.",
         "",
-        f"`submission-queue.csv` contains all {len(rows)} currently packaged candidates in current commercial priority order.",
+        f"`submission-queue.csv` contains all {len(rows)} currently packaged candidates in current commercial priority order. Only the immediate Top 5 carry prevalidated CrazyGames tag fallbacks; validate tags for a legacy candidate before promoting it into an upload slot.",
     ]
     (OUT / "README.md").write_text("\n".join(md) + "\n", encoding="utf-8")
 
