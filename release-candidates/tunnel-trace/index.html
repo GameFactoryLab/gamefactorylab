@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<title>Tunnel Trace — GameFactoryLab candidate</title>
+<meta name="description" content="Watch a moving dot enter a hidden tunnel, predict its reflected path, and choose the exit lane before the next round.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/tunnel-trace/">
+<meta property="og:title" content="Tunnel Trace — hidden-path prediction challenge">
+<meta property="og:description" content="See the approach. Predict the hidden bounces. Pick the exit lane and chase a higher 30-second score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/tunnel-trace/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#08111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1a3157 0,#0f172a 44%,#08111f 100%);display:flex;justify-content:center}
+button{font:inherit}
+.wrap{width:min(94vw,760px);padding:24px 0 42px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#7dd3fc}
+h1{font-size:clamp(40px,11vw,70px);line-height:.94;margin:8px 0 10px}.muted{color:#94a3b8}
+.challenge{display:none;margin:14px 0 0;background:#102b46;border:1px solid #0369a1;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#e0f2fe}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:23px}.stat span{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}.prompt{text-align:center;min-height:70px;padding:4px 4px 10px}.prompt strong{display:block;font-size:clamp(22px,6vw,34px)}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}
+.board{position:relative;border-radius:18px;overflow:hidden;border:1px solid #263247;background:#07101f}
+canvas{display:block;width:100%;height:auto;aspect-ratio:1.5/1;touch-action:none}
+.gates{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.gates button{border:1px solid #334155;border-radius:13px;padding:13px 4px;background:#1e293b;color:#fff;font-weight:850;cursor:pointer}.gates button:not(:disabled):hover{background:#27364d}.gates button:disabled{opacity:.38;cursor:not-allowed}
+.feedback{min-height:30px;text-align:center;padding-top:9px;font-weight:800;font-size:13px;color:#cbd5e1}
+.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#0284c7;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+@media(max-width:440px){.stats{grid-template-columns:repeat(2,1fr)}.gates{gap:5px}.gates button{font-size:12px;padding:12px 2px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Tunnel Trace</h1>
+<p class="muted">Watch the dot approach the tunnel. Inside, it keeps moving and bounces off the hidden top and bottom walls. Predict which exit lane it reaches.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="time">30</b><span>Seconds</span></div>
+  <div class="stat"><b id="streak">0</b><span>Streak</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="prompt">Predict the hidden path.</strong><span id="hint">Tap Start. Watch the visible approach, then choose one of four exit lanes.</span></div>
+  <div class="board"><canvas id="board" width="900" height="600" aria-label="Hidden trajectory prediction board"></canvas></div>
+  <div class="gates" aria-label="Exit lane choices">
+    <button type="button" data-gate="0" disabled>Exit 1</button>
+    <button type="button" data-gate="1" disabled>Exit 2</button>
+    <button type="button" data-gate="2" disabled>Exit 3</button>
+    <button type="button" data-gate="3" disabled>Exit 4</button>
+  </div>
+  <div id="feedback" class="feedback">No timer until you start.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start 30s run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Predictive-motion sprint • no account • no external runtime assets • local best only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_tunnel_trace_v1';
+const RUN_MS=30000;
+const W=900,H=600,MIN_Y=70,MAX_Y=530,START_X=80,ENTRY_X=255,EXIT_X=790,GATES=4;
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const timeEl=document.getElementById('time');
+const streakEl=document.getElementById('streak');
+const promptEl=document.getElementById('prompt');
+const hintEl=document.getElementById('hint');
+const feedback=document.getElementById('feedback');
+const startBtn=document.getElementById('start');
+const shareBtn=document.getElementById('share');
+const result=document.getElementById('result');
+const resultTitle=document.getElementById('resultTitle');
+const resultText=document.getElementById('resultText');
+const challenge=document.getElementById('challenge');
+const gateButtons=[...document.querySelectorAll('[data-gate]')];
+let running=false,score=0,streak=0,maxStreak=0,rounds=0,correct=0,startedAt=0,endAt=0,timer=null,anim=null,token=0,phase='idle',questionAt=0;
+let round={y0:300,vx:300,vy:180,entryY:300,exitY:300,gate:1};
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read();const m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+function challengeScore(){const p=new URLSearchParams(location.search);const n=Number(p.get('score'));return Number.isFinite(n)&&n>=0?Math.floor(n):null}
+function rand(min,max){return min+Math.random()*(max-min)}
+function reflectedY(y0,vy,t){
+  const span=MAX_Y-MIN_Y,period=span*2;
+  let z=(y0-MIN_Y)+vy*t;z=((z%period)+period)%period;
+  return MIN_Y+(z<=span?z:period-z);
+}
+function yAtX(x){return reflectedY(round.y0,round.vy,(x-START_X)/round.vx)}
+function gateForY(y){const h=(MAX_Y-MIN_Y)/GATES;return Math.max(0,Math.min(GATES-1,Math.floor((y-MIN_Y)/h)))}
+function makeRound(){
+  const level=Math.min(12,rounds);
+  let tries=0,next;
+  do{
+    const y0=rand(MIN_Y+35,MAX_Y-35);
+    const vx=325+Math.min(75,level*5);
+    const mag=rand(145+level*10,250+level*16);
+    const vy=(Math.random()<.5?-1:1)*mag;
+    const exitY=reflectedY(y0,vy,(EXIT_X-START_X)/vx);
+    next={y0,vx,vy,entryY:reflectedY(y0,vy,(ENTRY_X-START_X)/vx),exitY,gate:gateForY(exitY)};
+    tries++;
+  }while((next.exitY<MIN_Y+18||next.exitY>MAX_Y-18)&&tries<30);
+  round=next;phase='preview';setGates(false);promptEl.textContent='Watch the approach.';hintEl.textContent='The dot stays at the same speed inside the tunnel and reflects off hidden walls.';feedback.textContent='Track direction and speed.';draw(START_X,round.y0,false,null);
+  const previewMs=620;
+  const begun=performance.now();
+  const myToken=token;
+  function step(now){
+    if(!running||token!==myToken)return;
+    const p=Math.min(1,(now-begun)/previewMs);
+    const x=START_X+(ENTRY_X-START_X)*p;
+    draw(x,yAtX(x),false,null);
+    if(p<1){anim=requestAnimationFrame(step)}else{
+      phase='guess';questionAt=performance.now();promptEl.textContent='Which exit lane?';hintEl.textContent='Choose before the run clock expires.';feedback.textContent='The path is hidden now.';setGates(true);draw(null,null,false,null);
+    }
+  }
+  anim=requestAnimationFrame(step);
+}
+function setGates(enabled){gateButtons.forEach(b=>b.disabled=!enabled)}
+function draw(ballX=null,ballY=null,reveal=false,chosen=null){
+  const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#07101f');bg.addColorStop(1,'#111827');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(148,163,184,.08)';ctx.lineWidth=1;
+  for(let x=75;x<W;x+=75){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=75;y<H;y+=75){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  const gateH=(MAX_Y-MIN_Y)/GATES;
+  for(let i=0;i<GATES;i++){
+    const y=MIN_Y+i*gateH;
+    ctx.fillStyle=i%2===0?'rgba(14,116,144,.13)':'rgba(99,102,241,.11)';ctx.fillRect(EXIT_X,y,78,gateH);
+    ctx.strokeStyle='rgba(186,230,253,.38)';ctx.lineWidth=2;ctx.strokeRect(EXIT_X,y,78,gateH);
+    ctx.fillStyle='#bae6fd';ctx.font='700 18px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),829,y+gateH/2);
+  }
+  ctx.fillStyle='#0b1424';ctx.fillRect(ENTRY_X,MIN_Y,EXIT_X-ENTRY_X,MAX_Y-MIN_Y);
+  ctx.strokeStyle='#475569';ctx.lineWidth=4;ctx.strokeRect(ENTRY_X,MIN_Y,EXIT_X-ENTRY_X,MAX_Y-MIN_Y);
+  ctx.fillStyle='#64748b';ctx.font='700 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('HIDDEN TUNNEL', (ENTRY_X+EXIT_X)/2, H/2);
+  ctx.strokeStyle='rgba(125,211,252,.45)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(START_X,round.y0);ctx.lineTo(ENTRY_X,round.entryY);ctx.stroke();
+  if(reveal){
+    ctx.save();ctx.beginPath();ctx.rect(ENTRY_X,MIN_Y,EXIT_X-ENTRY_X,MAX_Y-MIN_Y);ctx.clip();ctx.strokeStyle='#7dd3fc';ctx.lineWidth=4;ctx.beginPath();
+    const samples=100;for(let i=0;i<=samples;i++){const x=ENTRY_X+(EXIT_X-ENTRY_X)*i/samples;const y=yAtX(x);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();ctx.restore();
+    ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(EXIT_X,round.exitY,9,0,Math.PI*2);ctx.fill();
+    if(chosen!==null){const y=MIN_Y+chosen*gateH;ctx.strokeStyle=chosen===round.gate?'#86efac':'#fca5a5';ctx.lineWidth=6;ctx.strokeRect(EXIT_X+3,y+3,72,gateH-6)}
+  }
+  if(ballX!==null&&ballY!==null&&ballX<ENTRY_X+1){ctx.save();ctx.shadowColor='#38bdf8';ctx.shadowBlur=24;ctx.fillStyle='#e0f2fe';ctx.beginPath();ctx.arc(ballX,ballY,13,0,Math.PI*2);ctx.fill();ctx.restore()}
+}
+function render(){scoreEl.textContent=score;bestEl.textContent=best();streakEl.textContent=streak}
+function choose(gate){
+  if(!running||phase!=='guess')return;
+  phase='feedback';setGates(false);rounds++;
+  const isCorrect=gate===round.gate;
+  if(isCorrect){
+    correct++;streak++;maxStreak=Math.max(maxStreak,streak);
+    const response=Math.max(0,performance.now()-questionAt);
+    const speedBonus=Math.max(0,Math.round(45-response/35));
+    const points=100+Math.min(50,streak*5)+speedBonus;score+=points;feedback.textContent=`Correct • +${points} • exit ${round.gate+1}`;bump('correct');
+  }else{streak=0;feedback.textContent=`Exit ${round.gate+1} was correct.`;bump('wrong')}
+  draw(null,null,true,gate);render();
+  const myToken=token;setTimeout(()=>{if(running&&token===myToken)makeRound()},430);
+}
+function updateClock(){
+  if(!running)return;
+  const left=Math.max(0,endAt-performance.now());timeEl.textContent=String(Math.ceil(left/1000));
+  if(left<=0){endRun();return}
+  timer=requestAnimationFrame(updateClock);
+}
+function startRun(){
+  if(timer)cancelAnimationFrame(timer);if(anim)cancelAnimationFrame(anim);token++;running=true;phase='preview';score=0;streak=0;maxStreak=0;rounds=0;correct=0;startedAt=Date.now();endAt=performance.now()+RUN_MS;
+  result.classList.remove('show');shareBtn.disabled=true;startBtn.textContent='Restart run';timeEl.textContent='30';render();bump('starts');makeRound();updateClock();
+}
+function endRun(){
+  if(!running)return;running=false;phase='done';token++;setGates(false);if(timer)cancelAnimationFrame(timer);if(anim)cancelAnimationFrame(anim);timer=null;anim=null;timeEl.textContent='0';
+  const oldBest=best();if(score>oldBest)write({best:score});bump('completed_runs');write({lastRun:{score,rounds,correct,maxStreak,durationSeconds:30,at:Date.now()}});render();
+  promptEl.textContent='Run complete';hintEl.textContent='Replay only if predicting the hidden path genuinely earns another run.';
+  resultTitle.textContent=score>oldBest?'New best score!':`Score ${score}`;resultText.textContent=`${correct}/${rounds} exits correct • max streak ${maxStreak} • best ${best()}.`;result.classList.add('show');shareBtn.disabled=false;startBtn.textContent='Replay 30s →';feedback.textContent='Share a score challenge or run it again.';
+}
+async function share(){
+  const url=new URL(location.href);url.search='';url.searchParams.set('score',String(score));
+  const data={title:'Tunnel Trace challenge',text:`I scored ${score} in Tunnel Trace. Can you predict the hidden exits better?`,url:url.toString()};
+  try{
+    if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(`${data.text} ${data.url}`);feedback.textContent='Challenge link copied.'}else{prompt(data.text,data.url)}
+    bump('shares');
+  }catch(e){if(e&&e.name!=='AbortError')feedback.textContent='Share was not available.'}
+}
+gateButtons.forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.gate))));
+startBtn.addEventListener('click',()=>{if(!running&&Number(read().metrics?.completed_runs||0)>0)bump('replays');else if(running)bump('manual_restarts');startRun()});
+shareBtn.addEventListener('click',share);
+const target=challengeScore();if(target!==null){challenge.innerHTML=`Friend challenge: beat <b>${target}</b> points in one 30-second run.`;challenge.classList.add('show');bump('challenge_opens')}
+render();draw(null,null,false,null);bump('page_opens');
+})();
+</script>
+</body>
+</html>
