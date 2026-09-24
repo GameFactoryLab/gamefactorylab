@@ -110,6 +110,18 @@ CANDIDATES = [
         "crazygames_tags": "1 Player, 2D, Brain, Casual, Skill, Speed, Mobile, Mouse, Train your brain",
         "signal_to_watch": "completed runs, immediate replay rate, rounds per run, challenge-share rate",
     },
+    {
+        "priority": 6,
+        "slug": "midpoint-rush",
+        "title": "Midpoint Rush",
+        "category": "Puzzle",
+        "short_description": "Two points appear. Tap their exact midpoint, reveal your error, and chase a cleaner 30-second score.",
+        "controls": "Tap / click",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "itch_tags": "Puzzle, Spatial, Precision, Brain, Skill, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Brain, Casual, Skill, Mobile, Mouse, Train your brain",
+        "signal_to_watch": "completed 30-second runs, immediate replay rate, guesses per run, score-challenge share rate",
+    },
 ]
 
 
@@ -181,7 +193,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh-candidate submission kit",
         "",
-        "Purpose: move the strongest current fresh candidates into external distribution with minimum manual preparation and zero cash spend.",
+        "Purpose: move the strongest current fresh candidates and packaged challengers into external distribution with minimum manual preparation and zero cash spend.",
         "",
         "All candidates are self-contained HTML5 builds with no paid runtime dependencies, remote runtime assets, ads, analytics vendors or account backends. Canonical/Open Graph metadata URLs are permitted because they do not load runtime assets.",
         "",
