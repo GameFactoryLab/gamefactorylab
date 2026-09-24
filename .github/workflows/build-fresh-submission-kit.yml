@@ -52,11 +52,22 @@ jobs:
               re.I,
           )
           blocked = ('__GAME_ID__', '__PLACEMENT_ID__', '__AD_UNIT__')
+          verified_crazygames_tags = {
+              '1 Player', '2D', 'Avoid', 'Brain', 'Casual', 'Collect',
+              'Logic', 'Mobile', 'Mouse', 'One Button', 'Skill', 'Speed',
+              'Train your brain',
+          }
           root = Path('handoff/fresh-submission-kit')
           rows = list(csv.DictReader((root / 'submission-metadata.csv').open(encoding='utf-8')))
           assert [row['slug'] for row in rows] == ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark'], rows
           assert all(row['status'] == 'READY' for row in rows)
           assert all(row['cash_spend_eur'] == '0' for row in rows)
+          assert all(row['itch_tags'].strip() for row in rows)
+          assert all(row['crazygames_tag_reference_date'] == '2026-09-24' for row in rows)
+          for row in rows:
+              tags = {tag.strip() for tag in row['crazygames_tags'].split(',') if tag.strip()}
+              assert tags, row
+              assert tags <= verified_crazygames_tags, (row['slug'], tags - verified_crazygames_tags)
 
           packages = list((root / 'itch').glob('*.zip')) + list((root / 'crazygames-basic').glob('*.zip'))
           assert len(packages) == 8, packages
@@ -67,7 +78,7 @@ jobs:
                   html = archive.read('index.html').decode('utf-8')
                   assert not runtime_re.search(html), package
                   assert not any(marker in html for marker in blocked), package
-          print('Validated fresh submission kit: 4 candidates / 8 portal handoff packages')
+          print('Validated fresh submission kit: 4 candidates / 8 portal handoff packages / portal-specific tag sets')
           PY
 
       - name: Upload operator handoff bundle
