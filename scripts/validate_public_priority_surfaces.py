@@ -5,7 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOP5 = ["lock-line", "catch-drop", "pattern-relay", "mirror-mark", "ring-pins"]
-CHALLENGER = "track-three"
+CHALLENGERS = ["track-three", "midpoint-rush", "tunnel-trace", "hidden-tally"]
+CHALLENGE_HUB_CHALLENGER = "track-three"
 STALE_TOP5 = ["circuit-flow", "gravity-flip", "bridge-snap", "cluster-collapse"]
 
 
@@ -26,11 +27,13 @@ def require(path: str, needles: list[str]) -> None:
 def main() -> None:
     require("top5/index.html", TOP5)
     require("daily/index.html", TOP5)
-    require("challenge/index.html", TOP5 + [CHALLENGER, "scoreParam:'score'"])
+    require("challenge/index.html", TOP5 + [CHALLENGE_HUB_CHALLENGER, "scoreParam:'score'"])
     require(
         "index.html",
-        ["Lock Line", "Catch Drop", "Pattern Relay", "Mirror Mark", "Ring Pins", "Track Three"],
+        ["Lock Line", "Catch Drop", "Pattern Relay", "Mirror Mark", "Ring Pins", "challenger-duel/"] + CHALLENGERS,
     )
+    require("discover/index.html", ["challenger-duel/"] + CHALLENGERS)
+    require("discover/challenger-duel/index.html", CHALLENGERS + ["allPairs", "pairQueue", "winner_extra_complete"])
 
     challenge = text("challenge/index.html")
     leaked = [slug for slug in STALE_TOP5 if f'value="{slug}"' in challenge]
@@ -41,13 +44,16 @@ def main() -> None:
         )
 
     sw = text("sw.js")
-    for route in ("./top5/", "./challenge/", "./daily/", "./release-candidates/track-three/"):
+    required_routes = ["./top5/", "./challenge/", "./daily/", "./discover/challenger-duel/"]
+    required_routes += [f"./release-candidates/{slug}/" for slug in CHALLENGERS]
+    for route in required_routes:
         if route not in sw:
             raise RuntimeError(f"PWA cache is missing public priority route: {route}")
 
     print(
         "Validated public winner-search alignment: "
-        "5 active commercial candidates + Track Three challenger; stale Top 5 challenge slots blocked."
+        "5 active commercial candidates + balanced 4-candidate challenger ladder; "
+        "stale Top 5 challenge slots blocked."
     )
 
 
