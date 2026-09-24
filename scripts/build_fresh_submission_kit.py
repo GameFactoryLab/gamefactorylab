@@ -122,6 +122,18 @@ CANDIDATES = [
         "crazygames_tags": "1 Player, 2D, Brain, Casual, Skill, Mobile, Mouse, Train your brain",
         "signal_to_watch": "completed 30-second runs, immediate replay rate, guesses per run, score-challenge share rate",
     },
+    {
+        "priority": 7,
+        "slug": "tunnel-trace",
+        "title": "Tunnel Trace",
+        "category": "Puzzle",
+        "short_description": "Watch the approach, predict the hidden wall bounces, and choose which exit lane the dot will reach.",
+        "controls": "Tap / click",
+        "progress_save": "No cross-device progress required; local best score only.",
+        "itch_tags": "Puzzle, Prediction, Physics, Brain, Skill, High Score, Mobile",
+        "crazygames_tags": "1 Player, 2D, Brain, Casual, Logic, Skill, Mobile, Mouse, Train your brain",
+        "signal_to_watch": "completed 30-second runs, immediate replay rate, prediction accuracy and streak depth, score-challenge share rate",
+    },
 ]
 
 
