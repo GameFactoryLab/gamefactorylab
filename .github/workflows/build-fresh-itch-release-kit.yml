@@ -11,9 +11,11 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
+      - 'scripts/build_tunnel_trace_portal_assets.py'
       - 'scripts/build_fresh_itch_release_kit.py'
       - '.github/workflows/build-fresh-itch-release-kit.yml'
   push:
@@ -25,9 +27,11 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
+      - 'scripts/build_tunnel_trace_portal_assets.py'
       - 'scripts/build_fresh_itch_release_kit.py'
       - '.github/workflows/build-fresh-itch-release-kit.yml'
 
@@ -66,7 +70,7 @@ jobs:
           root='handoff/fresh-itch-release-kit'
           test -s "$root/manifest.csv"
           test -s "$root/README.md"
-          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush; do
+          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush tunnel-trace; do
             test -s "$root/$game/game.zip"
             test -s "$root/$game/cover.png"
             test -s "$root/$game/listing.txt"
@@ -80,7 +84,7 @@ jobs:
           from PIL import Image
 
           root = Path('handoff/fresh-itch-release-kit')
-          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush']
+          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush', 'tunnel-trace']
           rows = list(csv.DictReader((root / 'manifest.csv').open(encoding='utf-8')))
           assert [r['slug'] for r in rows] == expected, rows
           assert all(r['status'] == 'READY' for r in rows)
@@ -89,7 +93,7 @@ jobs:
               assert Image.open(root / slug / 'cover.png').size == (630, 500)
               for i in range(1, 5):
                   assert Image.open(root / slug / f'screenshot-{i:02d}.png').size == (1280, 720)
-          print('Validated itch.io kit: 6 games / 6 covers / 24 screenshots / 6 HTML5 ZIPs')
+          print('Validated itch.io kit: 7 games / 7 covers / 28 screenshots / 7 HTML5 ZIPs')
           PY
 
       - name: Upload zero-cash itch.io release kit

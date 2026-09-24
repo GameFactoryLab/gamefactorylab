@@ -10,9 +10,11 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_track_three_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
+      - 'scripts/build_tunnel_trace_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
   push:
     branches: [main]
@@ -23,9 +25,11 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_track_three_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
+      - 'scripts/build_tunnel_trace_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
 
 permissions:
@@ -67,12 +71,15 @@ jobs:
       - name: Extend portal assets with Midpoint Rush
         run: python scripts/build_midpoint_rush_portal_assets.py
 
+      - name: Extend portal assets with Tunnel Trace
+        run: python scripts/build_tunnel_trace_portal_assets.py
+
       - name: Validate required output set
         shell: bash
         run: |
           set -euo pipefail
           root='handoff/fresh-portal-assets'
-          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush; do
+          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush tunnel-trace; do
             for file in \
               cover-landscape.png \
               cover-portrait.png \
@@ -89,10 +96,10 @@ jobs:
           from pathlib import Path
           root = Path('handoff/fresh-portal-assets')
           rows = list(csv.DictReader((root / 'asset-manifest.csv').open(encoding='utf-8')))
-          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush']
+          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush', 'tunnel-trace']
           assert [r['slug'] for r in rows] == expected, rows
           assert all(r['cash_spend_eur'] == '0' for r in rows)
-          print('Validated portal asset kit: 6 games / 18 covers / 12 silent preview videos')
+          print('Validated portal asset kit: 7 games / 21 covers / 14 silent preview videos')
           PY
 
       - name: Upload zero-cash portal asset kit

@@ -22,6 +22,7 @@ from build_fresh_portal_assets import (
     rounded_panel,
 )
 from build_midpoint_rush_portal_assets import draw_scene as draw_midpoint_rush_scene
+from build_tunnel_trace_portal_assets import draw_scene as draw_tunnel_trace_scene
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
@@ -106,6 +107,16 @@ CANDIDATES = [
         "tags": "Puzzle, Spatial, Precision, Brain, Skill, High Score",
         "signal": "completed 30-second runs, immediate replay rate, guesses per run, score-challenge share rate",
     },
+    {
+        "priority": 7,
+        "slug": "tunnel-trace",
+        "title": "Tunnel Trace",
+        "short_description": "Watch the approach, predict the hidden wall bounces, and choose which exit lane the dot will reach.",
+        "description": "A quick hidden-trajectory prediction game. Watch a dot approach an opaque tunnel, infer its direction and speed, then predict which of four exit lanes it reaches after unseen wall reflections. Each answer reveals the path immediately; chase a higher 30-second score or send a score challenge to a friend.",
+        "controls": "Tap / click",
+        "tags": "Puzzle, Prediction, Physics, Brain, Skill, High Score",
+        "signal": "completed 30-second runs, immediate replay rate, prediction accuracy and streak depth, score-challenge share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
@@ -154,6 +165,8 @@ def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) 
         return img
     if slug == "midpoint-rush":
         return draw_midpoint_rush_scene(size, t, cover=cover)
+    if slug == "tunnel-trace":
+        return draw_tunnel_trace_scene(size, t, cover=cover)
     return base_draw_scene(slug, size, t, cover=cover)
 
 
@@ -255,7 +268,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark, Track Three and Midpoint Rush. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark, Track Three, Midpoint Rush and Tunnel Trace. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
         "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
@@ -268,8 +281,9 @@ def main() -> None:
         "4. Mirror Mark",
         "5. Track Three",
         "6. Midpoint Rush",
+        "7. Tunnel Trace",
         "",
-        "Track Three and Midpoint Rush remain working titles only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
+        "Track Three, Midpoint Rush and Tunnel Trace remain working titles only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
         "",
         "Cash spend: EUR 0",
     ]
