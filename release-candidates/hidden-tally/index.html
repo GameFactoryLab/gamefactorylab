@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Hidden Tally — GameFactoryLab candidate</title>
+<meta name="description" content="Track objects entering and leaving a hidden box, then choose how many remain before the next round starts.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/hidden-tally/">
+<meta property="og:title" content="Hidden Tally — mental tracking sprint">
+<meta property="og:description" content="Objects go in. Objects come out. Keep the count in your head and chase a higher 30-second score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/hidden-tally/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#25345d 0,#0f172a 46%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}.wrap{width:min(94vw,720px);padding:24px 0 42px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#a5b4fc}
+h1{font-size:clamp(40px,11vw,70px);line-height:.94;margin:8px 0 10px}.muted{color:#94a3b8}.challenge{display:none;margin:14px 0 0;background:#1f2942;border:1px solid #4f46e5;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#c7d2fe}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:23px}.stat span{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}.prompt{text-align:center;min-height:72px;padding:5px 4px 10px}.prompt strong{display:block;font-size:clamp(22px,6vw,34px)}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}.board{position:relative;border-radius:18px;overflow:hidden;border:1px solid #263247;background:#08111f}canvas{display:block;width:100%;height:auto;aspect-ratio:1.55/1}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}.choice{border:1px solid #374151;border-radius:14px;padding:14px 10px;background:#1e293b;color:#fff;font-size:22px;font-weight:900;cursor:pointer}.choice:disabled{opacity:.38;cursor:not-allowed}.feedback{min-height:28px;text-align:center;padding-top:9px;font-size:13px;font-weight:800;color:#cbd5e1}.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#4f46e5;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}@media(max-width:440px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Hidden Tally</h1>
+<p class="muted">Remember the starting count. Watch objects enter and leave the hidden box. When the motion stops, choose how many remain.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="time">30</b><span>Seconds</span></div>
+  <div class="stat"><b id="streak">0</b><span>Streak</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="prompt">Keep the count.</strong><span id="hint">Tap Start. The box hides the objects, so the count must stay in your head.</span></div>
+  <div class="board"><canvas id="board" width="900" height="580" aria-label="Hidden tally tracking board"></canvas></div>
+  <div id="choices" class="choices">
+    <button class="choice" type="button" disabled>1</button><button class="choice" type="button" disabled>2</button><button class="choice" type="button" disabled>3</button>
+  </div>
+  <div id="feedback" class="feedback">No timer until you start.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start 30s run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Mental quantity tracking • no account • no external runtime assets • local best only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_hidden_tally_v1';
+const RUN_MS=30000;
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),timeEl=document.getElementById('time'),streakEl=document.getElementById('streak');
+const promptEl=document.getElementById('prompt'),hintEl=document.getElementById('hint'),feedback=document.getElementById('feedback'),startBtn=document.getElementById('start'),shareBtn=document.getElementById('share'),result=document.getElementById('result'),resultTitle=document.getElementById('resultTitle'),resultText=document.getElementById('resultText'),challenge=document.getElementById('challenge');
+const choiceBtns=[...document.querySelectorAll('.choice')];
+let running=false,asking=false,score=0,streak=0,rounds=0,correct=0,currentCount=0,answer=0,token=0,endAt=0,timer=null,roundStart=0,sequence=[];
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read(),m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+function targetScore(){const n=Number(new URLSearchParams(location.search).get('score'));return Number.isFinite(n)&&n>=0?Math.floor(n):null}
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function render(){scoreEl.textContent=score;bestEl.textContent=best();streakEl.textContent=streak}
+function box(){return{x:270,y:135,w:360,h:300}}
+function drawBase(label=''){
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#08111f');g.addColorStop(1,'#101827');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  const b=box();ctx.fillStyle='#111827';ctx.strokeStyle='#6366f1';ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,28);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#312e81';ctx.fillRect(b.x-7,b.y+95,14,110);ctx.fillRect(b.x+b.w-7,b.y+95,14,110);
+  ctx.fillStyle='#818cf8';ctx.font='800 22px system-ui';ctx.textAlign='center';ctx.fillText('HIDDEN BOX',canvas.width/2,b.y+45);
+  ctx.fillStyle='#64748b';ctx.font='600 17px system-ui';ctx.fillText(label||'Track every in / out move',canvas.width/2,b.y+b.h-34);
+}
+function drawStart(n){drawBase();ctx.fillStyle='#e0e7ff';ctx.font='900 110px system-ui';ctx.textAlign='center';ctx.fillText(String(n),canvas.width/2,335);ctx.fillStyle='#94a3b8';ctx.font='700 20px system-ui';ctx.fillText('STARTING COUNT',canvas.width/2,380)}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+function animateMove(type,myToken){return new Promise(resolve=>{
+  const b=box(),y=b.y+150,start=performance.now(),dur=Math.max(245,430-Math.min(rounds,8)*18);
+  function frame(now){
+    if(!running||token!==myToken){resolve();return}
+    const p=Math.min(1,(now-start)/dur),q=ease(p);drawBase(type==='in'?'One entered':'One left');
+    const fromX=type==='in'?95:canvas.width/2,toX=type==='in'?canvas.width/2:805,x=fromX+(toX-fromX)*q;
+    ctx.save();ctx.shadowColor=type==='in'?'#22d3ee':'#f59e0b';ctx.shadowBlur=24;ctx.fillStyle=type==='in'?'#22d3ee':'#f59e0b';ctx.beginPath();ctx.arc(x,y,24,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle=type==='in'?'#67e8f9':'#fbbf24';ctx.font='900 24px system-ui';ctx.textAlign='center';ctx.fillText(type==='in'?'+1':'−1',canvas.width/2,505);
+    if(p<1)requestAnimationFrame(frame);else setTimeout(resolve,75)
+  }
+  requestAnimationFrame(frame)
+})}
+function buildSequence(start){
+  const count=Math.min(10,5+Math.floor(rounds/2));let n=start,events=[];
+  for(let i=0;i<count;i++){
+    let type;
+    if(n<=0)type='in';else if(n>=8)type='out';else type=Math.random()<.56?'in':'out';
+    n+=type==='in'?1:-1;events.push(type)
+  }
+  return{events,final:n}
+}
+function disableChoices(){choiceBtns.forEach(b=>b.disabled=true)}
+function makeChoices(final){
+  const set=new Set([final]);while(set.size<3){set.add(Math.max(0,Math.min(9,final+randInt(-2,2))))}
+  const vals=[...set].sort(()=>Math.random()-.5);choiceBtns.forEach((b,i)=>{b.textContent=String(vals[i]);b.dataset.value=String(vals[i]);b.disabled=false})
+}
+async function newRound(){
+  if(!running)return;asking=false;disableChoices();rounds++;
+  const start=randInt(1,5),built=buildSequence(start);sequence=built.events;answer=built.final;currentCount=start;
+  promptEl.textContent=`Start with ${start}`;hintEl.textContent='Memorize it. The number disappears before the first move.';feedback.textContent='Ready…';drawStart(start);
+  const myToken=token;await new Promise(r=>setTimeout(r,620));if(!running||token!==myToken)return;
+  promptEl.textContent='Keep the count.';hintEl.textContent='Every cyan object enters. Every amber object leaves.';feedback.textContent='Track it mentally.';
+  for(const type of sequence){await animateMove(type,myToken);if(!running||token!==myToken)return;currentCount+=type==='in'?1:-1}
+  if(!running||token!==myToken)return;asking=true;roundStart=performance.now();drawBase('How many remain?');promptEl.textContent='How many are inside?';hintEl.textContent='Choose before the timer runs out.';feedback.textContent='Lock your answer.';makeChoices(answer)
+}
+function choose(value){
+  if(!running||!asking)return;asking=false;disableChoices();bump('answers');const ms=performance.now()-roundStart;
+  if(value===answer){correct++;streak++;const bonus=Math.max(0,Math.round(55-ms/35));const pts=100+bonus+Math.min(60,streak*10);score+=pts;feedback.textContent=`Correct • +${pts}`;bump('correct_answers')}
+  else{streak=0;feedback.textContent=`Not quite • ${answer} remained`}
+  render();drawBase(`Answer: ${answer}`);setTimeout(()=>{if(running)newRound()},430)
+}
+function updateClock(){
+  if(!running)return;const left=Math.max(0,endAt-performance.now());timeEl.textContent=String(Math.ceil(left/1000));if(left<=0){endRun();return}timer=requestAnimationFrame(updateClock)
+}
+function startRun(){
+  if(timer)cancelAnimationFrame(timer);token++;running=true;asking=false;score=0;streak=0;rounds=0;correct=0;endAt=performance.now()+RUN_MS;result.classList.remove('show');shareBtn.disabled=true;startBtn.textContent='Restart run';timeEl.textContent='30';render();bump('starts');newRound();updateClock()
+}
+function endRun(){
+  if(!running)return;running=false;asking=false;token++;disableChoices();if(timer)cancelAnimationFrame(timer);timer=null;timeEl.textContent='0';const oldBest=best();if(score>oldBest)write({best:score});bump('completed_runs');write({lastRun:{score,rounds,correct,durationSeconds:30,at:Date.now()}});render();drawBase('Run complete');promptEl.textContent='Run complete';hintEl.textContent='Replay only if keeping the hidden count earns another 30 seconds.';resultTitle.textContent=score>oldBest?'New best score!':`Score ${score}`;resultText.textContent=`${correct}/${rounds} correct • best ${best()}.`;result.classList.add('show');shareBtn.disabled=false;startBtn.textContent='Replay 30s →';feedback.textContent='Share a score challenge or run it again.'
+}
+async function share(){
+  if(score<=0)return;const url=new URL(location.href);url.search='';url.searchParams.set('score',String(score));const data={title:'Hidden Tally challenge',text:`I scored ${score} in Hidden Tally. Can you keep the hidden count better?`,url:url.toString()};
+  try{if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(`${data.text} ${data.url}`);feedback.textContent='Challenge link copied.'}else{prompt(data.text,data.url)}bump('shares')}catch(e){if(e&&e.name!=='AbortError')feedback.textContent='Share was not available.'}
+}
+choiceBtns.forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.value))));startBtn.addEventListener('click',()=>{if(!running&&Number(read().metrics?.completed_runs||0)>0)bump('replays');else if(running)bump('manual_restarts');startRun()});shareBtn.addEventListener('click',share);
+const target=targetScore();if(target!==null){challenge.innerHTML=`Friend challenge: beat <b>${target}</b> points in one 30-second run.`;challenge.classList.add('show');bump('challenge_opens')}
+render();drawBase();bump('page_opens');
+})();
+</script>
+</body>
+</html>
