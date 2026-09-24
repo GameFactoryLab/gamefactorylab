@@ -7,9 +7,20 @@ import shutil
 import zipfile
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
-from build_fresh_portal_assets import draw_scene
+from build_fresh_portal_assets import (
+    BG,
+    CYAN,
+    GOLD,
+    GREEN,
+    MUTED,
+    WHITE,
+    center_text,
+    draw_scene as base_draw_scene,
+    font,
+    rounded_panel,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
@@ -74,11 +85,63 @@ CANDIDATES = [
         "tags": "Puzzle, Spatial, Brain, Skill, High Score",
         "signal": "completed 30-second runs, immediate replay rate, score-challenge share rate",
     },
+    {
+        "priority": 5,
+        "slug": "track-three",
+        "title": "Track Three",
+        "short_description": "Follow one marked card through faster swaps, then tap the lane where it finishes before three lives are gone.",
+        "description": "A fast visual-tracking challenge for short browser sessions. Memorize the marked card, follow it through an increasing number of swaps, then choose its final lane. Correct answers build score and streak while misses cost one of three lives. Replay immediately or send a score challenge to a friend.",
+        "controls": "Tap / click / 1-3 keys",
+        "tags": "Visual Tracking, Brain, Skill, High Score",
+        "signal": "completed runs, immediate replay rate, rounds per run, challenge-share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
 SCREENSHOT_SIZE = (1280, 720)
 SCREENSHOT_TIMES = (1.4, 4.0, 7.2, 10.6)
+
+
+def draw_track_three(img: Image.Image, t: float, cover: bool = False) -> None:
+    w, h = img.size
+    draw = ImageDraw.Draw(img)
+    margin = int(min(w, h) * 0.07)
+    rounded_panel(draw, (margin, margin, w - margin, h - margin), int(min(w, h) * 0.04))
+    center_text(draw, (w / 2, margin * 1.9), "TRACK THREE", font(int(min(w, h) * (0.11 if h <= w else 0.085)), True))
+    center_text(draw, (w / 2, h * 0.27), "FOLLOW THE MARKED CARD", font(int(min(w, h) * 0.042), True), fill=MUTED)
+
+    lane_centers = [w * 0.25, w * 0.50, w * 0.75]
+    card_w = min(w * 0.19, h * 0.22)
+    card_h = min(h * 0.38, w * 0.25)
+    y = h * 0.58
+    order = [0, 1, 2]
+    swaps = [(0, 1), (1, 2), (0, 2), (0, 1), (1, 2), (0, 2)]
+    if not cover:
+        completed = int(t / 0.8)
+        for a, b in swaps[: completed % (len(swaps) + 1)]:
+            order[a], order[b] = order[b], order[a]
+    target_identity = 1
+    for lane, identity in enumerate(order):
+        cx = lane_centers[lane]
+        x0, x1 = cx - card_w / 2, cx + card_w / 2
+        y0, y1 = y - card_h / 2, y + card_h / 2
+        marked = identity == target_identity and (cover or t < 0.9)
+        fill = GOLD if marked else CYAN
+        draw.rounded_rectangle((x0, y0, x1, y1), radius=max(10, int(card_w * 0.10)), fill=fill)
+        label = "●" if marked else "?"
+        center_text(draw, (cx, y), label, font(max(24, int(card_w * 0.34)), True), fill=BG if marked else WHITE)
+
+    if not cover:
+        round_no = 1 + int(t / 3.2)
+        center_text(draw, (w / 2, h * 0.88), f"ROUND {round_no}  •  3 LIVES", font(int(min(w, h) * 0.035), True), fill=GREEN)
+
+
+def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) -> Image.Image:
+    if slug != "track-three":
+        return base_draw_scene(slug, size, t, cover=cover)
+    img = Image.new("RGB", size, BG)
+    draw_track_three(img, t, cover=cover)
+    return img
 
 
 def validate_zip(path: Path) -> None:
@@ -179,7 +242,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay and Mirror Mark. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark and Track Three. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
         "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
@@ -190,6 +253,9 @@ def main() -> None:
         "2. Catch Drop",
         "3. Pattern Relay",
         "4. Mirror Mark",
+        "5. Track Three",
+        "",
+        "Track Three remains a working title only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
         "",
         "Cash spend: EUR 0",
     ]

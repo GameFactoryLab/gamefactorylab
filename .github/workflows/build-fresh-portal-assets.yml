@@ -8,7 +8,9 @@ on:
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
       - 'release-candidates/mirror-mark/**'
+      - 'release-candidates/track-three/**'
       - 'scripts/build_fresh_portal_assets.py'
+      - 'scripts/build_track_three_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
   push:
     branches: [main]
@@ -17,7 +19,9 @@ on:
       - 'release-candidates/catch-drop/**'
       - 'release-candidates/pattern-relay/**'
       - 'release-candidates/mirror-mark/**'
+      - 'release-candidates/track-three/**'
       - 'scripts/build_fresh_portal_assets.py'
+      - 'scripts/build_track_three_portal_assets.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
 
 permissions:
@@ -53,12 +57,15 @@ jobs:
       - name: Build fresh-candidate portal assets
         run: python scripts/build_fresh_portal_assets.py
 
+      - name: Extend portal assets with Track Three
+        run: python scripts/build_track_three_portal_assets.py
+
       - name: Validate required output set
         shell: bash
         run: |
           set -euo pipefail
           root='handoff/fresh-portal-assets'
-          for game in lock-line catch-drop pattern-relay mirror-mark; do
+          for game in lock-line catch-drop pattern-relay mirror-mark track-three; do
             for file in \
               cover-landscape.png \
               cover-portrait.png \
@@ -70,6 +77,15 @@ jobs:
           done
           test -s "$root/asset-manifest.csv"
           test -s "$root/README.md"
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+          root = Path('handoff/fresh-portal-assets')
+          rows = list(csv.DictReader((root / 'asset-manifest.csv').open(encoding='utf-8')))
+          assert [r['slug'] for r in rows] == ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three'], rows
+          assert all(r['cash_spend_eur'] == '0' for r in rows)
+          print('Validated portal asset kit: 5 games / 15 covers / 10 silent preview videos')
+          PY
 
       - name: Upload zero-cash portal asset kit
         uses: actions/upload-artifact@v4
