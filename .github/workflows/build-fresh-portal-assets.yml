@@ -12,11 +12,13 @@ on:
       - 'release-candidates/midpoint-rush/**'
       - 'release-candidates/tunnel-trace/**'
       - 'release-candidates/hidden-tally/**'
+      - 'release-candidates/race-call/**'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_track_three_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
       - 'scripts/build_tunnel_trace_portal_assets.py'
       - 'scripts/build_hidden_tally_handoff.py'
+      - 'scripts/build_race_call_handoff.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
   push:
     branches: [main]
@@ -29,11 +31,13 @@ on:
       - 'release-candidates/midpoint-rush/**'
       - 'release-candidates/tunnel-trace/**'
       - 'release-candidates/hidden-tally/**'
+      - 'release-candidates/race-call/**'
       - 'scripts/build_fresh_portal_assets.py'
       - 'scripts/build_track_three_portal_assets.py'
       - 'scripts/build_midpoint_rush_portal_assets.py'
       - 'scripts/build_tunnel_trace_portal_assets.py'
       - 'scripts/build_hidden_tally_handoff.py'
+      - 'scripts/build_race_call_handoff.py'
       - '.github/workflows/build-fresh-portal-assets.yml'
 
 permissions:
@@ -81,12 +85,15 @@ jobs:
       - name: Extend portal assets with Hidden Tally
         run: python scripts/build_hidden_tally_handoff.py portal
 
+      - name: Extend portal assets with Race Call
+        run: python scripts/build_race_call_handoff.py portal
+
       - name: Validate required output set
         shell: bash
         run: |
           set -euo pipefail
           root='handoff/fresh-portal-assets'
-          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush tunnel-trace hidden-tally; do
+          for game in lock-line catch-drop pattern-relay mirror-mark track-three midpoint-rush tunnel-trace hidden-tally race-call; do
             for file in \
               cover-landscape.png \
               cover-portrait.png \
@@ -103,10 +110,10 @@ jobs:
           from pathlib import Path
           root = Path('handoff/fresh-portal-assets')
           rows = list(csv.DictReader((root / 'asset-manifest.csv').open(encoding='utf-8')))
-          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush', 'tunnel-trace', 'hidden-tally']
+          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush', 'tunnel-trace', 'hidden-tally', 'race-call']
           assert [r['slug'] for r in rows] == expected, rows
           assert all(r['cash_spend_eur'] == '0' for r in rows)
-          print('Validated portal asset kit: 8 games / 24 covers / 16 silent preview videos')
+          print('Validated portal asset kit: 9 games / 27 covers / 18 silent preview videos')
           PY
 
       - name: Upload zero-cash portal asset kit
