@@ -1,18 +1,31 @@
 # Game Factory Commercial Scorecard
 
-This table is a decision aid, not vanity reporting. A game cannot be promoted before at least 25 comparable sessions. At 50+ sessions, weak concepts are explicitly eligible to be killed or reworked.
+This table is a decision aid, not vanity reporting. The active commercial Top 5 stays at the top. A game cannot be promoted before at least 25 comparable sessions; hard kill/rework decisions start at 100+ sessions unless a portal makes an earlier launch decision.
 
-| Game | Sessions | L3 | L10 | Replay | Return | Share | Lvls/session | Score | Action |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| Circuit Flow | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Orbit Align | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Sum Vault | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Pixel Logic | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Route Once | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Cluster Collapse | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Balance Drop | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Pulse Cascade | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
-| Cipher Sprint | 0 | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+Primary portal gate: average playtime >= 4:00 when that metric is available.
+
+| Pri | Game | Status | Sessions | Avg time | Gate | Complete | Replay* | Return | Share | Depth/session | Score | Action |
+|---:|---|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---|
+| 1 | Lock Line | active-top5 | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| 2 | Catch Drop | active-top5 | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| 3 | Pattern Relay | active-top5 | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| 4 | Mirror Mark | active-top5 | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| 5 | Ring Pins | active-top5 | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Balance Drop | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Bridge Snap | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Cipher Sprint | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Circuit Flow | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Cluster Collapse | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Gravity Flip | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Orbit Align | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Pixel Logic | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Pulse Cascade | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Route Once | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Rule Shift | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Sum Vault | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+| — | Vector Drift | release-backlog | 0 | — | — | — | — | — | — | — | — | WAIT_FOR_DATA |
+
+*Replay uses `qualified_replay_sessions` when available: a voluntary replay that reaches the candidate's completed-run threshold. It falls back to `replay_sessions` for older portal data.
 
 ## Operating rules
 

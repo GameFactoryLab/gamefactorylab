@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Rank Game Factory releases from comparable zero-cost commercial signals.
 
-The script intentionally refuses to declare a winner before there is enough
-traffic. It consumes a small JSON file that can be filled from itch.io,
-GameMonetize, or other free dashboards without adding an analytics vendor.
+The scorecard is intentionally portal-friendly and mechanic-agnostic. It can be
+filled from free portal dashboards plus observed replay/share signals without
+adding an analytics vendor. Missing metrics stay missing; the script never
+fabricates them.
 """
 
 from __future__ import annotations
@@ -13,24 +14,25 @@ import json
 from pathlib import Path
 
 MIN_SESSIONS = 25
-DECISION_SESSIONS = 50
+DECISION_SESSIONS = 100
+PLAYTIME_GATE_SECONDS = 240
 
 WEIGHTS = {
-    "level3_rate": 0.24,
-    "level10_rate": 0.20,
-    "replay_rate": 0.20,
-    "return_rate": 0.16,
+    "avg_playtime_seconds": 0.35,
+    "completion_rate": 0.20,
+    "qualified_replay_rate": 0.20,
+    "return_rate": 0.10,
     "share_rate": 0.10,
-    "levels_per_session": 0.10,
+    "depth_per_session": 0.05,
 }
 
 TARGETS = {
-    "level3_rate": 0.65,
-    "level10_rate": 0.30,
-    "replay_rate": 0.15,
+    "avg_playtime_seconds": PLAYTIME_GATE_SECONDS,
+    "completion_rate": 0.65,
+    "qualified_replay_rate": 0.35,
     "return_rate": 0.10,
     "share_rate": 0.03,
-    "levels_per_session": 4.0,
+    "depth_per_session": 2.0,
 }
 
 
@@ -53,13 +55,23 @@ def score_metric(name, value):
 
 def derive(game):
     sessions = int(game.get("sessions") or 0)
+    completed = game.get("completed_sessions")
+    qualified_replays = game.get("qualified_replay_sessions")
+    if qualified_replays is None:
+        qualified_replays = game.get("replay_sessions")
+
+    depth = game.get("depth_per_session")
+    if depth is None:
+        # Backward-compatible fallback for the older level-based scorecard.
+        depth = game.get("levels_per_session")
+
     values = {
-        "level3_rate": ratio(game.get("level3_reached"), sessions),
-        "level10_rate": ratio(game.get("level10_reached"), sessions),
-        "replay_rate": ratio(game.get("replay_sessions"), sessions),
+        "avg_playtime_seconds": game.get("avg_playtime_seconds"),
+        "completion_rate": ratio(completed, sessions),
+        "qualified_replay_rate": ratio(qualified_replays, sessions),
         "return_rate": ratio(game.get("return_sessions"), sessions),
         "share_rate": ratio(game.get("shares"), sessions),
-        "levels_per_session": game.get("levels_per_session"),
+        "depth_per_session": depth,
     }
 
     available = {
@@ -73,11 +85,21 @@ def derive(game):
         weight_total = sum(WEIGHTS[k] for k in available)
         score = sum(available[k] * WEIGHTS[k] for k in available) / weight_total
 
+    avg_playtime = values["avg_playtime_seconds"]
+    if avg_playtime is None:
+        gate = "—"
+    elif avg_playtime >= PLAYTIME_GATE_SECONDS:
+        gate = "PASS"
+    elif sessions >= DECISION_SESSIONS:
+        gate = "MISS"
+    else:
+        gate = "PENDING"
+
     if sessions < MIN_SESSIONS:
         action = "WAIT_FOR_DATA"
     elif score is None:
         action = "FIX_MEASUREMENT"
-    elif sessions >= DECISION_SESSIONS and score < 40:
+    elif sessions >= DECISION_SESSIONS and score < 45:
         action = "KILL_OR_REWORK"
     elif score >= 75:
         action = "PROMOTE"
@@ -89,6 +111,7 @@ def derive(game):
     return {
         **game,
         **values,
+        "playtime_gate": gate,
         "commercial_score": None if score is None else round(score, 1),
         "action": action,
     }
@@ -98,39 +121,56 @@ def pct(value):
     return "—" if value is None else f"{100*value:.1f}%"
 
 
+def seconds(value):
+    if value is None:
+        return "—"
+    total = int(round(float(value)))
+    return f"{total // 60}:{total % 60:02d}"
+
+
 def num(value, digits=1):
     return "—" if value is None else f"{float(value):.{digits}f}"
 
 
-def render(rows):
-    ordered = sorted(
-        rows,
-        key=lambda r: (
-            r["commercial_score"] is not None,
-            r["commercial_score"] or -1,
-            r.get("sessions", 0),
-        ),
-        reverse=True,
+def sort_key(row):
+    active = row.get("status") == "active-top5"
+    priority = int(row.get("priority") or 999)
+    return (
+        0 if active else 1,
+        priority if active else 999,
+        -(row["commercial_score"] if row["commercial_score"] is not None else -1),
+        -int(row.get("sessions") or 0),
+        row.get("name", ""),
     )
+
+
+def render(rows):
+    ordered = sorted(rows, key=sort_key)
     lines = [
         "# Game Factory Commercial Scorecard",
         "",
-        "This table is a decision aid, not vanity reporting. A game cannot be promoted "
-        f"before at least {MIN_SESSIONS} comparable sessions. At {DECISION_SESSIONS}+ "
-        "sessions, weak concepts are explicitly eligible to be killed or reworked.",
+        "This table is a decision aid, not vanity reporting. The active commercial Top 5 stays at the top. "
+        f"A game cannot be promoted before at least {MIN_SESSIONS} comparable sessions; hard kill/rework decisions "
+        f"start at {DECISION_SESSIONS}+ sessions unless a portal makes an earlier launch decision.",
         "",
-        "| Game | Sessions | L3 | L10 | Replay | Return | Share | Lvls/session | Score | Action |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+        f"Primary portal gate: average playtime >= {PLAYTIME_GATE_SECONDS // 60}:00 when that metric is available.",
+        "",
+        "| Pri | Game | Status | Sessions | Avg time | Gate | Complete | Replay* | Return | Share | Depth/session | Score | Action |",
+        "|---:|---|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ]
     for r in ordered:
+        priority = r.get("priority") if r.get("status") == "active-top5" else "—"
         lines.append(
-            f"| {r['name']} | {int(r.get('sessions') or 0)} | "
-            f"{pct(r['level3_rate'])} | {pct(r['level10_rate'])} | "
-            f"{pct(r['replay_rate'])} | {pct(r['return_rate'])} | "
-            f"{pct(r['share_rate'])} | {num(r['levels_per_session'])} | "
-            f"{num(r['commercial_score'])} | {r['action']} |"
+            f"| {priority} | {r['name']} | {r.get('status', 'backlog')} | {int(r.get('sessions') or 0)} | "
+            f"{seconds(r['avg_playtime_seconds'])} | {r['playtime_gate']} | "
+            f"{pct(r['completion_rate'])} | {pct(r['qualified_replay_rate'])} | "
+            f"{pct(r['return_rate'])} | {pct(r['share_rate'])} | "
+            f"{num(r['depth_per_session'])} | {num(r['commercial_score'])} | {r['action']} |"
         )
     lines += [
+        "",
+        "*Replay uses `qualified_replay_sessions` when available: a voluntary replay that reaches the candidate's completed-run threshold. "
+        "It falls back to `replay_sessions` for older portal data.",
         "",
         "## Operating rules",
         "",
@@ -157,7 +197,13 @@ def main():
     rows = [derive(game) for game in payload["games"]]
     Path(args.output).write_text(render(rows), encoding="utf-8")
     print(json.dumps(
-        [{"slug": r["slug"], "score": r["commercial_score"], "action": r["action"]} for r in rows],
+        [{
+            "slug": r["slug"],
+            "priority": r.get("priority"),
+            "playtime_gate": r["playtime_gate"],
+            "score": r["commercial_score"],
+            "action": r["action"],
+        } for r in sorted(rows, key=sort_key)],
         indent=2,
     ))
 
