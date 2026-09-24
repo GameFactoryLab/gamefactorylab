@@ -50,7 +50,8 @@ const ASSETS=[
   './release-candidates/catch-drop/',
   './release-candidates/pattern-relay/',
   './release-candidates/mirror-mark/',
-  './release-candidates/track-three/'
+  './release-candidates/track-three/',
+  './release-candidates/midpoint-rush/'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
