@@ -27,8 +27,8 @@ h1{font-size:clamp(40px,9vw,70px);line-height:.96;margin:8px 0 12px}.muted{color
 <body>
 <main class="wrap">
 <div class="eyebrow">GameFactoryLab • zero-cash challenger ladder</div>
-<h1>Four challengers. Fair pairs. One earned replay.</h1>
-<p class="muted">Each session draws one of the six possible challenger pairings from a balanced local queue. Complete one standard run of both games; the first voluntarily completed extra run is locked as the same-session preference signal.</p>
+<h1>Five challengers. Fair pairs. One earned replay.</h1>
+<p class="muted">Each session draws one of the ten possible challenger pairings from a balanced local queue. Complete one standard run of both games; the first voluntarily completed extra run is locked as the same-session preference signal.</p>
 <div class="actions">
   <button id="startDuel" class="primary" type="button">Draw a fair pair →</button>
   <button id="shareDuel" class="secondary" type="button">Challenge a friend</button>
@@ -36,7 +36,7 @@ h1{font-size:clamp(40px,9vw,70px);line-height:.96;margin:8px 0 12px}.muted{color
 </div>
 <p id="status" class="muted mini">Balanced pair rotation • randomized play order • randomized replay buttons • no account • no install • no paid runtime services</p>
 
-<div class="pool"><strong>Current challenger pool</strong><span class="muted mini">Track Three • Midpoint Rush • Tunnel Trace • Hidden Tally. All six pairings rotate before the local queue repeats, so newer challengers earn comparable owned-surface exposure without displacing the commercial Top 5.</span></div>
+<div class="pool"><strong>Current challenger pool</strong><span class="muted mini">Track Three • Midpoint Rush • Tunnel Trace • Hidden Tally • Race Call. All ten pairings rotate before the local queue repeats, so each challenger earns comparable owned-surface exposure without displacing the commercial Top 5.</span></div>
 
 <section id="duel" class="duel hidden" aria-live="polite">
   <div class="duelbar"><strong id="duelLabel">Game 1 of 2</strong><span id="duelHint" class="muted mini">Complete one run to unlock the other game.</span></div>
@@ -58,15 +58,16 @@ h1{font-size:clamp(40px,9vw,70px);line-height:.96;margin:8px 0 12px}.muted{color
   <a class="card" href="../../release-candidates/midpoint-rush/?from=challenger-ladder-card"><span class="pill">Spatial estimation</span><h2>Midpoint Rush</h2><span class="muted">Tap the exact midpoint between two points and chase a cleaner 30-second score.</span></a>
   <a class="card" href="../../release-candidates/tunnel-trace/?from=challenger-ladder-card"><span class="pill">Path prediction</span><h2>Tunnel Trace</h2><span class="muted">Predict the hidden reflected path and choose the exit lane.</span></a>
   <a class="card" href="../../release-candidates/hidden-tally/?from=challenger-ladder-card"><span class="pill">Mental tracking</span><h2>Hidden Tally</h2><span class="muted">Keep a hidden quantity in your head while objects enter and leave.</span></a>
+  <a class="card" href="../../release-candidates/race-call/?from=challenger-ladder-card"><span class="pill">Rate prediction</span><h2>Race Call</h2><span class="muted">Balance head start against speed and call which racer reaches the finish first.</span></a>
 </section>
 <div class="note">Decision rule: no paid traffic and no rescue work. Stronger completed replay, sharing, return play or portal session depth earns scarce distribution and development capacity. A working title stays a working title until separately approved.</div>
 </main>
 <script>
 (()=>{
 'use strict';
-const KEY='gf_challenger_ladder_v2';
-const games=['track-three','midpoint-rush','tunnel-trace','hidden-tally'];
-const names={'track-three':'Track Three','midpoint-rush':'Midpoint Rush','tunnel-trace':'Tunnel Trace','hidden-tally':'Hidden Tally'};
+const KEY='gf_challenger_ladder_v3';
+const games=['track-three','midpoint-rush','tunnel-trace','hidden-tally','race-call'];
+const names={'track-three':'Track Three','midpoint-rush':'Midpoint Rush','tunnel-trace':'Tunnel Trace','hidden-tally':'Hidden Tally','race-call':'Race Call'};
 const duel=document.getElementById('duel'),frame=document.getElementById('gameFrame'),duelLabel=document.getElementById('duelLabel'),duelHint=document.getElementById('duelHint'),signalText=document.getElementById('signalText'),nextGame=document.getElementById('nextGame'),replayBox=document.getElementById('replayBox'),replayTitle=document.getElementById('replayTitle'),replayHint=document.getElementById('replayHint'),replayActions=document.getElementById('replayActions'),status=document.getElementById('status');
 const pageParams=new URLSearchParams(location.search);const source=(pageParams.get('from')||'direct').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,48)||'direct';
 let order=[],pair=[],index=0,completionCounts={},completedOnce={},watcher=null,bothCompleted=false,replayDecision=null,replayCompleted=false;
