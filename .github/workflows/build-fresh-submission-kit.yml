@@ -11,6 +11,7 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_submission_kit.py'
       - '.github/workflows/build-fresh-submission-kit.yml'
@@ -23,6 +24,7 @@ on:
       - 'release-candidates/mirror-mark/**'
       - 'release-candidates/track-three/**'
       - 'release-candidates/midpoint-rush/**'
+      - 'release-candidates/tunnel-trace/**'
       - 'scripts/build_release_candidates.py'
       - 'scripts/build_fresh_submission_kit.py'
       - '.github/workflows/build-fresh-submission-kit.yml'
@@ -63,7 +65,7 @@ jobs:
           }
           root = Path('handoff/fresh-submission-kit')
           rows = list(csv.DictReader((root / 'submission-metadata.csv').open(encoding='utf-8')))
-          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush']
+          expected = ['lock-line', 'catch-drop', 'pattern-relay', 'mirror-mark', 'track-three', 'midpoint-rush', 'tunnel-trace']
           assert [row['slug'] for row in rows] == expected, rows
           assert all(row['status'] == 'READY' for row in rows)
           assert all(row['cash_spend_eur'] == '0' for row in rows)
@@ -75,7 +77,7 @@ jobs:
               assert tags <= verified_crazygames_tags, (row['slug'], tags - verified_crazygames_tags)
 
           packages = list((root / 'itch').glob('*.zip')) + list((root / 'crazygames-basic').glob('*.zip'))
-          assert len(packages) == 12, packages
+          assert len(packages) == 14, packages
           for package in packages:
               with zipfile.ZipFile(package) as archive:
                   names = set(archive.namelist())
@@ -83,7 +85,7 @@ jobs:
                   html = archive.read('index.html').decode('utf-8')
                   assert not runtime_re.search(html), package
                   assert not any(marker in html for marker in blocked), package
-          print('Validated fresh submission kit: 6 candidates / 12 portal handoff packages / portal-specific tag sets')
+          print('Validated fresh submission kit: 7 candidates / 14 portal handoff packages / portal-specific tag sets')
           PY
 
       - name: Upload operator handoff bundle
