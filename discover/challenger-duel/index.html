@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
-<title>Challenger Duel — Track Three vs Midpoint Rush</title>
-<meta name="description" content="Complete Track Three and Midpoint Rush, then replay the one that genuinely earns another run. A fair zero-cost browser-game challenger test.">
+<title>Challenger Ladder — GameFactoryLab</title>
+<meta name="description" content="A fair zero-cost challenger ladder. Complete two randomly paired GameFactoryLab browser games, then replay the one that genuinely earns another run.">
 <link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/discover/challenger-duel/">
-<meta property="og:title" content="Challenger Duel — Track Three vs Midpoint Rush">
-<meta property="og:description" content="Complete both new browser-game challengers, then replay the one that earns it. No account, install or paywall.">
+<meta property="og:title" content="GameFactoryLab Challenger Ladder">
+<meta property="og:description" content="Two challengers are paired fairly. Complete both, then replay the one that earns it. No account, install or paywall.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/discover/challenger-duel/">
 <meta name="twitter:card" content="summary">
@@ -16,33 +16,31 @@
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#164e63 0,#0f172a 45%,#07111f 100%)}
-a,button{font:inherit}
-.wrap{width:min(94vw,920px);margin:0 auto;padding:26px 0 40px}
-.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9}
+a,button{font:inherit}.wrap{width:min(94vw,920px);margin:0 auto;padding:26px 0 40px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9}
 h1{font-size:clamp(40px,9vw,70px);line-height:.96;margin:8px 0 12px}.muted{color:#94a3b8}.mini{font-size:12px}
-.actions,.replay-actions,.duel-actions{display:flex;gap:9px;flex-wrap:wrap}.actions{margin-top:16px}
-.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#0891b2;color:#fff}.secondary{background:#1e293b;color:#fff}.primary:disabled,.secondary:disabled{opacity:.42;cursor:not-allowed}
+.actions,.replay-actions,.duel-actions{display:flex;gap:9px;flex-wrap:wrap}.actions{margin-top:16px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer}.primary{background:#0891b2;color:#fff}.secondary{background:#1e293b;color:#fff}.primary:disabled,.secondary:disabled{opacity:.42;cursor:not-allowed}
 .duel{margin-top:22px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:12px}.hidden{display:none!important}.duelbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 2px 12px}.duelbar strong{font-size:15px}.duel iframe{width:100%;height:min(760px,82vh);border:0;border-radius:16px;background:#07111f}.duel-actions{margin-top:10px}.duel-actions button{flex:1;min-width:190px}
-.signal{margin-top:10px;border-radius:14px;padding:10px 12px;background:#111827;border:1px solid #263247}.signal strong{display:block;font-size:13px}.signal span{font-size:12px;color:#94a3b8}
-.replay-box{margin-top:10px;border-radius:14px;padding:12px;background:#082f49;border:1px solid #0e7490}.replay-box strong{display:block}.replay-actions{margin-top:10px}.replay-actions button{flex:1;min-width:190px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:18px;padding:16px}.card h2{margin:8px 0 6px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#a5f3fc;font-size:12px}.note{margin-top:18px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+.signal{margin-top:10px;border-radius:14px;padding:10px 12px;background:#111827;border:1px solid #263247}.signal strong{display:block;font-size:13px}.signal span{font-size:12px;color:#94a3b8}.replay-box{margin-top:10px;border-radius:14px;padding:12px;background:#082f49;border:1px solid #0e7490}.replay-box strong{display:block}.replay-actions{margin-top:10px}.replay-actions button{flex:1;min-width:190px}
+.pool{margin-top:16px;padding:12px;border:1px solid #263247;border-radius:16px;background:#111827}.pool strong{display:block;margin-bottom:5px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:16px}.card{display:block;text-decoration:none;color:inherit;background:#111827;border:1px solid #263247;border-radius:18px;padding:14px}.card h2{margin:8px 0 6px;font-size:20px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#1e293b;color:#a5f3fc;font-size:12px}.note{margin-top:18px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
 </style>
 </head>
 <body>
 <main class="wrap">
-<div class="eyebrow">GameFactoryLab • zero-cash challenger test</div>
-<h1>Two challengers. One earned replay.</h1>
-<p class="muted">Complete one standard run of both games before choosing. The first completed extra run is locked as the strongest same-session preference signal.</p>
+<div class="eyebrow">GameFactoryLab • zero-cash challenger ladder</div>
+<h1>Four challengers. Fair pairs. One earned replay.</h1>
+<p class="muted">Each session draws one of the six possible challenger pairings from a balanced local queue. Complete one standard run of both games; the first voluntarily completed extra run is locked as the same-session preference signal.</p>
 <div class="actions">
-  <button id="startDuel" class="primary" type="button">Start fair challenger duel →</button>
+  <button id="startDuel" class="primary" type="button">Draw a fair pair →</button>
   <button id="shareDuel" class="secondary" type="button">Challenge a friend</button>
   <a class="secondary" href="../">Browse all games</a>
 </div>
-<p id="status" class="muted mini">Randomized first game • randomized replay buttons • no account • no install • no paid runtime services</p>
+<p id="status" class="muted mini">Balanced pair rotation • randomized play order • randomized replay buttons • no account • no install • no paid runtime services</p>
+
+<div class="pool"><strong>Current challenger pool</strong><span class="muted mini">Track Three • Midpoint Rush • Tunnel Trace • Hidden Tally. All six pairings rotate before the local queue repeats, so newer challengers earn comparable owned-surface exposure without displacing the commercial Top 5.</span></div>
 
 <section id="duel" class="duel hidden" aria-live="polite">
   <div class="duelbar"><strong id="duelLabel">Game 1 of 2</strong><span id="duelHint" class="muted mini">Complete one run to unlock the other game.</span></div>
-  <iframe id="gameFrame" title="Challenger duel game" loading="eager"></iframe>
+  <iframe id="gameFrame" title="Challenger ladder game" loading="eager"></iframe>
   <div class="signal"><strong>Run signal</strong><span id="signalText">Waiting for a completed run.</span></div>
   <div id="replayBox" class="replay-box hidden">
     <strong id="replayTitle">Which mechanic earned the extra run?</strong>
@@ -51,104 +49,71 @@ h1{font-size:clamp(40px,9vw,70px);line-height:.96;margin:8px 0 12px}.muted{color
   </div>
   <div class="duel-actions">
     <button id="nextGame" class="primary" type="button" disabled>Complete a run first</button>
-    <button id="restartDuel" class="secondary" type="button">Restart test</button>
+    <button id="restartDuel" class="secondary" type="button">Draw next pair</button>
   </div>
 </section>
 
-<section class="cards" aria-label="Compared challenger games">
-  <a class="card" href="../../release-candidates/track-three/?from=challenger-duel-card"><span class="pill">Visual tracking</span><h2>Track Three</h2><span class="muted">Follow one marked card through faster swaps and identify its final lane.</span></a>
-  <a class="card" href="../../release-candidates/midpoint-rush/?from=challenger-duel-card"><span class="pill">Spatial estimation</span><h2>Midpoint Rush</h2><span class="muted">Tap the exact midpoint between two points and chase a cleaner 30-second score.</span></a>
+<section class="cards" aria-label="Challenger pool">
+  <a class="card" href="../../release-candidates/track-three/?from=challenger-ladder-card"><span class="pill">Visual tracking</span><h2>Track Three</h2><span class="muted">Follow one marked card through faster swaps and identify its final lane.</span></a>
+  <a class="card" href="../../release-candidates/midpoint-rush/?from=challenger-ladder-card"><span class="pill">Spatial estimation</span><h2>Midpoint Rush</h2><span class="muted">Tap the exact midpoint between two points and chase a cleaner 30-second score.</span></a>
+  <a class="card" href="../../release-candidates/tunnel-trace/?from=challenger-ladder-card"><span class="pill">Path prediction</span><h2>Tunnel Trace</h2><span class="muted">Predict the hidden reflected path and choose the exit lane.</span></a>
+  <a class="card" href="../../release-candidates/hidden-tally/?from=challenger-ladder-card"><span class="pill">Mental tracking</span><h2>Hidden Tally</h2><span class="muted">Keep a hidden quantity in your head while objects enter and leave.</span></a>
 </section>
-<div class="note">Decision rule: no paid traffic and no rescue work. Only stronger completed replay, sharing, return play or portal session depth earns a scarce commercial slot.</div>
+<div class="note">Decision rule: no paid traffic and no rescue work. Stronger completed replay, sharing, return play or portal session depth earns scarce distribution and development capacity. A working title stays a working title until separately approved.</div>
 </main>
 <script>
 (()=>{
 'use strict';
-const KEY='gf_challenger_duel_v1';
-const games=['track-three','midpoint-rush'];
-const names={'track-three':'Track Three','midpoint-rush':'Midpoint Rush'};
-const duel=document.getElementById('duel');
-const frame=document.getElementById('gameFrame');
-const duelLabel=document.getElementById('duelLabel');
-const duelHint=document.getElementById('duelHint');
-const signalText=document.getElementById('signalText');
-const nextGame=document.getElementById('nextGame');
-const replayBox=document.getElementById('replayBox');
-const replayTitle=document.getElementById('replayTitle');
-const replayHint=document.getElementById('replayHint');
-const replayActions=document.getElementById('replayActions');
-const status=document.getElementById('status');
-const pageParams=new URLSearchParams(location.search);
-const source=(pageParams.get('from')||'direct').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,48)||'direct';
-let order=[];
-let index=0;
-let completionCounts={};
-let watcher=null;
-let bothCompleted=false;
-let replayDecision=null;
-let replayCompleted=false;
-
+const KEY='gf_challenger_ladder_v2';
+const games=['track-three','midpoint-rush','tunnel-trace','hidden-tally'];
+const names={'track-three':'Track Three','midpoint-rush':'Midpoint Rush','tunnel-trace':'Tunnel Trace','hidden-tally':'Hidden Tally'};
+const duel=document.getElementById('duel'),frame=document.getElementById('gameFrame'),duelLabel=document.getElementById('duelLabel'),duelHint=document.getElementById('duelHint'),signalText=document.getElementById('signalText'),nextGame=document.getElementById('nextGame'),replayBox=document.getElementById('replayBox'),replayTitle=document.getElementById('replayTitle'),replayHint=document.getElementById('replayHint'),replayActions=document.getElementById('replayActions'),status=document.getElementById('status');
+const pageParams=new URLSearchParams(location.search);const source=(pageParams.get('from')||'direct').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,48)||'direct';
+let order=[],pair=[],index=0,completionCounts={},completedOnce={},watcher=null,bothCompleted=false,replayDecision=null,replayCompleted=false;
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
 function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
-function bump(name){const s=read();const metrics={...(s.metrics||{})};metrics[name]=(metrics[name]||0)+1;write({metrics,lastSeen:Date.now()})}
+function bump(name){const s=read(),metrics={...(s.metrics||{})};metrics[name]=(metrics[name]||0)+1;write({metrics,lastSeen:Date.now()})}
 function safe(id){return id.replace(/-/g,'_')}
-function firstAssignment(){const s=read();if(games.includes(s.firstGame))return s.firstGame;const first=games[Math.floor(Math.random()*games.length)];write({firstGame:first});return first}
-function resetOrder(){const first=firstAssignment();order=[first,games.find(g=>g!==first)];index=0;completionCounts={};bothCompleted=false;replayDecision=null;replayCompleted=false}
-function sourceFor(id){if(bothCompleted)return `challenger-duel-replay-${safe(id)}-${source}`;return `challenger-duel-${index===0?'first':'second'}-${source}`}
+function shuffle(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function allPairs(){const out=[];for(let i=0;i<games.length;i++)for(let j=i+1;j<games.length;j++)out.push([games[i],games[j]]);return out}
+function pairKey(ids){return [...ids].sort().join('__')}
+function nextPair(){const s=read();let queue=Array.isArray(s.pairQueue)?s.pairQueue.filter(p=>Array.isArray(p)&&p.length===2&&p.every(id=>games.includes(id))&&p[0]!==p[1]):[];if(!queue.length){queue=shuffle(allPairs());bump('pair_cycle_started')}const chosen=queue.shift();write({pairQueue:queue,lastPair:chosen,lastPairAt:Date.now()});return chosen}
+function resetOrder(){pair=nextPair();order=shuffle(pair);index=0;completionCounts={};completedOnce={};bothCompleted=false;replayDecision=null;replayCompleted=false;write({activePair:pair,playOrder:order});status.textContent=`Pair drawn: ${names[pair[0]]} vs ${names[pair[1]]} • ${read().pairQueue?.length||0} unseen pairings remain in this local cycle.`}
+function sourceFor(id){if(bothCompleted)return `challenger-ladder-replay-${safe(id)}-${source}`;return `challenger-ladder-${pairKey(pair)}-${index===0?'first':'second'}-${source}`}
 function candidateUrl(id){return `../../release-candidates/${id}/?from=${encodeURIComponent(sourceFor(id))}`}
 function scoreFrom(doc){return Number(doc.getElementById('score')?.textContent||0)||0}
-function shuffledGames(){const copy=[...games];if(Math.random()<.5)copy.reverse();return copy}
-
 async function share(kind='generic'){
-  const url='https://gamefactorylab.github.io/gamefactorylab/discover/challenger-duel/?duel=1&from='+(kind==='winner'?'winner-share':'shared-duel');
-  const text=kind==='winner'?'I played both GameFactoryLab challengers and picked one for an extra run. Which one earns yours?':'Two free browser-game challengers. Complete both, then replay the one that earns it.';
+  const url='https://gamefactorylab.github.io/gamefactorylab/discover/challenger-duel/?duel=1&from='+(kind==='winner'?'winner-share':'shared-ladder');
+  const text=kind==='winner'?'I compared two GameFactoryLab challengers and one earned an extra run. Draw your own pair and see which one wins.':'Draw two free GameFactoryLab browser-game challengers, complete both, then replay the one that earns it.';
   bump(kind==='winner'?'winner_share_click':'share_click');
-  if(navigator.share){try{await navigator.share({title:'GameFactoryLab Challenger Duel',text,url});bump(kind==='winner'?'winner_share_success':'share_success');status.textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}
-  try{await navigator.clipboard.writeText(`${text} ${url}`);bump(kind==='winner'?'winner_share_success':'share_success');status.textContent='Challenger duel copied.'}catch(e){status.textContent=`${text} ${url}`}
+  if(navigator.share){try{await navigator.share({title:'GameFactoryLab Challenger Ladder',text,url});bump(kind==='winner'?'winner_share_success':'share_success');status.textContent='Shared.';return}catch(e){if(e&&e.name==='AbortError')return}}
+  try{await navigator.clipboard.writeText(`${text} ${url}`);bump(kind==='winner'?'winner_share_success':'share_success');status.textContent='Challenger ladder copied.'}catch(e){status.textContent=`${text} ${url}`}
 }
-
 function renderReplayChoices(){
   replayActions.textContent='';replayTitle.textContent='Which mechanic earned the extra run?';replayHint.textContent='Both are complete. Button order is randomized to reduce position bias.';
-  shuffledGames().forEach((id,position)=>{const button=document.createElement('button');button.type='button';button.className=position===0?'primary':'secondary';button.textContent=`Replay ${names[id]} →`;button.addEventListener('click',()=>{if(replayDecision||replayCompleted)return;replayDecision=id;bump(`replay_choice_${safe(id)}`);bump(`replay_choice_position_${position+1}`);write({lastReplayChoice:id,lastReplayChoiceAt:Date.now()});index=order.indexOf(id);loadGame(true)});replayActions.appendChild(button)});
+  shuffle(pair).forEach((id,position)=>{const button=document.createElement('button');button.type='button';button.className=position===0?'primary':'secondary';button.textContent=`Replay ${names[id]} →`;button.addEventListener('click',()=>{if(replayDecision||replayCompleted)return;replayDecision=id;bump(`replay_choice_${safe(id)}`);bump(`replay_choice_position_${position+1}`);bump(`pair_${pairKey(pair)}_choice_${safe(id)}`);write({lastReplayChoice:id,lastReplayChoiceAt:Date.now()});index=order.indexOf(id);loadGame(true)});replayActions.appendChild(button)});
   replayBox.classList.remove('hidden');nextGame.classList.add('hidden');
 }
-
 function renderOutcome(id,score){
-  replayActions.textContent='';replayTitle.textContent=`${names[id]} earned the extra run.`;replayHint.textContent='Preference signal locked. Share a blind duel so the next player makes an independent choice.';
-  const button=document.createElement('button');button.type='button';button.className='primary';button.textContent='Challenge a friend →';button.addEventListener('click',()=>share('winner'));replayActions.appendChild(button);
-  replayBox.classList.remove('hidden');nextGame.classList.add('hidden');write({sessionWinner:id,sessionWinnerScore:score,sessionWinnerAt:Date.now()});
+  replayActions.textContent='';replayTitle.textContent=`${names[id]} earned the extra run.`;replayHint.textContent='Preference signal locked. Share a blind ladder link so the next player draws an independent pair.';
+  const button=document.createElement('button');button.type='button';button.className='primary';button.textContent='Challenge a friend →';button.addEventListener('click',()=>share('winner'));replayActions.appendChild(button);replayBox.classList.remove('hidden');nextGame.classList.add('hidden');bump(`pair_${pairKey(pair)}_winner_${safe(id)}`);write({sessionWinner:id,sessionWinnerScore:score,sessionWinnerAt:Date.now(),sessionPair:pair});
 }
-
 function markComplete(id,score){
   completionCounts[id]=(completionCounts[id]||0)+1;const extra=completionCounts[id]>1;bump(extra?`extra_run_${safe(id)}`:`run_complete_${safe(id)}`);write({lastCompleted:id,lastScore:score,lastCompletedAt:Date.now(),completionCounts:{...completionCounts}});
   if(bothCompleted){if(!replayCompleted&&replayDecision===id){replayCompleted=true;bump(`winner_extra_complete_${safe(id)}`);duelHint.textContent=`Preference locked • ${names[id]} extra run complete.`;signalText.textContent=`${names[id]} earned the first voluntary completed replay.`;renderOutcome(id,score)}return}
-  if(index===0){nextGame.disabled=false;nextGame.textContent='Play the other challenger →';duelHint.textContent=`${names[id]} complete. Now test the other mechanic.`;signalText.textContent=`${names[id]} completed with score ${score}. Comparison unlocked.`;return}
-  bothCompleted=true;replayDecision=null;replayCompleted=false;bump('both_candidates_completed');write({bothCompletedAt:Date.now()});duelHint.textContent='Both challengers completed. Choose either one for the optional extra run.';signalText.textContent='The next completed replay becomes the clean same-session preference signal.';renderReplayChoices();
+  if(completedOnce[id])return;completedOnce[id]=true;
+  if(index===0){nextGame.disabled=false;nextGame.textContent='Play the other challenger →';duelHint.textContent=`${names[id]} complete. Now test ${names[order[1]]}.`;signalText.textContent=`${names[id]} completed with score ${score}. Comparison unlocked.`;return}
+  bothCompleted=true;replayDecision=null;replayCompleted=false;bump('both_candidates_completed');bump(`pair_${pairKey(pair)}_both_complete`);write({bothCompletedAt:Date.now()});duelHint.textContent='Both challengers completed. Choose either one for the optional extra run.';signalText.textContent='The next completed replay becomes the clean same-session preference signal.';renderReplayChoices();
 }
-
 function watchCurrentRun(){
-  if(watcher){watcher.disconnect();watcher=null}
-  const id=order[index],doc=frame.contentDocument;if(!doc||!id)return;
-  const shareButton=doc.getElementById('share');if(!shareButton){signalText.textContent='Completion detector unavailable for this build.';return}
-  let wasDisabled=shareButton.disabled;
-  watcher=new MutationObserver(()=>{const disabled=shareButton.disabled;if(wasDisabled&&!disabled)markComplete(id,scoreFrom(doc));wasDisabled=disabled});
-  watcher.observe(shareButton,{attributes:true,attributeFilter:['disabled']});
+  if(watcher){watcher.disconnect();watcher=null}const id=order[index],doc=frame.contentDocument;if(!doc||!id)return;const shareButton=doc.getElementById('share');if(!shareButton){signalText.textContent='Completion detector unavailable for this build.';bump(`detector_missing_${safe(id)}`);return}let wasDisabled=shareButton.disabled;watcher=new MutationObserver(()=>{const disabled=shareButton.disabled;if(wasDisabled&&!disabled)markComplete(id,scoreFrom(doc));wasDisabled=disabled});watcher.observe(shareButton,{attributes:true,attributeFilter:['disabled']});
 }
-
 function loadGame(replay=false){
   const id=order[index];duel.classList.remove('hidden');frame.src=candidateUrl(id);replayBox.classList.add('hidden');
-  if(replay||bothCompleted){duelLabel.textContent=`Replay • ${names[id]}`;duelHint.textContent='Optional extra run. Complete it only if this mechanic genuinely earned another play.';signalText.textContent=`Waiting for the ${names[id]} replay to complete.`;nextGame.classList.add('hidden');bump(`duel_replay_open_${safe(id)}`)}
-  else{duelLabel.textContent=`Game ${index+1} of 2 • ${names[id]}`;duelHint.textContent=index===0?'Complete one run to unlock the other game.':'Complete one run. Then choose the mechanic that earned an extra play.';signalText.textContent=`Waiting for a completed ${names[id]} run.`;nextGame.classList.remove('hidden');nextGame.disabled=true;nextGame.textContent='Complete a run first';bump(`duel_open_${index===0?'first':'second'}_${safe(id)}`)}
-  frame.onload=()=>watchCurrentRun();duel.scrollIntoView({behavior:'smooth',block:'start'});
+  if(replay||bothCompleted){duelLabel.textContent=`Replay • ${names[id]}`;duelHint.textContent='Optional extra run. Complete it only if this mechanic genuinely earned another play.';signalText.textContent=`Waiting for the ${names[id]} replay to complete.`;nextGame.classList.add('hidden');bump(`ladder_replay_open_${safe(id)}`)}else{duelLabel.textContent=`Game ${index+1} of 2 • ${names[id]}`;duelHint.textContent=index===0?`Complete one run to unlock ${names[order[1]]}.`:'Complete one run. Then choose the mechanic that earned an extra play.';signalText.textContent=`Waiting for a completed ${names[id]} run.`;nextGame.classList.remove('hidden');nextGame.disabled=true;nextGame.textContent='Complete a run first';bump(`ladder_open_${index===0?'first':'second'}_${safe(id)}`)}frame.onload=()=>watchCurrentRun();duel.scrollIntoView({behavior:'smooth',block:'start'});
 }
-
-function startDuel(){resetOrder();bump('duel_start');write({lastSource:source,lastStartedAt:Date.now()});loadGame(false)}
-nextGame.addEventListener('click',()=>{if(index!==0||nextGame.disabled)return;index=1;loadGame(false)});
-document.getElementById('startDuel').addEventListener('click',startDuel);
-document.getElementById('restartDuel').addEventListener('click',()=>{bump('duel_restart');startDuel()});
-document.getElementById('shareDuel').addEventListener('click',()=>share('generic'));
-bump('page_open');write({lastSource:source,lastSeenAt:Date.now()});
-if(pageParams.get('duel')==='1')startDuel();
+function startDuel(){resetOrder();bump('ladder_start');bump(`pair_${pairKey(pair)}_start`);write({lastSource:source,lastStartedAt:Date.now()});loadGame(false)}
+nextGame.addEventListener('click',()=>{if(index!==0||nextGame.disabled)return;index=1;loadGame(false)});document.getElementById('startDuel').addEventListener('click',startDuel);document.getElementById('restartDuel').addEventListener('click',()=>{bump('ladder_next_pair');startDuel()});document.getElementById('shareDuel').addEventListener('click',()=>share('generic'));bump('page_open');write({lastSource:source,lastSeenAt:Date.now()});if(pageParams.get('duel')==='1')startDuel();
 })();
 </script>
 </body>
