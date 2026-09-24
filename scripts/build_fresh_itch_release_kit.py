@@ -74,6 +74,16 @@ CANDIDATES = [
         "tags": "Puzzle, Spatial, Brain, Skill, High Score",
         "signal": "completed 30-second runs, immediate replay rate, score-challenge share rate",
     },
+    {
+        "priority": 5,
+        "slug": "track-three",
+        "title": "Track Three",
+        "short_description": "Follow one marked card through faster swaps, then tap the lane where it finishes before three lives are gone.",
+        "description": "A fast visual-tracking challenge for short browser sessions. Memorize the marked card, follow it through an increasing number of swaps, then choose its final lane. Correct answers build score and streak while misses cost one of three lives. Replay immediately or send a score challenge to a friend.",
+        "controls": "Tap / click / 1-3 keys",
+        "tags": "Visual Tracking, Brain, Skill, High Score",
+        "signal": "completed runs, immediate replay rate, rounds per run, challenge-share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
@@ -179,7 +189,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay and Mirror Mark. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark and Track Three. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
         "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
@@ -190,6 +200,9 @@ def main() -> None:
         "2. Catch Drop",
         "3. Pattern Relay",
         "4. Mirror Mark",
+        "5. Track Three",
+        "",
+        "Track Three remains a working title only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
         "",
         "Cash spend: EUR 0",
     ]
