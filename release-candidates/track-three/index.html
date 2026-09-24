@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Track Three — GameFactoryLab candidate</title>
+<meta name="description" content="Track the marked card through faster and faster swaps. Three cards, three lives, one target to follow.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/track-three/">
+<meta property="og:title" content="Track Three — visual tracking challenge">
+<meta property="og:description" content="Watch the target, follow the swaps and tap where it lands. How long can you keep the streak alive?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/track-three/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#172554 0,#0f172a 46%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}
+.wrap{width:min(94vw,660px);padding:24px 0 42px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd}
+h1{font-size:clamp(40px,11vw,68px);line-height:.94;margin:8px 0 10px}
+.muted{color:#94a3b8}
+.challenge{display:none;margin:14px 0 0;background:#172554;border:1px solid #2563eb;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#dbeafe}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}
+.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:23px}.stat span{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}
+.prompt{text-align:center;min-height:78px;padding:5px 4px 10px}.prompt strong{display:block;font-size:clamp(22px,6vw,34px)}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}
+.track{position:relative;height:min(42vw,230px);min-height:170px;margin:10px 0 8px;overflow:hidden;border-radius:18px;background:linear-gradient(180deg,#0b1220,#111827);border:1px solid #263247}
+.card{position:absolute;top:12%;width:29%;height:76%;border:0;border-radius:18px;background:linear-gradient(145deg,#1d4ed8,#1e3a8a);box-shadow:inset 0 0 0 2px #3b82f6,0 12px 24px #0007;transition:left .34s cubic-bezier(.2,.75,.25,1),transform .09s ease,background .12s ease,box-shadow .12s ease;color:#eff6ff;cursor:pointer;touch-action:manipulation;display:grid;place-items:center;font-weight:900}
+.card:active{transform:scale(.97)}
+.card::before{content:"?";font-size:clamp(38px,12vw,72px);opacity:.9}
+.card.target{background:linear-gradient(145deg,#f59e0b,#b45309);box-shadow:inset 0 0 0 2px #fcd34d,0 0 0 4px #fef3c7,0 12px 24px #0007}.card.target::before{content:"●";color:#fff7ed}
+.card.correct{background:linear-gradient(145deg,#16a34a,#166534);box-shadow:inset 0 0 0 2px #86efac,0 0 0 4px #dcfce7}.card.wrong{background:linear-gradient(145deg,#dc2626,#7f1d1d);box-shadow:inset 0 0 0 2px #fca5a5}
+.card[disabled]{cursor:default}
+.lane0{left:3%}.lane1{left:35.5%}.lane2{left:68%}
+.feedback{min-height:28px;text-align:center;padding-top:5px;font-weight:800;font-size:13px;color:#cbd5e1}
+.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+@media(max-width:440px){.stats{grid-template-columns:repeat(2,1fr)}.track{height:190px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Track Three</h1>
+<p class="muted">One card is marked. Then all three become identical and start swapping. Keep your eyes on the target and tap where it ends.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="streak">0</b><span>Streak</span></div>
+  <div class="stat"><b id="lives">3</b><span>Lives</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="prompt">Ready?</strong><span id="hint">Tap Start. Watch the gold target before the swaps begin.</span></div>
+  <div id="track" class="track" aria-label="Three-card visual tracking game"></div>
+  <div id="feedback" class="feedback">Keyboard: 1, 2 or 3 selects the final lane.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start tracking →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Visual-tracking sprint • no account • no external assets • local best only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_track_three_v1';
+const track=document.getElementById('track');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const streakEl=document.getElementById('streak');
+const livesEl=document.getElementById('lives');
+const promptEl=document.getElementById('prompt');
+const hintEl=document.getElementById('hint');
+const feedback=document.getElementById('feedback');
+const startBtn=document.getElementById('start');
+const shareBtn=document.getElementById('share');
+const result=document.getElementById('result');
+const resultTitle=document.getElementById('resultTitle');
+const resultText=document.getElementById('resultText');
+const challenge=document.getElementById('challenge');
+
+const cards=[];
+for(let i=0;i<3;i++){
+  const b=document.createElement('button');
+  b.className=`card lane${i}`;
+  b.type='button';
+  b.setAttribute('aria-label',`Card in lane ${i+1}`);
+  b.addEventListener('click',()=>pickLane(i));
+  track.appendChild(b);
+  cards.push(b);
+}
+
+let positions=[0,1,2]; // card identity -> lane
+let targetCard=0;
+let score=0;
+let streak=0;
+let lives=3;
+let round=0;
+let accepting=false;
+let running=false;
+let token=0;
+let runStartedAt=0;
+
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read();const m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+function challengeScore(){const p=new URLSearchParams(location.search);const n=Number(p.get('score'));return Number.isFinite(n)&&n>=0?Math.floor(n):null}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function setCardsEnabled(enabled){cards.forEach(c=>c.disabled=!enabled)}
+function renderStats(){scoreEl.textContent=score;bestEl.textContent=best();streakEl.textContent=streak;livesEl.textContent=lives}
+function applyPositions(){cards.forEach((c,id)=>{c.classList.remove('lane0','lane1','lane2');c.classList.add(`lane${positions[id]}`)})}
+function clearStates(){cards.forEach(c=>c.classList.remove('target','correct','wrong'))}
+function cardAtLane(lane){return positions.findIndex(p=>p===lane)}
+function randomOtherLane(a){const options=[0,1,2].filter(x=>x!==a);return options[Math.floor(Math.random()*options.length)]}
+function swapLanes(a,b){const ca=cardAtLane(a),cb=cardAtLane(b);positions[ca]=b;positions[cb]=a;applyPositions()}
+function currentTargetLane(){return positions[targetCard]}
+
+async function beginRound(myToken){
+  if(!running||myToken!==token)return;
+  accepting=false;
+  setCardsEnabled(false);
+  clearStates();
+  round++;
+  targetCard=Math.floor(Math.random()*3);
+  promptEl.textContent=`Round ${round}: find the target`;
+  hintEl.textContent='Memorize the gold card.';
+  feedback.textContent='Watch closely…';
+  cards[targetCard].classList.add('target');
+  await sleep(Math.max(620,950-round*18));
+  if(!running||myToken!==token)return;
+  cards[targetCard].classList.remove('target');
+  promptEl.textContent='Track it';
+  hintEl.textContent='All cards are identical now.';
+
+  const swaps=Math.min(12,3+Math.floor(round*0.75));
+  const delay=Math.max(170,430-round*15);
+  let previousPair='';
+  for(let s=0;s<swaps;s++){
+    let a=Math.floor(Math.random()*3),b=randomOtherLane(a);
+    let pair=[a,b].sort().join('-');
+    if(pair===previousPair&&Math.random()<0.75){a=(a+1)%3;b=randomOtherLane(a);pair=[a,b].sort().join('-')}
+    previousPair=pair;
+    swapLanes(a,b);
+    await sleep(delay);
+    if(!running||myToken!==token)return;
+  }
+  accepting=true;
+  setCardsEnabled(true);
+  promptEl.textContent='Where is the target?';
+  hintEl.textContent='Tap the final lane — or press 1, 2 or 3.';
+  feedback.textContent=`${swaps} swaps • choose now`;
+}
+
+async function pickLane(lane){
+  if(!running||!accepting)return;
+  accepting=false;
+  setCardsEnabled(false);
+  const chosenCard=cardAtLane(lane);
+  const correct=lane===currentTargetLane();
+  if(correct){
+    streak++;
+    score+=100+Math.min(400,streak*20);
+    cards[chosenCard].classList.add('correct');
+    promptEl.textContent='Locked on.';
+    feedback.textContent=`Correct • +${100+Math.min(400,streak*20)} • streak ${streak}`;
+    bump('correct_rounds');
+  }else{
+    lives--;
+    streak=0;
+    cards[chosenCard].classList.add('wrong');
+    cards[targetCard].classList.add('target');
+    promptEl.textContent='Lost the target.';
+    feedback.textContent=lives>0?`${lives} ${lives===1?'life':'lives'} left`:'Run over';
+    bump('misses');
+  }
+  renderStats();
+  const savedBest=best();
+  if(score>savedBest)write({best:score});
+  await sleep(720);
+  clearStates();
+  if(!running)return;
+  if(lives<=0){endRun();return}
+  beginRound(token);
+}
+
+function startRun(){
+  token++;
+  score=0;streak=0;lives=3;round=0;positions=[0,1,2];targetCard=0;accepting=false;running=true;runStartedAt=Date.now();
+  clearStates();applyPositions();renderStats();result.classList.remove('show');shareBtn.disabled=true;
+  startBtn.textContent='Restart run';
+  promptEl.textContent='Get ready';hintEl.textContent='Three lives. Speed and swap count rise every round.';feedback.textContent='Target reveal starts now.';
+  bump('starts');
+  beginRound(token);
+}
+
+function endRun(){
+  running=false;accepting=false;setCardsEnabled(false);token++;
+  const duration=Math.max(0,Math.round((Date.now()-runStartedAt)/1000));
+  const solved=Number(read().metrics?.correct_rounds||0);
+  const oldBest=best();
+  if(score>oldBest)write({best:score});
+  bump('completed_runs');
+  write({lastRun:{score,rounds:round-1,durationSeconds:duration,at:Date.now()}});
+  renderStats();
+  promptEl.textContent='Run complete';hintEl.textContent='Immediate replay is the signal that matters.';
+  resultTitle.textContent=score>=oldBest&&score>0?'New best score!':`Score ${score}`;
+  resultText.textContent=`You reached round ${round} in ${duration}s. Best: ${best()}.`;
+  result.classList.add('show');shareBtn.disabled=false;startBtn.textContent='Replay →';
+  feedback.textContent='Replay, share a score challenge, or leave it here.';
+}
+
+async function share(){
+  if(score<=0)return;
+  const url=new URL(location.href);url.search='';url.searchParams.set('score',String(score));
+  const data={title:'Track Three challenge',text:`I scored ${score} in Track Three. Can you track the target longer?`,url:url.toString()};
+  try{
+    if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(`${data.text} ${data.url}`);feedback.textContent='Challenge link copied.'}else{prompt(`${data.text}`,data.url)}
+    bump('shares');
+  }catch(e){if(e&&e.name!=='AbortError')feedback.textContent='Share was not available.'}
+}
+
+startBtn.addEventListener('click',()=>{if(running)bump('manual_restarts');else if(Number(read().metrics?.completed_runs||0)>0)bump('replays');startRun()});
+shareBtn.addEventListener('click',share);
+document.addEventListener('keydown',e=>{
+  if(e.key==='1'||e.key==='2'||e.key==='3'){e.preventDefault();pickLane(Number(e.key)-1)}
+  if((e.key===' '||e.key==='Enter')&&!running){e.preventDefault();startBtn.click()}
+});
+
+const target=challengeScore();
+if(target!==null){challenge.innerHTML=`Friend challenge: beat <b>${target}</b> points. Watch the marked card, follow every swap, then choose its final lane.`;challenge.classList.add('show');bump('challenge_opens')}
+setCardsEnabled(false);applyPositions();renderStats();bump('page_opens');
+})();
+</script>
+</body>
+</html>
