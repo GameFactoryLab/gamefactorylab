@@ -5,8 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOP5 = ["lock-line", "catch-drop", "pattern-relay", "mirror-mark", "ring-pins"]
-CHALLENGERS = ["track-three", "midpoint-rush", "tunnel-trace", "hidden-tally"]
-CHALLENGER_NAMES = ["Track Three", "Midpoint Rush", "Tunnel Trace", "Hidden Tally"]
+CHALLENGERS = ["track-three", "midpoint-rush", "tunnel-trace", "hidden-tally", "race-call"]
+CHALLENGER_NAMES = ["Track Three", "Midpoint Rush", "Tunnel Trace", "Hidden Tally", "Race Call"]
 CHALLENGE_HUB_CHALLENGER = "track-three"
 STALE_TOP5 = ["circuit-flow", "gravity-flip", "bridge-snap", "cluster-collapse"]
 
@@ -34,7 +34,10 @@ def main() -> None:
         ["Lock Line", "Catch Drop", "Pattern Relay", "Mirror Mark", "Ring Pins", "challenger-duel/"] + CHALLENGER_NAMES,
     )
     require("discover/index.html", ["challenger-duel/"] + CHALLENGERS)
-    require("discover/challenger-duel/index.html", CHALLENGERS + ["allPairs", "pairQueue", "winner_extra_complete"])
+    require(
+        "discover/challenger-duel/index.html",
+        CHALLENGERS + ["allPairs", "pairQueue", "winner_extra_complete", "gf_challenger_ladder_v3"],
+    )
 
     challenge = text("challenge/index.html")
     leaked = [slug for slug in STALE_TOP5 if f'value="{slug}"' in challenge]
@@ -53,7 +56,7 @@ def main() -> None:
 
     print(
         "Validated public winner-search alignment: "
-        "5 active commercial candidates + balanced 4-candidate challenger ladder; "
+        "5 active commercial candidates + balanced 5-candidate challenger ladder; "
         "stale Top 5 challenge slots blocked."
     )
 
