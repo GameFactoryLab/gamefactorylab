@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Midpoint Rush — GameFactoryLab candidate</title>
+<meta name="description" content="Two points appear. Tap the exact midpoint between them, reveal your error, and chase a higher 30-second score.">
+<link rel="canonical" href="https://gamefactorylab.github.io/gamefactorylab/release-candidates/midpoint-rush/">
+<meta property="og:title" content="Midpoint Rush — spatial precision challenge">
+<meta property="og:description" content="Two points. One midpoint. Tap where the center really is and chase a cleaner 30-second run.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gamefactorylab.github.io/gamefactorylab/release-candidates/midpoint-rush/">
+<meta name="twitter:card" content="summary">
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#07111f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#17305c 0,#0f172a 44%,#07111f 100%);display:flex;justify-content:center}
+button{font:inherit}
+.wrap{width:min(94vw,720px);padding:24px 0 42px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9}
+h1{font-size:clamp(40px,11vw,70px);line-height:.94;margin:8px 0 10px}.muted{color:#94a3b8}
+.challenge{display:none;margin:14px 0 0;background:#123047;border:1px solid #0e7490;border-radius:14px;padding:10px 12px;font-size:13px}.challenge.show{display:block}.challenge b{color:#cffafe}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.stat{background:#111827;border:1px solid #263247;border-radius:14px;padding:10px 6px;text-align:center}.stat b{display:block;font-size:23px}.stat span{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.panel{background:#0f172a;border:1px solid #334155;border-radius:22px;padding:14px}.prompt{text-align:center;min-height:72px;padding:5px 4px 10px}.prompt strong{display:block;font-size:clamp(22px,6vw,34px)}.prompt span{display:block;margin-top:5px;font-size:13px;color:#94a3b8}
+.board{position:relative;border-radius:18px;overflow:hidden;border:1px solid #263247;background:linear-gradient(180deg,#07101f,#111827)}
+canvas{display:block;width:100%;height:auto;aspect-ratio:1.35/1;touch-action:none;cursor:crosshair}
+.feedback{min-height:30px;text-align:center;padding-top:8px;font-weight:800;font-size:13px;color:#cbd5e1}
+.result{display:none;margin-top:10px;background:#0b1220;border:1px solid #3b4b63;border-radius:16px;padding:12px}.result.show{display:block}.result strong{font-size:18px}.result p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:150px;border:0;border-radius:14px;padding:14px 16px;font-weight:850;cursor:pointer}.primary{background:#0891b2;color:#fff}.secondary{background:#1e293b;color:#fff}.actions button:disabled{opacity:.42;cursor:not-allowed}
+.note{margin-top:14px;background:#111827;border:1px solid #263247;border-radius:16px;padding:12px;font-size:12px;color:#94a3b8}
+@media(max-width:440px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="eyebrow">GameFactoryLab • release candidate</div>
+<h1>Midpoint Rush</h1>
+<p class="muted">Two points appear. Tap the exact midpoint between them. The true center flashes after every guess, then a new pair appears instantly.</p>
+<div id="challenge" class="challenge"></div>
+<div class="stats">
+  <div class="stat"><b id="score">0</b><span>Score</span></div>
+  <div class="stat"><b id="best">0</b><span>Best</span></div>
+  <div class="stat"><b id="time">30</b><span>Seconds</span></div>
+  <div class="stat"><b id="streak">0</b><span>Clean streak</span></div>
+</div>
+<section class="panel">
+  <div class="prompt"><strong id="prompt">Find the center.</strong><span id="hint">Tap Start, then tap halfway between the two glowing points.</span></div>
+  <div class="board"><canvas id="board" width="900" height="666" aria-label="Midpoint precision board"></canvas></div>
+  <div id="feedback" class="feedback">No timer until you start.</div>
+  <div id="result" class="result"><strong id="resultTitle"></strong><p id="resultText"></p></div>
+  <div class="actions">
+    <button id="start" class="primary" type="button">Start 30s run →</button>
+    <button id="share" class="secondary" type="button" disabled>Share score</button>
+  </div>
+</section>
+<div class="note">Spatial-estimation sprint • no account • no external runtime assets • local best only • working title, not a trademark claim</div>
+</main>
+<script>
+(()=>{
+'use strict';
+const KEY='gf_midpoint_rush_v1';
+const RUN_MS=30000;
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const timeEl=document.getElementById('time');
+const streakEl=document.getElementById('streak');
+const promptEl=document.getElementById('prompt');
+const hintEl=document.getElementById('hint');
+const feedback=document.getElementById('feedback');
+const startBtn=document.getElementById('start');
+const shareBtn=document.getElementById('share');
+const result=document.getElementById('result');
+const resultTitle=document.getElementById('resultTitle');
+const resultText=document.getElementById('resultText');
+const challenge=document.getElementById('challenge');
+let a={x:250,y:250},b={x:650,y:410};
+let running=false,score=0,streak=0,rounds=0,perfects=0,token=0,startedAt=0,endAt=0,timer=null,reveal=null;
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function write(patch){try{localStorage.setItem(KEY,JSON.stringify({...read(),...patch}))}catch(e){}}
+function bump(name){const s=read();const m={...(s.metrics||{})};m[name]=(m[name]||0)+1;write({metrics:m,lastSeen:Date.now()})}
+function best(){return Number(read().best||0)}
+function challengeScore(){const p=new URLSearchParams(location.search);const n=Number(p.get('score'));return Number.isFinite(n)&&n>=0?Math.floor(n):null}
+function rand(min,max){return min+Math.random()*(max-min)}
+function distance(p,q){return Math.hypot(p.x-q.x,p.y-q.y)}
+function newPair(){
+  const margin=90;
+  let tries=0;
+  do{
+    a={x:rand(margin,canvas.width-margin),y:rand(margin,canvas.height-margin)};
+    b={x:rand(margin,canvas.width-margin),y:rand(margin,canvas.height-margin)};
+    tries++;
+  }while(distance(a,b)<230&&tries<40);
+  reveal=null;
+  draw();
+}
+function midpoint(){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+function drawPoint(p,fill){
+  ctx.save();ctx.shadowColor=fill;ctx.shadowBlur=26;ctx.fillStyle=fill;ctx.beginPath();ctx.arc(p.x,p.y,19,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#e2e8f0';ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y,28,0,Math.PI*2);ctx.stroke();ctx.restore();
+}
+function draw(){
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#07101f');g.addColorStop(1,'#111827');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(148,163,184,.08)';ctx.lineWidth=1;
+  for(let x=75;x<canvas.width;x+=75){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}
+  for(let y=74;y<canvas.height;y+=74){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
+  drawPoint(a,'#22d3ee');drawPoint(b,'#a78bfa');
+  if(reveal){
+    const m=midpoint();
+    ctx.save();ctx.setLineDash([12,12]);ctx.strokeStyle='rgba(226,232,240,.48)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(248,250,252,.9)';ctx.beginPath();ctx.arc(m.x,m.y,10,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=reveal.points>=90?'#86efac':reveal.points>=65?'#fde68a':'#fca5a5';ctx.lineWidth=5;ctx.beginPath();ctx.arc(reveal.x,reveal.y,15,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(248,250,252,.5)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(reveal.x,reveal.y);ctx.lineTo(m.x,m.y);ctx.stroke();ctx.restore();
+  }
+}
+function render(){scoreEl.textContent=score;bestEl.textContent=best();streakEl.textContent=streak}
+function pointerPos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+function guess(e){
+  if(!running||reveal)return;
+  const p=pointerPos(e),m=midpoint();
+  const err=distance(p,m);
+  const span=Math.max(180,distance(a,b));
+  const normalized=err/span;
+  const points=Math.max(0,Math.round(100*(1-Math.min(1,normalized/.30))));
+  rounds++;score+=points;
+  if(points>=90){streak++;perfects++;feedback.textContent=`Great eye • ${points} points • ${Math.round(err)} px off`;bump('clean_hits')}
+  else{streak=0;feedback.textContent=`${points} points • ${Math.round(err)} px from center`}
+  reveal={x:p.x,y:p.y,points};render();draw();bump('guesses');
+  const myToken=token;
+  setTimeout(()=>{if(running&&token===myToken)newPair()},360);
+}
+function updateClock(){
+  if(!running)return;
+  const left=Math.max(0,endAt-performance.now());timeEl.textContent=String(Math.ceil(left/1000));
+  if(left<=0){endRun();return}
+  timer=requestAnimationFrame(updateClock);
+}
+function startRun(){
+  if(timer)cancelAnimationFrame(timer);token++;running=true;score=0;streak=0;rounds=0;perfects=0;startedAt=Date.now();endAt=performance.now()+RUN_MS;
+  result.classList.remove('show');shareBtn.disabled=true;startBtn.textContent='Restart run';promptEl.textContent='Tap the midpoint.';hintEl.textContent='Accuracy scores 0–100. A 90+ guess builds your clean streak.';feedback.textContent='Go.';timeEl.textContent='30';render();newPair();bump('starts');updateClock();
+}
+function endRun(){
+  if(!running)return;running=false;token++;if(timer)cancelAnimationFrame(timer);timer=null;timeEl.textContent='0';
+  const oldBest=best();if(score>oldBest)write({best:score});bump('completed_runs');write({lastRun:{score,rounds,perfects,durationSeconds:30,at:Date.now()}});render();
+  promptEl.textContent='Run complete';hintEl.textContent='Replay only if the mechanic genuinely earns another 30 seconds.';
+  resultTitle.textContent=score>oldBest?'New best score!':`Score ${score}`;
+  resultText.textContent=`${rounds} guesses • ${perfects} clean 90+ hits • best ${best()}.`;
+  result.classList.add('show');shareBtn.disabled=false;startBtn.textContent='Replay 30s →';feedback.textContent='Share a score challenge or run it again.';
+}
+async function share(){
+  if(score<=0)return;
+  const url=new URL(location.href);url.search='';url.searchParams.set('score',String(score));
+  const data={title:'Midpoint Rush challenge',text:`I scored ${score} in Midpoint Rush. Can you place the center more accurately?`,url:url.toString()};
+  try{
+    if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(`${data.text} ${data.url}`);feedback.textContent='Challenge link copied.'}else{prompt(data.text,data.url)}
+    bump('shares');
+  }catch(e){if(e&&e.name!=='AbortError')feedback.textContent='Share was not available.'}
+}
+startBtn.addEventListener('click',()=>{if(!running&&Number(read().metrics?.completed_runs||0)>0)bump('replays');else if(running)bump('manual_restarts');startRun()});
+shareBtn.addEventListener('click',share);canvas.addEventListener('pointerdown',e=>{e.preventDefault();guess(e)});
+window.addEventListener('resize',draw);
+const target=challengeScore();if(target!==null){challenge.innerHTML=`Friend challenge: beat <b>${target}</b> points in one 30-second run.`;challenge.classList.add('show');bump('challenge_opens')}
+render();draw();bump('page_opens');
+})();
+</script>
+</body>
+</html>
