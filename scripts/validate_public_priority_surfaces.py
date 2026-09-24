@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOP5 = ["lock-line", "catch-drop", "pattern-relay", "mirror-mark", "ring-pins"]
 CHALLENGERS = ["track-three", "midpoint-rush", "tunnel-trace", "hidden-tally"]
+CHALLENGER_NAMES = ["Track Three", "Midpoint Rush", "Tunnel Trace", "Hidden Tally"]
 CHALLENGE_HUB_CHALLENGER = "track-three"
 STALE_TOP5 = ["circuit-flow", "gravity-flip", "bridge-snap", "cluster-collapse"]
 
@@ -30,7 +31,7 @@ def main() -> None:
     require("challenge/index.html", TOP5 + [CHALLENGE_HUB_CHALLENGER, "scoreParam:'score'"])
     require(
         "index.html",
-        ["Lock Line", "Catch Drop", "Pattern Relay", "Mirror Mark", "Ring Pins", "challenger-duel/"] + CHALLENGERS,
+        ["Lock Line", "Catch Drop", "Pattern Relay", "Mirror Mark", "Ring Pins", "challenger-duel/"] + CHALLENGER_NAMES,
     )
     require("discover/index.html", ["challenger-duel/"] + CHALLENGERS)
     require("discover/challenger-duel/index.html", CHALLENGERS + ["allPairs", "pairQueue", "winner_extra_complete"])
