@@ -21,6 +21,7 @@ from build_fresh_portal_assets import (
     font,
     rounded_panel,
 )
+from build_midpoint_rush_portal_assets import draw_scene as draw_midpoint_rush_scene
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist-candidates"
@@ -95,6 +96,16 @@ CANDIDATES = [
         "tags": "Visual Tracking, Brain, Skill, High Score",
         "signal": "completed runs, immediate replay rate, rounds per run, challenge-share rate",
     },
+    {
+        "priority": 6,
+        "slug": "midpoint-rush",
+        "title": "Midpoint Rush",
+        "short_description": "Two points appear. Tap their exact midpoint, reveal your error, and chase a cleaner 30-second score.",
+        "description": "A quick spatial-estimation challenge for browser play. Two glowing points appear on the board; tap exactly halfway between them, see the true midpoint and your error immediately, then attack the next pair before the 30-second run expires. Chase a local best or send a score challenge to a friend.",
+        "controls": "Tap / click",
+        "tags": "Puzzle, Spatial, Precision, Brain, Skill, High Score",
+        "signal": "completed 30-second runs, immediate replay rate, guesses per run, score-challenge share rate",
+    },
 ]
 
 COVER_SIZE = (630, 500)
@@ -137,11 +148,13 @@ def draw_track_three(img: Image.Image, t: float, cover: bool = False) -> None:
 
 
 def draw_scene(slug: str, size: tuple[int, int], t: float, cover: bool = False) -> Image.Image:
-    if slug != "track-three":
-        return base_draw_scene(slug, size, t, cover=cover)
-    img = Image.new("RGB", size, BG)
-    draw_track_three(img, t, cover=cover)
-    return img
+    if slug == "track-three":
+        img = Image.new("RGB", size, BG)
+        draw_track_three(img, t, cover=cover)
+        return img
+    if slug == "midpoint-rush":
+        return draw_midpoint_rush_scene(size, t, cover=cover)
+    return base_draw_scene(slug, size, t, cover=cover)
 
 
 def validate_zip(path: Path) -> None:
@@ -242,7 +255,7 @@ def main() -> None:
     readme = [
         "# Game Factory fresh itch.io release kit",
         "",
-        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark and Track Three. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
+        "Zero-cash handoff for Lock Line, Catch Drop, Pattern Relay, Mirror Mark, Track Three and Midpoint Rush. Each folder contains the validated HTML5 ZIP, a 630x500 discovery cover, four 1280x720 screenshots, and copy-ready listing text.",
         "",
         "The builder enforces itch.io HTML5 archive limits that can be checked locally: index.html present, <=1000 files, <=240-character paths, <=500 MB extracted content, <=200 MB per file, and no remote runtime assets. Canonical/Open Graph metadata URLs are allowed because they do not load runtime assets.",
         "",
@@ -254,8 +267,9 @@ def main() -> None:
         "3. Pattern Relay",
         "4. Mirror Mark",
         "5. Track Three",
+        "6. Midpoint Rush",
         "",
-        "Track Three remains a working title only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
+        "Track Three and Midpoint Rush remain working titles only; packaging does not make a trademark claim or authorize an irreversible external commitment.",
         "",
         "Cash spend: EUR 0",
     ]
